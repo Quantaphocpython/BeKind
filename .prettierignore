@@ -1,0 +1,7 @@
+node_modules
+build
+src/configs/abi/types
+.next
+.pnpm-store
+.pnpm-workspace.yaml
+.pnpm-workspace.yaml.lock
