@@ -1,5 +1,7 @@
+import MainLayout from '@/components/layout/MainLayout'
 import Providers from '@/components/providers'
 import { routing } from '@/configs/i18n/routing'
+import '@rainbow-me/rainbowkit/styles.css'
 import { Locale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations } from 'next-intl/server'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
@@ -59,7 +61,9 @@ export default async function LocaleLayout({ children }: LocaleLayoutProps) {
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <NextTopLoader showSpinner={false} />
-            <NuqsAdapter>{children}</NuqsAdapter>
+            <NuqsAdapter>
+              <MainLayout>{children}</MainLayout>
+            </NuqsAdapter>
           </Providers>
         </NextIntlClientProvider>
       </body>
