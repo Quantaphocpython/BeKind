@@ -3,9 +3,9 @@
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import React from 'react'
-import { Toaster } from 'sonner'
 import QueryClientProvider from './QueryClientProvider'
 import { ThemeProvider } from './ThemeProvider'
+import ToasterProvider from './ToasterProvider'
 import WagmiProvider from './WagmiProvider'
 
 interface ProvidersProps {
@@ -20,8 +20,9 @@ const Providers = ({ children }: ProvidersProps) => {
           <QueryClientProvider>
             <RainbowKitProvider id="rainbowkit">
               <TooltipProvider>
+                <ToasterProvider />
+
                 {children}
-                <Toaster position="top-right" richColors />
               </TooltipProvider>
             </RainbowKitProvider>
           </QueryClientProvider>

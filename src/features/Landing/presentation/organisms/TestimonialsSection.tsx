@@ -3,34 +3,34 @@
 import { Icons } from '@/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/shared/hooks'
 
 const testimonials = [
   {
     id: 1,
     name: 'Sarah Johnson',
-    role: 'Donor',
-    avatar: '/api/placeholder/100/100',
+    role: 'Project Organizer',
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&q=80',
     content:
-      'BeKind has completely changed how I think about charitable giving. The transparency and real-time tracking give me confidence that my donations are making a real impact.',
+      'BeKind has transformed how we manage charitable projects. The transparency and traceability features give our donors complete confidence in their contributions.',
     rating: 5,
   },
   {
     id: 2,
     name: 'Michael Chen',
-    role: 'Project Organizer',
-    avatar: '/api/placeholder/100/100',
+    role: 'Donor',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80',
     content:
-      'As a project organizer, I love how BeKind connects us directly with donors. The blockchain technology ensures every transaction is transparent and secure.',
+      'I love being able to track exactly where my donations go. The blockchain technology ensures every penny is accounted for and reaches those who need it most.',
     rating: 5,
   },
   {
     id: 3,
-    name: 'Emma Rodriguez',
+    name: 'Emily Rodriguez',
     role: 'Donor',
-    avatar: '/api/placeholder/100/100',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80',
     content:
-      "I've been donating through BeKind for over a year now. The platform is user-friendly and I can see exactly where my money goes. Highly recommended!",
+      'The real-time updates and impact reports make donating feel more personal and meaningful. I can see the direct impact of my contributions.',
     rating: 5,
   },
 ]
@@ -48,10 +48,16 @@ export default function TestimonialsSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} className="relative">
+            <Card key={testimonial.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
-                  <Avatar className="h-12 w-12 mr-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Icons.star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-6 italic">"{testimonial.content}"</p>
+                <div className="flex items-center">
+                  <Avatar className="h-10 w-10 mr-3">
                     <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
                     <AvatarFallback>
                       {testimonial.name
@@ -61,16 +67,10 @@ export default function TestimonialsSection() {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    <p className="font-semibold">{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground">{t(testimonial.role)}</p>
                   </div>
                 </div>
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Icons.star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground italic">"{testimonial.content}"</p>
               </CardContent>
             </Card>
           ))}

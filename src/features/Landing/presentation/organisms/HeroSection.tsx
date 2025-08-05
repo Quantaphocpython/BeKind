@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/shared/hooks'
 import Image from 'next/image'
 
 export default function HeroSection() {

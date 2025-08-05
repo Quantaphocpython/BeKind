@@ -4,8 +4,8 @@ import { ConnectWallet, LanguageSwitcher, ToggleThemeButton } from '@/components
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useTranslations } from '@/shared/hooks'
 import { useToggle } from '@/shared/hooks/useToggle'
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 const navigation = [

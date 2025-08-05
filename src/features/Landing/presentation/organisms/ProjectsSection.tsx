@@ -3,38 +3,35 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { useTranslations } from 'next-intl'
+import { useTranslations } from '@/shared/hooks'
 
 const projects = [
   {
     id: 1,
     title: 'Emergency Relief',
-    description: 'Providing immediate assistance to communities affected by natural disasters',
-    image: '/api/placeholder/400/250',
+    description: 'Providing immediate assistance to communities affected by natural disasters.',
     goal: 50000,
     raised: 35000,
     daysLeft: 15,
-    category: 'Emergency Relief',
+    image: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80',
   },
   {
     id: 2,
     title: 'Education Support',
-    description: 'Building schools and providing educational resources for underprivileged children',
-    image: '/api/placeholder/400/250',
+    description: 'Building schools and providing educational resources for underprivileged children.',
     goal: 75000,
     raised: 52000,
     daysLeft: 30,
-    category: 'Education Support',
+    image: 'https://images.unsplash.com/photo-1523240794102-9ebdcc4a44d1?auto=format&fit=crop&q=80',
   },
   {
     id: 3,
     title: 'Healthcare Access',
-    description: 'Improving healthcare infrastructure and access to medical services',
-    image: '/api/placeholder/400/250',
+    description: 'Improving healthcare infrastructure and providing medical supplies.',
     goal: 100000,
-    raised: 68000,
+    raised: 78000,
     daysLeft: 45,
-    category: 'Healthcare Access',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&q=80',
   },
 ]
 
@@ -46,24 +43,21 @@ export default function ProjectsSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">{t('Featured Projects')}</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">{t('Support meaningful causes')}</p>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Support meaningful causes and track the impact of your donations in real-time
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project) => {
             const progress = (project.raised / project.goal) * 100
             return (
-              <Card key={project.id} className="overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative">
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
-                      {t(project.category)}
-                    </span>
-                  </div>
+              <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="h-48 bg-muted relative">
+                  <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
                 </div>
                 <CardHeader>
-                  <CardTitle className="text-xl">{project.title}</CardTitle>
+                  <CardTitle className="text-xl">{t(project.title)}</CardTitle>
                   <p className="text-muted-foreground">{project.description}</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -75,7 +69,7 @@ export default function ProjectsSection() {
                     <Progress value={progress} className="h-2" />
                     <div className="flex justify-between text-sm">
                       <span>{t('Raised')}</span>
-                      <span className="font-semibold text-primary">${project.raised.toLocaleString()}</span>
+                      <span className="font-semibold">${project.raised.toLocaleString()}</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center">

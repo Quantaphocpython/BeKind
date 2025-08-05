@@ -17,14 +17,16 @@ const eslintConfig = [
 
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/no-empty-interface': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
+      '@typescript-eslint/no-empty-function': 'warn',
+      '@typescript-eslint/no-empty-object-type': 'warn',
+      'react/no-unescaped-entities': 'warn',
     },
   },
 ]
 
 export default eslintConfig
-

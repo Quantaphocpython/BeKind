@@ -1,19 +1,19 @@
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 
 interface I18nProviderProps {
-  children: React.ReactNode;
+  children: React.ReactNode
+  locale: string
 }
 
-const I18nProvider = async ({ children }: I18nProviderProps) => {
-  const messages = await getMessages();
-  const locale = await getLocale();
+const I18nProvider = async ({ children, locale }: I18nProviderProps) => {
+  const messages = await getMessages()
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       {children}
     </NextIntlClientProvider>
-  );
-};
+  )
+}
 
-export default I18nProvider;
+export default I18nProvider

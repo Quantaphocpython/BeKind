@@ -1,8 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { useTranslations } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -39,13 +39,13 @@ export default function ContactForm() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Success notification
-      toast.success(t('Message sent successfully'))
+      toast.success(t('Message sent successfully! We will get back to you soon.'))
 
       // Reset form
       reset()
     } catch (error) {
       // Error notification
-      toast.error(t('Failed to send message'))
+      toast.error(t('Failed to send message. Please try again.'))
       console.error('Form submission error:', error)
     } finally {
       setIsSubmitting(false)
@@ -92,7 +92,7 @@ export default function ContactForm() {
       />
 
       <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
-        {isSubmitting ? t('Sending') : t('Send Message')}
+        {isSubmitting ? t('Sending...') : t('Send Message')}
       </Button>
     </form>
   )
