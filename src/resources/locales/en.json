@@ -99,5 +99,20 @@
   "Subject must be at least 5 characters": "Subject must be at least 5 characters",
   "Subject must be less than 100 characters": "Subject must be less than 100 characters",
   "Message must be at least 10 characters": "Message must be at least 10 characters",
-  "Message must be less than 1000 characters": "Message must be less than 1000 characters"
+  "Message must be less than 1000 characters": "Message must be less than 1000 characters",
+  "Contact Information": "Contact Information",
+  "Choose your preferred way to get in touch with us. We are here to help!": "Choose your preferred way to get in touch with us. We are here to help!",
+  "Email": "Email",
+  "Phone": "Phone",
+  "Office": "Office",
+  "Send us an email anytime": "Send us an email anytime",
+  "Mon-Fri from 8am to 6pm": "Mon-Fri from 8am to 6pm",
+  "Visit our office": "Visit our office",
+  "Connect Wallet": "Connect Wallet",
+  "Wrong network": "Wrong network",
+  "Countries": "Countries",
+  "Community": "Community",
+  "Advanced blockchain technology protects your donations and personal information.": "Advanced blockchain technology protects your donations and personal information.",
+  "We focus on measurable outcomes and real-world impact for every donation made.": "We focus on measurable outcomes and real-world impact for every donation made.",
+  "Building a global community of donors and beneficiaries connected through technology.": "Building a global community of donors and beneficiaries connected through technology."
 }

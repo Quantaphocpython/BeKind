@@ -53,8 +53,8 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <ContactFormField
           label={t('Name')}
           type="text"
@@ -91,9 +91,16 @@ export default function ContactForm() {
         {...register(CONTACT_CONSTANTS.FORM_FIELDS.MESSAGE)}
       />
 
-      <Button type="submit" size="lg" className="w-full md:w-auto" disabled={isSubmitting}>
-        {isSubmitting ? t('Sending...') : t('Send Message')}
-      </Button>
+      <div className="flex justify-center pt-4">
+        <Button
+          type="submit"
+          size="lg"
+          className="px-12 py-3 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 shadow-lg hover:shadow-xl"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? t('Sending...') : t('Send Message')}
+        </Button>
+      </div>
     </form>
   )
 }

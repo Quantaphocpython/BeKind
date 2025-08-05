@@ -99,5 +99,20 @@
   "Subject must be at least 5 characters": "Tiêu đề phải có ít nhất 5 ký tự",
   "Subject must be less than 100 characters": "Tiêu đề phải ít hơn 100 ký tự",
   "Message must be at least 10 characters": "Tin nhắn phải có ít nhất 10 ký tự",
-  "Message must be less than 1000 characters": "Tin nhắn phải ít hơn 1000 ký tự"
+  "Message must be less than 1000 characters": "Tin nhắn phải ít hơn 1000 ký tự",
+  "Contact Information": "Thông tin liên hệ",
+  "Choose your preferred way to get in touch with us. We are here to help!": "Chọn cách liên hệ thuận tiện nhất với bạn. Chúng tôi luôn sẵn sàng hỗ trợ!",
+  "Email": "Email",
+  "Phone": "Điện thoại",
+  "Office": "Văn phòng",
+  "Send us an email anytime": "Gửi email cho chúng tôi bất cứ lúc nào",
+  "Mon-Fri from 8am to 6pm": "Thứ 2-6 từ 8h sáng đến 6h chiều",
+  "Visit our office": "Ghé thăm văn phòng chúng tôi",
+  "Connect Wallet": "Kết nối ví",
+  "Wrong network": "Mạng không đúng",
+  "Countries": "Quốc gia",
+  "Community": "Cộng đồng",
+  "Advanced blockchain technology protects your donations and personal information.": "Công nghệ blockchain tiên tiến bảo vệ khoản quyên góp và thông tin cá nhân của bạn.",
+  "We focus on measurable outcomes and real-world impact for every donation made.": "Chúng tôi tập trung vào kết quả có thể đo lường và tác động thực tế cho mọi khoản quyên góp.",
+  "Building a global community of donors and beneficiaries connected through technology.": "Xây dựng một cộng đồng toàn cầu của người quyên góp và người thụ hưởng được kết nối thông qua công nghệ."
 }
