@@ -29,7 +29,7 @@ export default function LanguageSwitcher() {
   const CurrentFlag = currentLanguage?.flag as React.ComponentType<{ className?: string }>
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2 px-3">
           {CurrentFlag && <CurrentFlag className="h-4 w-6" />}

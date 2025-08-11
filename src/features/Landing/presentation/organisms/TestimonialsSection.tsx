@@ -1,7 +1,7 @@
 'use client'
 
 import { Icons } from '@/components/icons'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { useTranslations } from '@/shared/hooks'
 
@@ -10,7 +10,6 @@ const testimonials = [
     id: 1,
     name: 'Sarah Johnson',
     role: 'Project Organizer',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&q=80',
     content:
       'BeKind has transformed how we manage charitable projects. The transparency and traceability features give our donors complete confidence in their contributions.',
     rating: 5,
@@ -19,7 +18,6 @@ const testimonials = [
     id: 2,
     name: 'Michael Chen',
     role: 'Donor',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80',
     content:
       'I love being able to track exactly where my donations go. The blockchain technology ensures every penny is accounted for and reaches those who need it most.',
     rating: 5,
@@ -28,7 +26,6 @@ const testimonials = [
     id: 3,
     name: 'Emily Rodriguez',
     role: 'Donor',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80',
     content:
       'The real-time updates and impact reports make donating feel more personal and meaningful. I can see the direct impact of my contributions.',
     rating: 5,
@@ -58,7 +55,7 @@ export default function TestimonialsSection() {
                 <p className="text-muted-foreground mb-6 italic">"{testimonial.content}"</p>
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                    {/* <AvatarImage src={testimonial.avatar} alt={testimonial.name} /> */}
                     <AvatarFallback>
                       {testimonial.name
                         .split(' ')

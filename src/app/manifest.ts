@@ -8,7 +8,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   })
 
   return {
-    name: t('Charity Platform'),
+    name: t('BeKind'),
     start_url: '/',
     theme_color: '#101E33',
   }

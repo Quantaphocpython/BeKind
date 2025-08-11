@@ -3,7 +3,7 @@ import { sepolia } from 'viem/chains'
 import { http } from 'wagmi'
 
 export const config = getDefaultConfig({
-  appName: 'Charity Platform',
+  appName: 'BeKind',
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
   chains: [sepolia],
   transports: {

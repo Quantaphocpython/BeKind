@@ -1,11 +1,12 @@
 'use client'
 
-import { ConnectWallet, LanguageSwitcher, ToggleThemeButton } from '@/components/common'
+import { ConnectWallet, SettingsDropdown } from '@/components/common'
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useTranslations } from '@/shared/hooks'
 import { useToggle } from '@/shared/hooks/useToggle'
+import Image from 'next/image'
 import Link from 'next/link'
 
 const navigation = [
@@ -27,8 +28,8 @@ export default function Header() {
       <div className="container mx-auto px-6 lg:px-8 flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-3">
-          <Icons.handCoins className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold">{t('Charity Platform')}</span>
+          <Image src="/images/logo.png" alt="logo" width={32} height={32} />
+          <span className="text-xl font-bold">{t('BeKind')}</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -47,8 +48,7 @@ export default function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-3">
-          <LanguageSwitcher />
-          <ToggleThemeButton />
+          <SettingsDropdown />
           <ConnectWallet />
         </div>
 
@@ -72,8 +72,7 @@ export default function Header() {
                 </Link>
               ))}
               <div className="flex flex-col space-y-3 pt-6 border-t">
-                <LanguageSwitcher />
-                <ToggleThemeButton />
+                <SettingsDropdown />
                 <ConnectWallet />
               </div>
             </div>

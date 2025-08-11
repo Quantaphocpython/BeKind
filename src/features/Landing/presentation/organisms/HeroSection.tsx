@@ -12,7 +12,7 @@ export default function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80"
+          src="/images/hero-section.jpg"
           alt="Charity and blockchain technology"
           fill
           className="object-cover"

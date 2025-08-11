@@ -62,6 +62,10 @@ export async function generateMetadata(props: Omit<LocaleLayoutProps, 'children'
   const t = await getTranslations({ locale })
 
   return {
-    title: t('Charity Platform'),
+    title: t('BeKind'),
+    description: t('BeKind Description'),
+    icons: {
+      icon: '/images/logo.png',
+    },
   }
 }

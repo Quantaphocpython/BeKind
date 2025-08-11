@@ -2,38 +2,63 @@
 
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useTranslations } from '@/shared/hooks'
+import { cn } from '@/shared/utils'
 import { useTheme } from 'next-themes'
+import { useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 function ToggleThemeButton() {
-  const { setTheme, theme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const t = useTranslations()
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(theme === 'dark')
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+  const changeTheme = async () => {
+    if (!buttonRef.current) return
+
+    const newTheme = theme === 'dark' ? 'light' : 'dark'
+
+    await document.startViewTransition(() => {
+      flushSync(() => {
+        setTheme(newTheme)
+        setIsDarkMode(newTheme === 'dark')
+      })
+    }).ready
+
+    const { top, left, width, height } = buttonRef.current.getBoundingClientRect()
+    const y = top + height / 2
+    const x = left + width / 2
+
+    const right = window.innerWidth - left
+    const bottom = window.innerHeight - top
+    const maxRad = Math.hypot(Math.max(left, right), Math.max(top, bottom))
+
+    document.documentElement.animate(
+      {
+        clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxRad}px at ${x}px ${y}px)`],
+      },
+      {
+        duration: 500,
+        easing: 'ease-in-out',
+        pseudoElement: '::view-transition-new(root)',
+      },
+    )
+  }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 px-3">
-          <Icons.sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Icons.moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">{t('Theme')}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem onClick={() => setTheme('light')} className="gap-3 cursor-pointer">
-          <Icons.sun className="h-4 w-4" />
-          <span>{t('Light')}</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')} className="gap-3 cursor-pointer">
-          <Icons.moon className="h-4 w-4" />
-          <span>{t('Dark')}</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')} className="gap-3 cursor-pointer">
-          <Icons.laptop className="h-4 w-4" />
-          <span>{t('System')}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button ref={buttonRef} onClick={changeTheme} variant="outline" size="sm">
+      <Icons.sun
+        className={cn('h-4 w-4 transition-all duration-300', isDarkMode ? 'rotate-0 scale-100' : 'rotate-90 scale-0')}
+      />
+      <Icons.moon
+        className={cn(
+          'absolute h-4 w-4 transition-all duration-300',
+          isDarkMode ? 'rotate-90 scale-0' : 'rotate-0 scale-100',
+        )}
+      />
+      <span className="sr-only">{t('Theme')}</span>
+    </Button>
   )
 }
 

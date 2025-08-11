@@ -2,6 +2,7 @@
 
 import { Icons } from '@/components/icons'
 import { useTranslations } from '@/shared/hooks'
+import Image from 'next/image'
 import Link from 'next/link'
 
 const quickLinks = [
@@ -26,14 +27,14 @@ export default function Footer() {
   const t = useTranslations()
 
   return (
-    <footer className="bg-muted/50 border-t">
+    <footer className="border-t">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-3">
-              <Icons.handCoins className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">{t('Charity Platform')}</span>
+              <Image src="/images/logo.png" alt="logo" width={32} height={32} />
+              <span className="text-xl font-bold">{t('BeKind')}</span>
             </Link>
             <p className="text-muted-foreground text-sm">{t('Footer Description')}</p>
           </div>
@@ -95,7 +96,7 @@ export default function Footer() {
 
         <div className="border-t mt-8 pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © 2024 {t('Charity Platform')}. {t('All rights reserved')}.
+            © 2025 {t('BeKind')}. {t('All rights reserved')}.
           </p>
         </div>
       </div>
