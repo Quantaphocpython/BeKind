@@ -8,7 +8,7 @@ export default function HeroSection() {
   const t = useTranslations()
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-[calc(100vh-var(--header-height))] w-full overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -26,9 +26,13 @@ export default function HeroSection() {
       <div className="relative z-10 flex h-full items-center justify-center">
         <div className="container mx-auto px-4 text-center text-white">
           <h1 className="mb-6 text-4xl font-bold leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            {t('Hero Title')}
+            {t('Transparent Charity with Blockchain Technology')}
           </h1>
-          <p className="mb-8 max-w-3xl mx-auto text-lg sm:text-xl md:text-2xl opacity-90">{t('Hero Subtitle')}</p>
+          <p className="mb-8 max-w-3xl mx-auto text-lg sm:text-xl md:text-2xl opacity-90">
+            {t(
+              'Connect donors directly with those in need through secure, transparent blockchain transactions. Every donation is traceable and verifiable.',
+            )}
+          </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8 py-3 bg-primary hover:bg-primary/90">
               {t('Get Started')}

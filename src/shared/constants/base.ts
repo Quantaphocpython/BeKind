@@ -6,4 +6,8 @@ export const breakpoints = {
   xxl: 1536,
 }
 
+export const theme = {
+  headerHeight: '65px',
+}
+
 export type Breakpoint = keyof typeof breakpoints

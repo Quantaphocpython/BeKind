@@ -12,7 +12,7 @@ export default function NewsletterSection() {
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">{t('Newsletter')}</h2>
-          <p className="text-lg mb-8 opacity-90">{t('Stay updated')}</p>
+          <p className="text-lg mb-8 opacity-90">{t('Stay updated with our latest projects and impact stories')}</p>
 
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <Input type="email" placeholder={t('Email')} className="flex-1" />

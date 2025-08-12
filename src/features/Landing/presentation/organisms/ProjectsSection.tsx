@@ -44,7 +44,7 @@ export default function ProjectsSection() {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">{t('Featured Projects')}</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Support meaningful causes and track the impact of your donations in real-time
+            {t('Support meaningful causes and track the impact of your donations in real-time')}
           </p>
         </div>
 

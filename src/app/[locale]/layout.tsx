@@ -41,7 +41,7 @@ export default async function LocaleLayout({ children }: LocaleLayoutProps) {
       <body className={`${inter.variable} ${montserrat.variable} antialiased`}>
         <I18nProvider locale={localeHeader}>
           <Providers>
-            <NextTopLoader showSpinner={false} />
+            <NextTopLoader showSpinner={false} color="var(--primary)" />
             <NuqsAdapter>
               <MainLayout>{children}</MainLayout>
             </NuqsAdapter>
@@ -63,7 +63,6 @@ export async function generateMetadata(props: Omit<LocaleLayoutProps, 'children'
 
   return {
     title: t('BeKind'),
-    description: t('BeKind Description'),
     icons: {
       icon: '/images/logo.png',
     },

@@ -23,9 +23,9 @@ export default function Header() {
   return (
     <header
       id="app-header"
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-[var(--header-height)]"
     >
-      <div className="container mx-auto px-6 lg:px-8 flex h-16 items-center justify-between">
+      <div className="container mx-auto px-6 lg:px-8 flex items-center justify-between h-[var(--header-height)]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-3">
           <Image src="/images/logo.png" alt="logo" width={32} height={32} />

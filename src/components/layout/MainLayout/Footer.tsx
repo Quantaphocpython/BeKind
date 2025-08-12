@@ -36,7 +36,11 @@ export default function Footer() {
               <Image src="/images/logo.png" alt="logo" width={32} height={32} />
               <span className="text-xl font-bold">{t('BeKind')}</span>
             </Link>
-            <p className="text-muted-foreground text-sm">{t('Footer Description')}</p>
+            <p className="text-muted-foreground text-sm">
+              {t(
+                'BeKind is revolutionizing charitable giving through blockchain technology, ensuring transparency, security, and maximum impact for every donation.',
+              )}
+            </p>
           </div>
 
           {/* Quick Links */}
@@ -76,7 +80,7 @@ export default function Footer() {
           {/* Social */}
           <div>
             <h3 className="font-semibold mb-4">{t('Social Media')}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{t('Follow us')}</p>
+            <p className="text-sm text-muted-foreground mb-4">{t('Follow us on social media')}</p>
             <div className="flex space-x-4">
               {socialLinks.map((link) => {
                 const IconComponent = link.icon as React.ComponentType<{ className?: string }>

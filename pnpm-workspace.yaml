@@ -1,3 +1,11 @@
 ignoredBuiltDependencies:
   - '@prisma/engines'
   - prisma
+onlyBuiltDependencies:
+  - '@sentry/cli'
+  - '@tailwindcss/oxide'
+  - bufferutil
+  - keccak
+  - sharp
+  - unrs-resolver
+  - utf-8-validate
