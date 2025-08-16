@@ -2,10 +2,12 @@ ignoredBuiltDependencies:
   - '@prisma/engines'
   - prisma
 onlyBuiltDependencies:
+  - '@firebase/util'
   - '@sentry/cli'
   - '@tailwindcss/oxide'
   - bufferutil
   - keccak
+  - protobufjs
   - sharp
   - unrs-resolver
   - utf-8-validate

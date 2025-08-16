@@ -28,6 +28,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.1.1",
+    "@prisma/client": "6.13.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -56,6 +57,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@rainbow-me/rainbowkit": "^2.2.8",
     "@react-three/fiber": "^9.3.0",
+    "@sendinblue/client": "^3.3.1",
     "@sentry/nextjs": "^9.38.0",
     "@tanstack/react-form": "^1.14.1",
     "@tanstack/react-query": "^5.83.0",
@@ -71,6 +73,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.0",
     "embla-carousel-react": "^8.6.0",
+    "firebase": "^12.1.0",
     "framer-motion": "^12.23.5",
     "gsap": "^3.13.0",
     "husky": "^9.1.7",
