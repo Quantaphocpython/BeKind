@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
+ 
 import { useTranslations as _useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 

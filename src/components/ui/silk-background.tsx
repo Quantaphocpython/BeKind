@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unknown-property */
+ 
 import { Canvas, RootState, useFrame, useThree } from '@react-three/fiber'
 import React, { forwardRef, useLayoutEffect, useMemo, useRef } from 'react'
 import { Color, IUniform, Mesh, ShaderMaterial } from 'three'

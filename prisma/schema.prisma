@@ -8,4 +8,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Campaign {
+  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  campaignId  BigInt   @unique // id on-chain
+  owner       String   @db.ObjectId
+  goal        BigInt   
+  balance     BigInt   
+  isExist     Boolean 
+  description String   
+  createdAt   DateTime @default(now()) 
+  voteCount   Int      @default(0) 
 
+  proofs      Proof[]  @relation("CampaignProofs")
+  ownerUser   User?    @relation("UserCampaigns", fields: [owner], references: [id])
+  votes       Vote[]   @relation("CampaignVotes")
+}
+
+model User {
+  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  address     String   @unique // address on-chain
+  name        String? 
+  trustScore  Float    @default(0.0) 
+  createdAt   DateTime @default(now()) 
+
+  campaigns   Campaign[] @relation("UserCampaigns")
+  proofs      Proof[]    @relation("UserProofs")
+  votes       Vote[]     @relation("UserVotes")
+}
+
+model Proof {
+  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  campaignId  BigInt  
+  userId      String   @db.ObjectId
+  content     String   // content
+  createdAt   DateTime @default(now()) 
+
+  campaign    Campaign @relation("CampaignProofs", fields: [campaignId], references: [campaignId])
+  user        User     @relation("UserProofs", fields: [userId], references: [id])
+}
+
+model Vote {
+  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  campaignId  BigInt  
+  userId      String   @db.ObjectId
+  createdAt   DateTime @default(now()) 
+
+  campaign    Campaign @relation("CampaignVotes", fields: [campaignId], references: [campaignId])
+  user        User     @relation("UserVotes", fields: [userId], references: [id])
+
+  @@unique([campaignId, userId])
+}

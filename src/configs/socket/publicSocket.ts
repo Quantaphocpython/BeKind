@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
 
 import { ApiEndpointEnum, BASE_API } from '@/shared/constants'
 import { ManagerOptions, SocketOptions } from 'socket.io-client'
