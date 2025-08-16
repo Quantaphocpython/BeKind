@@ -1,11 +1,29 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { useCreateUser } from '@/features/User/data/hooks'
 import { useTranslations } from '@/shared/hooks'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useEffect } from 'react'
+import { useAccount } from 'wagmi'
 
 export default function ConnectWallet() {
   const t = useTranslations()
+  const { address, isConnected } = useAccount()
+  const { mutateAsync: createUser, isPending: isCreatingUser } = useCreateUser()
+
+  // Auto-create user when wallet is connected
+  useEffect(() => {
+    if (isConnected && address) {
+      createUser({
+        address,
+        name: undefined, // User can update name later
+      }).catch((error) => {
+        console.error('Failed to create user:', error)
+        // Don't show error to user as this is a background operation
+      })
+    }
+  }, [isConnected, address, createUser])
 
   return (
     <ConnectButton.Custom>
@@ -45,8 +63,8 @@ export default function ConnectWallet() {
 
               return (
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <Button onClick={openAccountModal} type="button">
-                    {account.displayName}
+                  <Button onClick={openAccountModal} type="button" disabled={isCreatingUser}>
+                    {isCreatingUser ? 'Creating Account...' : account.displayName}
                   </Button>
                 </div>
               )

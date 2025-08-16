@@ -13,6 +13,7 @@ model Campaign {
   campaignId  BigInt   @unique // id on-chain
   owner       String   @db.ObjectId
   goal        BigInt   
+  score       Int      @default(0)
   balance     BigInt   
   isExist     Boolean 
   description String   
@@ -28,6 +29,7 @@ model User {
   id          String   @id @default(uuid()) @map("_id") @db.ObjectId
   address     String   @unique // address on-chain
   name        String? 
+  email       String?  @unique
   trustScore  Float    @default(0.0) 
   createdAt   DateTime @default(now()) 
 
