@@ -1,9 +1,9 @@
 'use client'
 
-import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
-import { AnimatedGridPattern } from '@/components/magicui/animated-grid-pattern'
-import { TextAnimate } from '@/components/magicui/text-animate'
-import { TypingAnimation } from '@/components/magicui/typing-animation'
+import { AnimatedGradientText } from '@/components/ui/animated-gradient-text'
+import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern'
+import { TextAnimate } from '@/components/ui/text-animate'
+import { TypingAnimation } from '@/components/ui/typing-animation'
 import { useTranslations } from '@/shared/hooks'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
