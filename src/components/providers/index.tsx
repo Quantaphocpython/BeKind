@@ -3,6 +3,7 @@
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import React from 'react'
+import { AutoScrollTopProvider } from './AutoScrollTopProvider'
 import QueryClientProvider from './QueryClientProvider'
 import { ThemeProvider } from './ThemeProvider'
 import ToasterProvider from './ToasterProvider'
@@ -20,6 +21,7 @@ const Providers = ({ children }: ProvidersProps) => {
           <QueryClientProvider>
             <RainbowKitProvider id="rainbowkit">
               <TooltipProvider>
+                <AutoScrollTopProvider />
                 <ToasterProvider />
 
                 {children}
