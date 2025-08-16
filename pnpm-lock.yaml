@@ -227,6 +227,9 @@ importers:
       react-hotkeys-hook:
         specifier: ^5.1.0
         version: 5.1.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-image-crop:
+        specifier: ^11.0.10
+        version: 11.0.10(react@19.1.0)
       react-resizable-panels:
         specifier: ^3.0.3
         version: 3.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
