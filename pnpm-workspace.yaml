@@ -3,6 +3,7 @@ ignoredBuiltDependencies:
   - prisma
 onlyBuiltDependencies:
   - '@firebase/util'
+  - '@parcel/watcher'
   - '@sentry/cli'
   - '@tailwindcss/oxide'
   - bufferutil
