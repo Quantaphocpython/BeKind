@@ -12,7 +12,7 @@ export default function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero-section.jpg"
+          src="/images/hero-section.avif"
           alt="Charity and blockchain technology"
           fill
           className="object-cover"
