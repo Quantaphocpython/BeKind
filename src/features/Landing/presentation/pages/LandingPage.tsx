@@ -1,3 +1,4 @@
+import Editor from '@/components/common/Editor'
 import OpenEffect from '@/components/common/OpenEffect'
 import FeaturesSection from '../organisms/FeaturesSection'
 import HeroSection from '../organisms/HeroSection'
@@ -8,6 +9,7 @@ import TestimonialsSection from '../organisms/TestimonialsSection'
 export default function LandingPage() {
   return (
     <>
+      <Editor />
       <HeroSection />
 
       <OpenEffect animation="slideUp">
