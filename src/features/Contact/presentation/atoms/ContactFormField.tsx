@@ -2,7 +2,6 @@
 
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { useTranslations } from '@/shared/hooks'
 import { FieldError } from 'react-hook-form'
 
 interface ContactFormFieldProps {
@@ -22,8 +21,6 @@ export default function ContactFormField({
   error,
   ...props
 }: ContactFormFieldProps) {
-  const t = useTranslations()
-
   return (
     <div className="space-y-3">
       <Label htmlFor={props.name} className="text-base font-semibold text-foreground/90">

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useTranslations } from '@/shared/hooks'
+import Image from 'next/image'
 
 const projects = [
   {
@@ -54,7 +55,13 @@ export default function ProjectsSection() {
             return (
               <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="h-48 bg-muted relative">
-                  <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+                  <Image
+                    width={100}
+                    height={100}
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <CardHeader>
                   <CardTitle className="text-xl">{t(project.title)}</CardTitle>

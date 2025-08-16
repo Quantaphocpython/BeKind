@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import io, { ManagerOptions, Socket, SocketOptions } from 'socket.io-client'
 
 export abstract class BaseSocket {

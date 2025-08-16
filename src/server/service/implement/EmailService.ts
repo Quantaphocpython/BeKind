@@ -92,7 +92,7 @@ class EmailService implements IEmailService {
         sender: { email: this.senderEmail },
       }
 
-      const response = await this.apiInstance.sendTransacEmail(sendSmtpEmail)
+      await this.apiInstance.sendTransacEmail(sendSmtpEmail)
 
       return true
     } catch (error) {
