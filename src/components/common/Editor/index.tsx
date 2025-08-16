@@ -55,14 +55,14 @@ const extensions = [
   LineHeight,
   Link,
   Image.configure({
-    // upload: async (files: File) => {
-    //   if (files) {
-    //     // const url = await uploadToFirebase({ file: files, path: 'faqs' });
-    //     // return url;
-    //   } else {
-    //     return '';
-    //   }
-    // },
+    upload: async (files: File) => {
+      if (files) {
+        // Return blob URL for immediate display without uploading to Firebase
+        return URL.createObjectURL(files)
+      } else {
+        return ''
+      }
+    },
     resourceImage: 'both',
   }),
   Video.configure({
