@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campaign Created Successfully</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .header p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+      font-size: 16px;
+    }
+
+    .content {
+      padding: 40px 30px;
+    }
+
+    .success-icon {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .success-icon svg {
+      width: 80px;
+      height: 80px;
+      fill: #10b981;
+    }
+
+    .campaign-details {
+      background-color: #f8fafc;
+      border-radius: 8px;
+      padding: 25px;
+      margin: 25px 0;
+      border-left: 4px solid #667eea;
+    }
+
+    .campaign-details h3 {
+      margin: 0 0 15px 0;
+      color: #1f2937;
+      font-size: 18px;
+    }
+
+    .campaign-details p {
+      margin: 8px 0;
+      color: #6b7280;
+    }
+
+    .campaign-details strong {
+      color: #374151;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 20px 0;
+      transition: transform 0.2s ease;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      background-color: #f8fafc;
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer p {
+      margin: 5px 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .social-links {
+      margin-top: 20px;
+    }
+
+    .social-links a {
+      display: inline-block;
+      margin: 0 10px;
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .social-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 0;
+        box-shadow: none;
+      }
+
+      .header,
+      .content,
+      .footer {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎉 Campaign Created Successfully!</h1>
+      <p>Your campaign is now live and ready to make a difference</p>
+    </div>
+
+    <div class="content">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      </div>
+
+      <h2>Hello {{userName}},</h2>
+
+      <p>Congratulations! Your campaign <strong>"{{campaignName}}"</strong> has been successfully created and is now
+        live on our platform.</p>
+
+      <div class="campaign-details">
+        <h3>Campaign Details:</h3>
+        <p><strong>Campaign Name:</strong> {{campaignName}}</p>
+        <p><strong>Created By:</strong> {{userName}}</p>
+        <p><strong>Creation Date:</strong> {{creationDate}}</p>
+        <p><strong>Campaign ID:</strong> {{campaignId}}</p>
+      </div>
+
+      <p>Your campaign is now visible to potential donors and supporters. Here's what you can do next:</p>
+
+      <ul>
+        <li>Share your campaign link with friends and family</li>
+        <li>Update your campaign with photos and stories</li>
+        <li>Track donations and engagement in your dashboard</li>
+        <li>Respond to donor messages and comments</li>
+      </ul>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="{{campaignUrl}}" class="cta-button">View Your Campaign</a>
+      </div>
+
+      <p>If you have any questions or need assistance, don't hesitate to reach out to our support team. We're here to
+        help you succeed!</p>
+
+      <p>Best regards,<br>
+        <strong>The Charity Platform Team</strong>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>Thank you for making a difference in the world!</p>
+      <p>© 2024 Charity Platform. All rights reserved.</p>
+      <div class="social-links">
+        <a href="#">Facebook</a>
+        <a href="#">Twitter</a>
+        <a href="#">Instagram</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

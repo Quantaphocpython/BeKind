@@ -4,11 +4,8 @@ import { LanguageSwitcher, ToggleThemeButton } from '@/components/common'
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { useTranslations } from '@/shared/hooks'
 
 export default function SettingsDropdown() {
-  const t = useTranslations()
-
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>

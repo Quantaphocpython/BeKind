@@ -3,7 +3,6 @@
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { useTranslations } from '@/shared/hooks'
 import { useLocale } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -13,7 +12,6 @@ const languages = [
 ]
 
 export default function LanguageSwitcher() {
-  const t = useTranslations()
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
@@ -21,7 +19,7 @@ export default function LanguageSwitcher() {
   const currentLanguage = languages.find((lang) => lang.code === locale)
 
   const handleLanguageChange = (newLocale: string) => {
-    const pathWithoutLocale = pathname.replace(`/${locale}`, '')
+    const pathWithoutLocale = pathname?.replace(`/${locale}`, '')
     const newPath = `/${newLocale}${pathWithoutLocale}`
     router.push(newPath)
   }
