@@ -1,11 +1,47 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useTranslations } from '@/shared/hooks'
+import { container, TYPES } from '@/features/Common/container'
+import { CreateUserRequestDto, CreateUserResponseDto } from '@/features/User'
+import { UserService } from '@/features/User/data/services/user.service'
+import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useEffect } from 'react'
+import { useAccount } from 'wagmi'
 
 export default function ConnectWallet() {
   const t = useTranslations()
+  const { address, isConnected } = useAccount()
+  const { mutateAsync: createUser, isPending: isCreatingUser } = useApiMutation<
+    CreateUserResponseDto,
+    CreateUserRequestDto
+  >(
+    (data) => {
+      const userService = container.get(TYPES.UserService) as UserService
+      return userService.createUserIfNotExists(data)
+    },
+    {
+      invalidateQueries: [['users']],
+    },
+  )
+
+  // Auto-create user when wallet is connected
+  useEffect(() => {
+    console.log('ConnectWallet useEffect triggered:', { isConnected, address })
+
+    if (isConnected && address) {
+      console.log('Creating user with address:', address)
+      createUser({
+        address,
+      })
+        .then((response) => {
+          console.log('User created successfully:', response)
+        })
+        .catch((error) => {
+          console.error('Failed to create user:', error)
+        })
+    }
+  }, [isConnected, address, createUser])
 
   return (
     <ConnectButton.Custom>
@@ -45,8 +81,8 @@ export default function ConnectWallet() {
 
               return (
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <Button onClick={openAccountModal} type="button">
-                    {account.displayName}
+                  <Button onClick={openAccountModal} type="button" disabled={isCreatingUser}>
+                    {isCreatingUser ? 'Creating Account...' : account.displayName}
                   </Button>
                 </div>
               )

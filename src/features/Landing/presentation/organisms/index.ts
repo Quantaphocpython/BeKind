@@ -1,0 +1,9 @@
+export { default as CallToActionSection } from './CallToActionSection'
+export { default as FeaturesSection } from './FeaturesSection'
+export { default as HeroSection } from './HeroSection'
+export { default as NewsletterSection } from './NewsletterSection'
+export { default as PlatformFeaturesSection } from './PlatformFeaturesSection'
+export { default as ProjectsSection } from './ProjectsSection'
+export { default as StatsSection } from './StatsSection'
+export { default as TestimonialsSection } from './TestimonialsSection'
+

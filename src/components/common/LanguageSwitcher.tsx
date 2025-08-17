@@ -21,6 +21,7 @@ export default function LanguageSwitcher() {
   const handleLanguageChange = (newLocale: string) => {
     const pathWithoutLocale = pathname?.replace(`/${locale}`, '')
     const newPath = `/${newLocale}${pathWithoutLocale}`
+
     router.push(newPath)
   }
 
@@ -33,9 +34,11 @@ export default function LanguageSwitcher() {
           {CurrentFlag && <CurrentFlag className="h-4 w-6" />}
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" className="w-40">
         {languages.map((language) => {
           const FlagComponent = language.flag as React.ComponentType<{ className?: string }>
+
           return (
             <DropdownMenuItem
               key={language.code}

@@ -7,6 +7,7 @@
   "Home": "Trang chủ",
   "About": "Giới thiệu",
   "Projects": "Dự án",
+  "Campaigns": "Chiến dịch",
   "Donate": "Quyên góp",
   "Contact": "Liên hệ",
   "Login": "Đăng nhập",
@@ -158,5 +159,17 @@
   "Error ID": "Mã lỗi",
   "Try Again": "Thử lại",
   "Go Home": "Về trang chủ",
-  "Need help?": "Cần giúp đỡ?"
+  "Need help?": "Cần giúp đỡ?",
+  "Why Choose Our Platform?": "Tại sao chọn nền tảng của chúng tôi?",
+  "Experience the future of charitable giving with our innovative blockchain-powered platform": "Trải nghiệm tương lai của việc quyên góp từ thiện với nền tảng blockchain sáng tạo của chúng tôi",
+  "Secure & Transparent": "An toàn & Minh bạch",
+  "All transactions are recorded on the blockchain for complete transparency and security.": "Tất cả giao dịch đều được ghi lại trên blockchain để đảm bảo tính minh bạch và bảo mật hoàn toàn.",
+  "Trusted Platform": "Nền tảng đáng tin cậy",
+  "Built on proven blockchain technology ensuring reliability and immutability.": "Được xây dựng trên công nghệ blockchain đã được chứng minh, đảm bảo độ tin cậy và tính bất biến.",
+  "Real-time Tracking": "Theo dõi thời gian thực",
+  "Monitor your campaign progress and donations in real-time with detailed analytics.": "Theo dõi tiến độ chiến dịch và khoản quyên góp theo thời gian thực với phân tích chi tiết.",
+  "Ready to Make a Difference?": "Sẵn sàng tạo ra sự khác biệt?",
+  "Join thousands of campaign creators who are already making an impact on our platform.": "Tham gia cùng hàng nghìn người tạo chiến dịch đang tạo tác động trên nền tảng của chúng tôi.",
+  "Start Your Campaign Today": "Bắt đầu chiến dịch của bạn ngay hôm nay",
+  "Connect with donors from around the world to maximize your campaign's impact": "Kết nối với người quyên góp từ khắp nơi trên thế giới để tối đa hóa tác động của chiến dịch của bạn"
 }

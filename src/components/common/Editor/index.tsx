@@ -1,99 +1,80 @@
 'use client'
 
-import RichTextEditor, { BaseKit } from 'reactjs-tiptap-editor'
+import { useEffect, useState } from 'react'
+import PanelHeader from './PanelHeader'
+import ParsedContent from './ParsedContent'
+import RichEditor from './RichEditor'
 
-import { Bold } from 'reactjs-tiptap-editor/bold'
-import { BulletList } from 'reactjs-tiptap-editor/bulletlist'
-import { Code } from 'reactjs-tiptap-editor/code'
-import { CodeBlock } from 'reactjs-tiptap-editor/codeblock'
-import { Color } from 'reactjs-tiptap-editor/color'
-import { FontFamily } from 'reactjs-tiptap-editor/fontfamily'
-import { FontSize } from 'reactjs-tiptap-editor/fontsize'
-import { Heading } from 'reactjs-tiptap-editor/heading'
-import { Highlight } from 'reactjs-tiptap-editor/highlight'
-import { History } from 'reactjs-tiptap-editor/history'
-import { HorizontalRule } from 'reactjs-tiptap-editor/horizontalrule'
-import { Iframe } from 'reactjs-tiptap-editor/iframe'
-import { Image } from 'reactjs-tiptap-editor/image'
-import { Indent } from 'reactjs-tiptap-editor/indent'
-import { Italic } from 'reactjs-tiptap-editor/italic'
-import { LineHeight } from 'reactjs-tiptap-editor/lineheight'
-import { Link } from 'reactjs-tiptap-editor/link'
-import { MoreMark } from 'reactjs-tiptap-editor/moremark'
-import { ColumnActionButton } from 'reactjs-tiptap-editor/multicolumn'
-import { OrderedList } from 'reactjs-tiptap-editor/orderedlist'
-import { Strike } from 'reactjs-tiptap-editor/strike'
-import { Table } from 'reactjs-tiptap-editor/table'
-import { TextAlign } from 'reactjs-tiptap-editor/textalign'
-import { TextUnderline } from 'reactjs-tiptap-editor/textunderline'
-import { Video } from 'reactjs-tiptap-editor/video'
+interface ContentEditorProps {
+  value: string
+  onChange: (value: string) => void
+  error?: string
+  disabled?: boolean
+  showPreview?: boolean
+}
 
-import 'react-image-crop/dist/ReactCrop.css'
-import 'reactjs-tiptap-editor/style.css'
+const Editor = ({ value, onChange, error, disabled = false, showPreview = true }: ContentEditorProps) => {
+  const [isEditorExpanded, setIsEditorExpanded] = useState(true)
+  const [isPreviewExpanded, setIsPreviewExpanded] = useState(showPreview)
 
-const extensions = [
-  BaseKit.configure({
-    placeholder: false,
-    characterCount: false,
-  }),
+  // Prevent both panels from being collapsed
+  useEffect(() => {
+    if (!isEditorExpanded && !isPreviewExpanded && showPreview) {
+      setIsEditorExpanded(true)
+    }
+  }, [isEditorExpanded, isPreviewExpanded, showPreview])
 
-  History,
-  FontFamily,
-  Heading.configure({ spacer: true }),
-  FontSize,
-  Bold,
-  Italic,
-  TextUnderline,
-  Strike,
-  MoreMark,
-  Color.configure({ spacer: true }),
-  Highlight,
-  BulletList,
-  OrderedList,
-  TextAlign.configure({ types: ['heading', 'paragraph'], spacer: true }),
-  Indent,
-  LineHeight,
-  Link,
-  Image.configure({
-    upload: async (files: File) => {
-      if (files) {
-        // Return blob URL for immediate display without uploading to Firebase
-        return URL.createObjectURL(files)
-      } else {
-        return ''
-      }
-    },
-    resourceImage: 'both',
-  }),
-  Video.configure({
-    upload: (files: File) => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(URL.createObjectURL(files))
-        }, 500)
-      })
-    },
-  }),
-  HorizontalRule,
-  Code.configure({
-    toolbar: false,
-  }),
-  CodeBlock,
-  ColumnActionButton,
-  Table,
-  Iframe,
-]
+  // Calculate panel widths
+  const editorWidth = !showPreview || !isPreviewExpanded ? 'w-full' : !isEditorExpanded ? 'w-12' : 'w-1/2'
 
-function Editor({ content, setContent }: { content: string; setContent: (value: string) => void }) {
+  const previewWidth = !showPreview ? 'w-0' : !isEditorExpanded ? 'w-full' : !isPreviewExpanded ? 'w-12' : 'w-1/2'
+
   return (
-    <RichTextEditor
-      output="html"
-      content={content as any}
-      onChangeContent={setContent}
-      extensions={extensions}
-      dark={false}
-      // hideBubble={true}
-    />
+    <div className="space-y-4">
+      {/* Editor Container */}
+      <div className="flex border rounded-lg overflow-hidden bg-white ">
+        {/* Editor Panel */}
+        <div
+          className={`
+          relative transition-all duration-300 ease-in-out 
+          ${showPreview ? 'border-r border-gray-200' : ''}
+          ${editorWidth}
+        `}
+        >
+          <PanelHeader
+            isExpanded={isEditorExpanded}
+            onToggle={() => setIsEditorExpanded(!isEditorExpanded)}
+            disabled={disabled}
+            isEditor={true}
+          />
+
+          {isEditorExpanded && (
+            <div>
+              <div className={`h-full ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
+                {value && <RichEditor content={value} setContent={onChange} />}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Preview Panel */}
+        {showPreview && (
+          <div className={`relative transition-all duration-300 ease-in-out ${previewWidth}`}>
+            <PanelHeader
+              isExpanded={isPreviewExpanded}
+              onToggle={() => setIsPreviewExpanded(!isPreviewExpanded)}
+              disabled={disabled}
+              isEditor={false}
+            />
+
+            {isPreviewExpanded && <div>{value ? <ParsedContent htmlContent={value} /> : <p></p>}</div>}
+          </div>
+        )}
+      </div>
+
+      {/* Error Message */}
+      {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+    </div>
   )
 }
 
