@@ -4,16 +4,17 @@ import { ConnectWallet, SettingsDropdown } from '@/components/common'
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { RouteEnum } from '@/shared/constants'
 import { useTranslations } from '@/shared/hooks'
 import { useToggle } from '@/shared/hooks/useToggle'
 import Image from 'next/image'
 import Link from 'next/link'
 
 const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'About', href: '/about' },
-  { name: 'Projects', href: '/projects' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'Home', href: RouteEnum.Home },
+  { name: 'About', href: RouteEnum.About },
+  { name: 'Campaigns', href: RouteEnum.Campaigns },
+  { name: 'Contact', href: RouteEnum.Contact },
 ]
 
 export default function Header() {
@@ -82,4 +83,3 @@ export default function Header() {
     </header>
   )
 }
-

@@ -1,17 +1,17 @@
 'use client'
 
+import Editor from '@/components/common/Editor'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useAccount } from 'wagmi'
 import { CAMPAIGN_CONSTANTS, CreateCampaignFormData, createCampaignSchema } from '../../data/constants'
 import { CreateCampaignRequestDto, CreateCampaignResponseDto } from '../../data/dto'
@@ -25,6 +25,7 @@ export const CreateCampaignForm = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
     reset,
     watch,
@@ -103,7 +104,7 @@ export const CreateCampaignForm = () => {
   const isLoading = isSubmitting || isAPIPending || isContractLoading
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full mx-auto">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Create New Campaign</CardTitle>
         <CardDescription>
@@ -136,14 +137,19 @@ export const CreateCampaignForm = () => {
             <label htmlFor="description" className="text-sm font-medium">
               Campaign Description
             </label>
-            <Textarea
-              id="description"
-              placeholder="Describe your campaign, the cause you're supporting, and how the funds will be used..."
-              rows={4}
-              {...register('description')}
-              className={errors.description ? 'border-red-500' : ''}
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <Editor
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.description?.message}
+                  disabled={isLoading}
+                  showPreview={true}
+                />
+              )}
             />
-            {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
             <p className="text-xs text-muted-foreground">
               {description?.length || 0}/{CAMPAIGN_CONSTANTS.MAX_DESCRIPTION_LENGTH} characters
             </p>
