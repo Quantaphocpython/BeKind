@@ -77,7 +77,7 @@ export const CampaignList = () => {
           <h1 className="text-3xl font-bold">Campaigns</h1>
           <p className="text-muted-foreground">Discover and support charitable campaigns on the blockchain</p>
         </div>
-        <Button onClick={handleCreateCampaign} className="flex items-center gap-2">
+        <Button onClick={handleCreateCampaign} className="flex items-center gap-2 cursor-pointer">
           <Plus className="h-4 w-4" />
           Create Campaign
         </Button>
