@@ -1,7 +1,7 @@
 import { UserDto } from '@/server/dto/campaign.dto'
+import { userMapper } from '@/server/mapper'
 import { userService } from '@/server/service/implement/UserService'
 import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
-import { MapperUtil } from '@/shared/utils/mapper.util'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Create user if not exists
       const user = await userService.createUserIfNotExists(address, name)
-      const userDto: UserDto = MapperUtil.toUserDto(user)
+      const userDto: UserDto = userMapper.toUserDto(user)
 
       return res.status(201).json(HttpResponseUtil.success(userDto, 'User created/retrieved successfully', 201))
     } catch (error) {
@@ -36,12 +36,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(404).json(HttpResponseUtil.notFound('User not found'))
         }
 
-        const userDto: UserDto = MapperUtil.toUserDto(user)
+        const userDto: UserDto = userMapper.toUserDto(user)
         return res.status(200).json(HttpResponseUtil.success(userDto, 'User retrieved successfully'))
       } else {
         // Get all users
         const users = await userService.getAllUsers()
-        const userDtos: UserDto[] = users.map(MapperUtil.toUserDto)
+        const userDtos: UserDto[] = users.map(userMapper.toUserDto)
 
         return res.status(200).json(HttpResponseUtil.success(userDtos, 'Users retrieved successfully'))
       }

@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Campaign {
-  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   campaignId  BigInt   @unique // id on-chain
   owner       String   @db.ObjectId
   goal        BigInt   
@@ -26,7 +26,7 @@ model Campaign {
 }
 
 model User {
-  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   address     String   @unique // address on-chain
   name        String? 
   email       String?  @unique
@@ -39,7 +39,7 @@ model User {
 }
 
 model Proof {
-  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   campaignId  BigInt  
   userId      String   @db.ObjectId
   content     String   // content
@@ -50,7 +50,7 @@ model Proof {
 }
 
 model Vote {
-  id          String   @id @default(uuid()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   campaignId  BigInt  
   userId      String   @db.ObjectId
   createdAt   DateTime @default(now()) 

@@ -1,8 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useCreateUser } from '@/features/User/data/hooks'
-import { useTranslations } from '@/shared/hooks'
+import { CreateUserRequestDto, CreateUserResponseDto, userService } from '@/features/User'
+import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useEffect } from 'react'
 import { useAccount } from 'wagmi'
@@ -10,18 +10,28 @@ import { useAccount } from 'wagmi'
 export default function ConnectWallet() {
   const t = useTranslations()
   const { address, isConnected } = useAccount()
-  const { mutateAsync: createUser, isPending: isCreatingUser } = useCreateUser()
+  const { mutateAsync: createUser, isPending: isCreatingUser } = useApiMutation<
+    CreateUserResponseDto,
+    CreateUserRequestDto
+  >(userService.createUserIfNotExists, {
+    invalidateQueries: [['users']],
+  })
 
   // Auto-create user when wallet is connected
   useEffect(() => {
+    console.log('ConnectWallet useEffect triggered:', { isConnected, address })
+
     if (isConnected && address) {
+      console.log('Creating user with address:', address)
       createUser({
         address,
-        name: undefined, // User can update name later
-      }).catch((error) => {
-        console.error('Failed to create user:', error)
-        // Don't show error to user as this is a background operation
       })
+        .then((response) => {
+          console.log('User created successfully:', response)
+        })
+        .catch((error) => {
+          console.error('Failed to create user:', error)
+        })
     }
   }, [isConnected, address, createUser])
 

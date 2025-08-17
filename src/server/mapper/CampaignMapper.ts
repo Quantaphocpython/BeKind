@@ -1,8 +1,9 @@
-import { Campaign, Proof, User, Vote } from '@/features/Campaign/data/types'
-import { CampaignDto, ProofDto, UserDto, VoteDto } from '@/server/dto/campaign.dto'
+import { Campaign, Proof, Vote } from '@/features/Campaign/data/types'
+import { CampaignDto, ProofDto, VoteDto } from '@/server/dto/campaign.dto'
+import { userMapper } from './UserMapper'
 
-export class MapperUtil {
-  static toCampaignDto(campaign: Campaign): CampaignDto {
+class CampaignMapper {
+  toCampaignDto(campaign: Campaign): CampaignDto {
     return {
       id: campaign.id,
       campaignId: campaign.campaignId.toString(),
@@ -13,23 +14,13 @@ export class MapperUtil {
       description: campaign.description,
       createdAt: campaign.createdAt.toISOString(),
       voteCount: campaign.voteCount,
-      ownerUser: campaign.ownerUser ? this.toUserDto(campaign.ownerUser) : null,
+      ownerUser: campaign.ownerUser ? userMapper.toUserDto(campaign.ownerUser) : null,
       proofs: campaign.proofs ? campaign.proofs.map(this.toProofDto) : [],
       votes: campaign.votes ? campaign.votes.map(this.toVoteDto) : [],
     }
   }
 
-  static toUserDto(user: User): UserDto {
-    return {
-      id: user.id,
-      address: user.address,
-      name: user.name,
-      trustScore: user.trustScore,
-      createdAt: user.createdAt.toISOString(),
-    }
-  }
-
-  static toProofDto(proof: Proof): ProofDto {
+  toProofDto(proof: Proof): ProofDto {
     return {
       id: proof.id,
       campaignId: proof.campaignId.toString(),
@@ -37,22 +28,24 @@ export class MapperUtil {
       content: proof.content,
       createdAt: proof.createdAt.toISOString(),
       campaign: proof.campaign ? this.toCampaignDto(proof.campaign) : undefined,
-      user: proof.user ? this.toUserDto(proof.user) : undefined,
+      user: proof.user ? userMapper.toUserDto(proof.user) : undefined,
     }
   }
 
-  static toVoteDto(vote: Vote): VoteDto {
+  toVoteDto(vote: Vote): VoteDto {
     return {
       id: vote.id,
       campaignId: vote.campaignId.toString(),
       userId: vote.userId,
       createdAt: vote.createdAt.toISOString(),
       campaign: vote.campaign ? this.toCampaignDto(vote.campaign) : undefined,
-      user: vote.user ? this.toUserDto(vote.user) : undefined,
+      user: vote.user ? userMapper.toUserDto(vote.user) : undefined,
     }
   }
 
-  static toCampaignListDto(campaigns: Campaign[]): CampaignDto[] {
+  toCampaignListDto(campaigns: Campaign[]): CampaignDto[] {
     return campaigns.map(this.toCampaignDto)
   }
 }
+
+export const campaignMapper = new CampaignMapper()

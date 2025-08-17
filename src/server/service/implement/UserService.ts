@@ -1,5 +1,6 @@
 import { User } from '@/features/Campaign/data/types'
 import { userRepository } from '@/server/repository/implement/UserRepository'
+import { generateRandomUserNameWithNumber } from '@/server/utils/stringHelper'
 import { IUserService } from '../interface/UserService.interface'
 
 class UserService implements IUserService {
@@ -11,8 +12,11 @@ class UserService implements IUserService {
       return existingUser
     }
 
+    // Generate random name if not provided
+    const userName = name || generateRandomUserNameWithNumber()
+
     // Create new user if doesn't exist
-    const newUser = await userRepository.createUser(address, name)
+    const newUser = await userRepository.createUser(address, userName)
 
     return newUser
   }

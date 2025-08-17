@@ -9,7 +9,7 @@ export interface UserDto {
 
 export interface CreateUserRequestDto {
   address: string
-  name?: string
+  name?: string // Optional - backend will generate if not provided
 }
 
 export interface CreateUserResponseDto {

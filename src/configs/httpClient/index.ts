@@ -1,5 +1,3 @@
- 
-
 export interface IHttpClient {
   /**
    * Thiết lập interceptor cho request.
