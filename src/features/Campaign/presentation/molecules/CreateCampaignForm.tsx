@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { useApiMutation } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAccount } from 'wagmi'
 import { CAMPAIGN_CONSTANTS, CreateCampaignFormData, createCampaignSchema } from '../../data/constants'
-import { CreateCampaignRequestDto } from '../../data/dto'
-import { useCampaignContractWrite, useCreateCampaign } from '../../data/hooks'
+import { CreateCampaignRequestDto, CreateCampaignResponseDto } from '../../data/dto'
+import { useCampaignContractWrite } from '../../data/hooks'
+import { campaignService } from '../../data/services'
 
 export const CreateCampaignForm = () => {
   const { address, isConnected } = useAccount()
@@ -33,7 +35,14 @@ export const CreateCampaignForm = () => {
     },
   })
 
-  const { mutateAsync: createCampaignAPI, isPending: isAPIPending, error: apiError } = useCreateCampaign()
+  const {
+    mutateAsync: createCampaignAPI,
+    isPending: isAPIPending,
+    error: apiError,
+  } = useApiMutation<CreateCampaignResponseDto, CreateCampaignRequestDto>(campaignService.createCampaign, {
+    invalidateQueries: [['campaigns']],
+  })
+
   const {
     execute: createCampaignContract,
     isLoading: isContractLoading,

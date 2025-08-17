@@ -1,4 +1,4 @@
-import { useApiMutation } from '@/shared/hooks/useApi'
+import { useApiMutation } from '@/shared/hooks'
 import { CreateUserRequestDto, CreateUserResponseDto } from '../dto'
 import { userService } from '../services/user.service'
 

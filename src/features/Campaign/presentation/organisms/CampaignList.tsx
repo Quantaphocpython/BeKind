@@ -3,12 +3,14 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CampaignListResponseDto } from '@/features/Campaign/data/dto'
+import { campaignService } from '@/features/Campaign/data/services'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
+import { useApiQuery } from '@/shared/hooks'
 import { routeConfig } from '@/shared/utils/route'
 import { Filter, Plus, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useCampaigns } from '../../data/hooks'
 import { CampaignCard } from '../molecules/CampaignCard'
 
 export const CampaignList = () => {
@@ -16,13 +18,19 @@ export const CampaignList = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
-  const { data: campaigns, isLoading, error } = useCampaigns()
+  const {
+    data: campaignsResponse,
+    isLoading,
+    error,
+  } = useApiQuery<CampaignListResponseDto>(['campaigns', 'all'], () => campaignService.getCampaigns(), {
+    select: (data) => data.data,
+  })
 
   const filteredCampaigns =
-    campaigns?.filter((campaign) => {
+    campaignsResponse?.campaigns?.filter((campaign) => {
       const matchesSearch =
         campaign.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        campaign.campaignId.includes(searchTerm)
+        campaign.campaignId.toString().includes(searchTerm)
 
       const matchesStatus =
         statusFilter === 'all' ||

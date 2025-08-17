@@ -1,5 +1,5 @@
 import { abi } from '@/configs/abis'
-import { useContractRead } from 'wagmi'
+import { useReadContract } from 'wagmi'
 import { CONTRACT_CONSTANTS } from '../constants'
 import { CONTRACT_FUNCTIONS, ContractArgs } from '../constants/contract-hooks.constants'
 
@@ -15,7 +15,7 @@ export const useCampaignContractRead = <
     throw new Error(`Function ${functionName} is not a read operation`)
   }
 
-  const { data, isLoading, error } = useContractRead({
+  const { data, isLoading, error } = useReadContract({
     address: CONTRACT_CONSTANTS.ADDRESS as `0x${string}`,
     abi,
     functionName,

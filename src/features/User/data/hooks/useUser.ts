@@ -1,4 +1,4 @@
-import { useApiQuery } from '@/shared/hooks/useApi'
+import { useApiQuery } from '@/shared/hooks'
 import { UserDto } from '../dto'
 import { userService } from '../services/user.service'
 
