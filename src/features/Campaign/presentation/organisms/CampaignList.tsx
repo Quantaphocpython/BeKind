@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CampaignListResponseDto } from '@/features/Campaign/data/hooks/dto'
+import { CampaignDto, CampaignListResponseDto } from '@/features/Campaign/data/dto'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
@@ -13,6 +13,7 @@ import { Filter, Plus, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { CampaignCard } from '../molecules/CampaignCard'
+import { CampaignCardSkeleton } from '../molecules/CampaignCardSkeleton'
 
 export const CampaignList = () => {
   const router = useRouter()
@@ -35,7 +36,7 @@ export const CampaignList = () => {
   )
 
   const filteredCampaigns =
-    campaignsResponse?.campaigns?.filter((campaign) => {
+    campaignsResponse?.campaigns?.filter((campaign: CampaignDto) => {
       const matchesSearch =
         campaign.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         campaign.campaignId.toString().includes(searchTerm)
@@ -51,14 +52,6 @@ export const CampaignList = () => {
   const handleCreateCampaign = () => {
     const url = routeConfig(RouteEnum.CreateCampaign)
     router.push(url)
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    )
   }
 
   if (error) {
@@ -109,13 +102,21 @@ export const CampaignList = () => {
 
       {/* Campaign Count */}
       <div className="text-sm text-muted-foreground">
-        {filteredCampaigns.length} campaign{filteredCampaigns.length !== 1 ? 's' : ''} found
+        {isLoading
+          ? 'Loading campaigns...'
+          : `${filteredCampaigns.length} campaign${filteredCampaigns.length !== 1 ? 's' : ''} found`}
       </div>
 
       {/* Campaign Grid */}
-      {filteredCampaigns.length > 0 ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCampaigns.map((campaign) => (
+          {Array.from({ length: 3 }).map((_, index) => (
+            <CampaignCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : filteredCampaigns.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCampaigns.map((campaign: CampaignDto) => (
             <CampaignCard key={campaign.id} campaign={campaign} />
           ))}
         </div>
