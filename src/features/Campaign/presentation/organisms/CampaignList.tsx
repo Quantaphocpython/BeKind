@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CampaignListResponseDto } from '@/features/Campaign/data/dto'
-import { campaignService } from '@/features/Campaign/data/services'
+import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
+import { container, TYPES } from '@/features/Common/container'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useApiQuery } from '@/shared/hooks'
 import { routeConfig } from '@/shared/utils/route'
@@ -22,9 +23,16 @@ export const CampaignList = () => {
     data: campaignsResponse,
     isLoading,
     error,
-  } = useApiQuery<CampaignListResponseDto>(['campaigns', 'all'], () => campaignService.getCampaigns(), {
-    select: (data) => data.data,
-  })
+  } = useApiQuery<CampaignListResponseDto>(
+    ['campaigns', 'all'],
+    () => {
+      const campaignService = container.get(TYPES.CampaignService) as CampaignService
+      return campaignService.getCampaigns()
+    },
+    {
+      select: (data) => data.data,
+    },
+  )
 
   const filteredCampaigns =
     campaignsResponse?.campaigns?.filter((campaign) => {

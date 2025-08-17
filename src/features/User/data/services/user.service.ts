@@ -1,17 +1,19 @@
-import { httpClient } from '@/configs/httpClient'
+import type { IHttpClient } from '@/configs/httpClient'
+import { TYPES } from '@/features/Common/container/types'
 import { ApiEndpointEnum } from '@/shared/constants/ApiEndpointEnum'
 import { HttpResponse } from '@/shared/types/httpResponse.type'
 import { routeConfig } from '@/shared/utils/route'
+import { inject, injectable } from 'inversify'
 import { CreateUserRequestDto, CreateUserResponseDto, UserDto, UserListResponseDto } from '../dto'
 
-class UserService {
+@injectable()
+export class UserService {
+  constructor(@inject(TYPES.HttpClient) private readonly httpClient: IHttpClient) {}
+
   async createUserIfNotExists(data: CreateUserRequestDto): Promise<HttpResponse<CreateUserResponseDto>> {
     const url = routeConfig(ApiEndpointEnum.Users)
-    console.log('userService.createUserIfNotExists called with:', data)
-    console.log('Making POST request to:', url)
     try {
-      const result = await httpClient.post<HttpResponse<CreateUserResponseDto>>(url, data)
-      console.log('userService.createUserIfNotExists success:', result)
+      const result = await this.httpClient.post<HttpResponse<CreateUserResponseDto>>(url, data)
       return result
     } catch (error) {
       console.error('userService.createUserIfNotExists error:', error)
@@ -21,13 +23,11 @@ class UserService {
 
   async getUserByAddress(address: string): Promise<HttpResponse<UserDto>> {
     const url = routeConfig(ApiEndpointEnum.UserByAddress, { address })
-    return await httpClient.get(url)
+    return await this.httpClient.get(url)
   }
 
   async getAllUsers(): Promise<HttpResponse<UserListResponseDto>> {
     const url = routeConfig(ApiEndpointEnum.Users)
-    return await httpClient.get(url)
+    return await this.httpClient.get(url)
   }
 }
-
-export const userService = new UserService()

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
+import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
@@ -14,7 +16,6 @@ import { useAccount } from 'wagmi'
 import { CAMPAIGN_CONSTANTS, CreateCampaignFormData, createCampaignSchema } from '../../data/constants'
 import { CreateCampaignRequestDto, CreateCampaignResponseDto } from '../../data/dto'
 import { useCampaignContractWrite } from '../../data/hooks'
-import { campaignService } from '../../data/services'
 
 export const CreateCampaignForm = () => {
   const { address, isConnected } = useAccount()
@@ -39,9 +40,15 @@ export const CreateCampaignForm = () => {
     mutateAsync: createCampaignAPI,
     isPending: isAPIPending,
     error: apiError,
-  } = useApiMutation<CreateCampaignResponseDto, CreateCampaignRequestDto>(campaignService.createCampaign, {
-    invalidateQueries: [['campaigns']],
-  })
+  } = useApiMutation<CreateCampaignResponseDto, CreateCampaignRequestDto>(
+    (data) => {
+      const campaignService = container.get(TYPES.CampaignService) as CampaignService
+      return campaignService.createCampaign(data)
+    },
+    {
+      invalidateQueries: [['campaigns']],
+    },
+  )
 
   const {
     execute: createCampaignContract,

@@ -1,15 +1,14 @@
-import { httpClient, IHttpClient } from '@/configs/httpClient'
+import type { IHttpClient } from '@/configs/httpClient'
+import { TYPES } from '@/features/Common/container/types'
 import { ApiEndpointEnum } from '@/shared/constants/ApiEndpointEnum'
 import { HttpResponse } from '@/shared/types/httpResponse.type'
 import { routeConfig } from '@/shared/utils/route'
+import { inject, injectable } from 'inversify'
 import { CampaignDto, CampaignListResponseDto, CreateCampaignRequestDto, CreateCampaignResponseDto } from '../dto'
 
-class CampaignService {
-  private httpClient: IHttpClient
-
-  constructor() {
-    this.httpClient = httpClient
-  }
+@injectable()
+export class CampaignService {
+  constructor(@inject(TYPES.HttpClient) private readonly httpClient: IHttpClient) {}
 
   async createCampaign(data: CreateCampaignRequestDto): Promise<HttpResponse<CreateCampaignResponseDto>> {
     const url = routeConfig(ApiEndpointEnum.Campaigns)
@@ -26,5 +25,3 @@ class CampaignService {
     return await this.httpClient.get(url)
   }
 }
-
-export const campaignService = new CampaignService()

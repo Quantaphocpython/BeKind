@@ -1,7 +1,9 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { CreateUserRequestDto, CreateUserResponseDto, userService } from '@/features/User'
+import { container, TYPES } from '@/features/Common/container'
+import { CreateUserRequestDto, CreateUserResponseDto } from '@/features/User'
+import { UserService } from '@/features/User/data/services/user.service'
 import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useEffect } from 'react'
@@ -13,9 +15,15 @@ export default function ConnectWallet() {
   const { mutateAsync: createUser, isPending: isCreatingUser } = useApiMutation<
     CreateUserResponseDto,
     CreateUserRequestDto
-  >(userService.createUserIfNotExists, {
-    invalidateQueries: [['users']],
-  })
+  >(
+    (data) => {
+      const userService = container.get(TYPES.UserService) as UserService
+      return userService.createUserIfNotExists(data)
+    },
+    {
+      invalidateQueries: [['users']],
+    },
+  )
 
   // Auto-create user when wallet is connected
   useEffect(() => {

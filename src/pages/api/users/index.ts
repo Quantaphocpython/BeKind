@@ -1,10 +1,14 @@
+import { container, TYPES } from '@/server/container'
 import { UserDto } from '@/server/dto/campaign.dto'
-import { userMapper } from '@/server/mapper'
-import { userService } from '@/server/service/implement/UserService'
+import { IUserService } from '@/server/service/interface/UserService.interface'
 import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Get services from DI container
+  const userService = container.get<IUserService>(TYPES.UserService)
+  const userMapper = container.get(TYPES.UserMapper) as any
+
   if (req.method === 'POST') {
     try {
       const { address, name } = req.body

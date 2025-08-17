@@ -11,6 +11,7 @@ import { notFound } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { ReactNode } from 'react'
+import 'reflect-metadata'
 import '../globals.css'
 
 const inter = Inter({
