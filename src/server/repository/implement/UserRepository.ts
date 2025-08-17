@@ -1,8 +1,10 @@
 import prisma from '@/configs/prisma'
 import { User } from '@/features/Campaign/data/types'
+import { injectable } from 'inversify'
 import { IUserRepository } from '../interface/UserRepository.interface'
 
-class UserRepository implements IUserRepository {
+@injectable()
+export class UserRepository implements IUserRepository {
   async createUser(address: string, name?: string): Promise<User> {
     const user = await prisma.user.create({
       data: {
@@ -49,5 +51,3 @@ class UserRepository implements IUserRepository {
     return users
   }
 }
-
-export const userRepository = new UserRepository()

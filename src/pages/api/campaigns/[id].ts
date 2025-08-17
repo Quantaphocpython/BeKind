@@ -1,10 +1,14 @@
+import { container, TYPES } from '@/server/container'
 import { CampaignDto } from '@/server/dto/campaign.dto'
-import { campaignMapper } from '@/server/mapper'
-import { campaignService } from '@/server/service/implement/CampaignService'
+import type { ICampaignService } from '@/server/service/interface/CampaignService.interface'
 import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Get services from DI container
+  const campaignService = container.get<ICampaignService>(TYPES.CampaignService)
+  const campaignMapper = container.get(TYPES.CampaignMapper) as any
+
   if (req.method === 'GET') {
     try {
       const { id } = req.query

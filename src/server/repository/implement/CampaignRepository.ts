@@ -1,8 +1,10 @@
 import prisma from '@/configs/prisma'
 import { Campaign, CreateCampaignRequest } from '@/features/Campaign/data/types'
+import { injectable } from 'inversify'
 import { ICampaignRepository } from '../interface'
 
-class CampaignRepository implements ICampaignRepository {
+@injectable()
+export class CampaignRepository implements ICampaignRepository {
   async createCampaign(data: CreateCampaignRequest, campaignId: bigint, ownerAddress: string): Promise<Campaign> {
     const goalInWei = BigInt(Math.floor(parseFloat(data.goal) * 10 ** 18))
 
@@ -94,5 +96,3 @@ class CampaignRepository implements ICampaignRepository {
     })
   }
 }
-
-export const campaignRepository = new CampaignRepository()

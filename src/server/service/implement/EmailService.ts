@@ -1,10 +1,12 @@
 import { EMAIL_SUBJECTS, EmailTemplateEnum } from '@/shared/constants/EmailTemplateEnum'
 import { SendSmtpEmail, TransactionalEmailsApi } from '@sendinblue/client'
 import fs from 'fs'
+import { injectable } from 'inversify'
 import path from 'path'
 import { EmailData, IEmailService } from '../interface/EmailService.interface'
 
-class EmailService implements IEmailService {
+@injectable()
+export class EmailService implements IEmailService {
   private apiInstance: TransactionalEmailsApi
   private senderEmail: string
   private templatesPath: string
@@ -101,5 +103,3 @@ class EmailService implements IEmailService {
     }
   }
 }
-
-export const emailService = new EmailService()

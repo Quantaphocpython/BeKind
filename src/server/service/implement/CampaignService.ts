@@ -1,17 +1,23 @@
 import { abi } from '@/configs/abis'
 import { CONTRACT_CONSTANTS } from '@/features/Campaign/data/constants'
 import { Campaign, CreateCampaignRequest, CreateCampaignResponse } from '@/features/Campaign/data/types'
-import { campaignRepository } from '@/server/repository'
 import { EmailTemplateEnum } from '@/shared/constants/EmailTemplateEnum'
 import { ethers } from 'ethers'
+import { inject, injectable } from 'inversify'
+import { TYPES } from '../../container/types'
+import type { ICampaignRepository } from '../../repository/interface/CampaignRepository.interface'
 import { ICampaignService } from '../interface/CampaignService.interface'
-import { emailService } from './EmailService'
+import type { IEmailService } from '../interface/EmailService.interface'
 
-class CampaignService implements ICampaignService {
+@injectable()
+export class CampaignService implements ICampaignService {
   private contractAddress: string
   private provider: ethers.JsonRpcProvider
 
-  constructor() {
+  constructor(
+    @inject(TYPES.CampaignRepository) private readonly campaignRepository: ICampaignRepository,
+    @inject(TYPES.EmailService) private readonly emailService: IEmailService,
+  ) {
     this.contractAddress = CONTRACT_CONSTANTS.ADDRESS
 
     if (!this.contractAddress) {
@@ -40,11 +46,11 @@ class CampaignService implements ICampaignService {
       const nextCampaignId = await contract.nextCampaignId()
 
       // Create campaign in database first
-      const campaign = await campaignRepository.createCampaign(data, nextCampaignId, ownerAddress)
+      const campaign = await this.campaignRepository.createCampaign(data, nextCampaignId, ownerAddress)
 
       // Send email notification
       try {
-        await emailService.sendTemplateEmail({
+        await this.emailService.sendTemplateEmail({
           to: ownerAddress, // You might want to get user's email from database
           templateId: EmailTemplateEnum.CreateCampaignSuccess,
           params: {
@@ -76,33 +82,33 @@ class CampaignService implements ICampaignService {
   }
 
   async getCampaignById(campaignId: bigint): Promise<Campaign | null> {
-    return await campaignRepository.getCampaignById(campaignId)
+    return await this.campaignRepository.getCampaignById(campaignId)
   }
 
   async getCampaignsByOwner(ownerAddress: string): Promise<Campaign[]> {
-    return await campaignRepository.getCampaignsByOwner(ownerAddress)
+    return await this.campaignRepository.getCampaignsByOwner(ownerAddress)
   }
 
   async getAllCampaigns(): Promise<Campaign[]> {
-    return await campaignRepository.getAllCampaigns()
+    return await this.campaignRepository.getAllCampaigns()
   }
 
   async updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign> {
-    return await campaignRepository.updateCampaignBalance(campaignId, balance)
+    return await this.campaignRepository.updateCampaignBalance(campaignId, balance)
   }
 
   async closeCampaign(campaignId: bigint, ownerAddress: string): Promise<Campaign> {
     // Verify ownership
-    const campaign = await campaignRepository.getCampaignById(campaignId)
+    const campaign = await this.campaignRepository.getCampaignById(campaignId)
     if (!campaign || campaign.owner !== ownerAddress) {
       throw new Error('Not authorized to close this campaign')
     }
 
-    return await campaignRepository.closeCampaign(campaignId)
+    return await this.campaignRepository.closeCampaign(campaignId)
   }
 
   async incrementVoteCount(campaignId: bigint): Promise<void> {
-    await campaignRepository.incrementVoteCount(campaignId)
+    await this.campaignRepository.incrementVoteCount(campaignId)
   }
 
   // Helper method to get campaign from blockchain
@@ -115,8 +121,6 @@ class CampaignService implements ICampaignService {
   async syncCampaignBalance(campaignId: bigint): Promise<Campaign> {
     const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
     const balance = await contract.getBalance(campaignId)
-    return await campaignRepository.updateCampaignBalance(campaignId, balance)
+    return await this.campaignRepository.updateCampaignBalance(campaignId, balance)
   }
 }
-
-export const campaignService = new CampaignService()
