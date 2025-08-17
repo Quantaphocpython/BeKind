@@ -4,7 +4,7 @@ import { ApiEndpointEnum } from '@/shared/constants/ApiEndpointEnum'
 import { HttpResponse } from '@/shared/types/httpResponse.type'
 import { routeConfig } from '@/shared/utils/route'
 import { inject, injectable } from 'inversify'
-import { CampaignDto, CampaignListResponseDto, CreateCampaignRequestDto, CreateCampaignResponseDto } from '../dto'
+import { CampaignDto, CampaignListResponseDto, CreateCampaignRequestDto, CreateCampaignResponseDto } from '../hooks/dto'
 
 @injectable()
 export class CampaignService {

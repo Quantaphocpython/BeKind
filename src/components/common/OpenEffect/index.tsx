@@ -2,7 +2,7 @@
 
 import { cn } from '@/shared/utils'
 import { motion, MotionProps, Transition, ViewportOptions } from 'motion/react'
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { animations, staggerAnimations } from './constant'
 import { AnimationType } from './type'
 
@@ -15,6 +15,7 @@ interface OpenEffectProps extends MotionProps {
   once?: boolean
   threshold?: number
   triggerOnScroll?: boolean
+  disappearOnScrollUp?: boolean
 }
 
 export default function OpenEffect({
@@ -24,10 +25,13 @@ export default function OpenEffect({
   duration,
   className,
   once = true,
-  threshold = 0.1,
+  threshold = 0.4,
   triggerOnScroll = true,
+  disappearOnScrollUp = false,
   ...motionProps
 }: OpenEffectProps) {
+  const [isInView, setIsInView] = useState(false)
+
   const getAnimationConfig = () => {
     if (animation.includes('Stagger')) {
       return staggerAnimations[animation as keyof typeof staggerAnimations]
@@ -46,10 +50,21 @@ export default function OpenEffect({
   // Viewport options for scroll triggering
   const viewportOptions: ViewportOptions | undefined = triggerOnScroll
     ? {
-        once,
+        once: disappearOnScrollUp ? false : once, // Disable once if disappearOnScrollUp is true
         amount: threshold,
       }
     : undefined
+
+  // Handle viewport enter/leave
+  const handleViewportEnter = () => {
+    setIsInView(true)
+  }
+
+  const handleViewportLeave = () => {
+    if (disappearOnScrollUp) {
+      setIsInView(false)
+    }
+  }
 
   // If it's a stagger animation, wrap children in motion.div
   if (animation.includes('Stagger')) {
@@ -57,7 +72,9 @@ export default function OpenEffect({
       <motion.div
         className={cn('w-full', className)}
         initial={config.initial}
-        whileInView={config.animate}
+        animate={isInView ? config.animate : config.initial}
+        onViewportEnter={handleViewportEnter}
+        onViewportLeave={handleViewportLeave}
         viewport={viewportOptions}
         transition={customTransition}
         {...motionProps}
@@ -67,7 +84,9 @@ export default function OpenEffect({
             <motion.div
               key={index}
               initial={config.initial}
-              whileInView={config.animate}
+              animate={isInView ? config.animate : config.initial}
+              onViewportEnter={handleViewportEnter}
+              onViewportLeave={handleViewportLeave}
               viewport={viewportOptions}
               transition={{
                 ...customTransition,
@@ -80,7 +99,9 @@ export default function OpenEffect({
         ) : (
           <motion.div
             initial={config.initial}
-            whileInView={config.animate}
+            animate={isInView ? config.animate : config.initial}
+            onViewportEnter={handleViewportEnter}
+            onViewportLeave={handleViewportLeave}
             viewport={viewportOptions}
             transition={customTransition}
           >
@@ -96,7 +117,9 @@ export default function OpenEffect({
     <motion.div
       className={cn('w-full', className)}
       initial={config.initial}
-      whileInView={config.animate}
+      animate={isInView ? config.animate : config.initial}
+      onViewportEnter={handleViewportEnter}
+      onViewportLeave={handleViewportLeave}
       viewport={viewportOptions}
       transition={customTransition}
       {...motionProps}

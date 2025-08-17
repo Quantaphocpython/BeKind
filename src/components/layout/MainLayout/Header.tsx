@@ -1,9 +1,10 @@
 'use client'
 
-import { ConnectWallet, SettingsDropdown } from '@/components/common'
+import { SettingsDropdown } from '@/components/common'
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { UserProfileDropdown } from '@/features/User'
 import { RouteEnum } from '@/shared/constants'
 import { useTranslations } from '@/shared/hooks'
 import { useToggle } from '@/shared/hooks/useToggle'
@@ -50,7 +51,7 @@ export default function Header() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-3">
           <SettingsDropdown />
-          <ConnectWallet />
+          <UserProfileDropdown />
         </div>
 
         {/* Mobile Menu */}
@@ -74,7 +75,7 @@ export default function Header() {
               ))}
               <div className="flex flex-col space-y-3 pt-6 border-t">
                 <SettingsDropdown />
-                <ConnectWallet />
+                <UserProfileDropdown />
               </div>
             </div>
           </SheetContent>

@@ -22,7 +22,7 @@ export class UserService {
   }
 
   async getUserByAddress(address: string): Promise<HttpResponse<UserDto>> {
-    const url = routeConfig(ApiEndpointEnum.UserByAddress, { address })
+    const url = routeConfig(ApiEndpointEnum.Users, {}, { address })
     return await this.httpClient.get(url)
   }
 

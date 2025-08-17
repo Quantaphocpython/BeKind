@@ -11,23 +11,23 @@ export default function LandingPage() {
     <>
       <HeroSection />
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <StatsSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <PlatformFeaturesSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <ProjectsSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <CallToActionSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <TestimonialsSection />
       </OpenEffect>
     </>

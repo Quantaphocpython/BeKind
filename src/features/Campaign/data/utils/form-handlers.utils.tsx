@@ -1,5 +1,5 @@
 import { CAMPAIGN_CONSTANTS } from '../constants'
-import { CreateCampaignRequestDto } from '../dto'
+import { CreateCampaignRequestDto } from '../hooks/dto'
 import { CreateCampaignFormData } from '../schema'
 
 export interface FormHandlersUtils {

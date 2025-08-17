@@ -26,6 +26,8 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.2.4",
+    "@dicebear/core": "^9.2.4",
     "@floating-ui/react": "^0.27.15",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.1.1",

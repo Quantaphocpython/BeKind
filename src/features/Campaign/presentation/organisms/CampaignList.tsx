@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CampaignListResponseDto } from '@/features/Campaign/data/dto'
+import { CampaignListResponseDto } from '@/features/Campaign/data/hooks/dto'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { RouteEnum } from '@/shared/constants/RouteEnum'

@@ -9,7 +9,7 @@ import { routeConfig } from '@/shared/utils/route'
 import { useRouter } from 'next/navigation'
 import { formatEther } from 'viem'
 import { CampaignStatus } from '../../data/constants'
-import { CampaignDto } from '../../data/dto'
+import { CampaignDto } from '../../data/hooks/dto'
 
 interface CampaignCardProps {
   campaign: CampaignDto
