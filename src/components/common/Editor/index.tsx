@@ -49,10 +49,8 @@ const Editor = ({ value, onChange, error, disabled = false, showPreview = true }
           />
 
           {isEditorExpanded && (
-            <div>
-              <div className={`h-full ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
-                {value && <RichEditor content={value} setContent={onChange} />}
-              </div>
+            <div className={`h-full ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
+              <RichEditor content={value || ''} setContent={onChange} />
             </div>
           )}
         </div>
