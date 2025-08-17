@@ -1,6 +1,6 @@
 'use client'
 
-import ConnectWallet from '@/components/common/ConnectWallet'
+import ConnectWallet from '@/components/common/organisms/Wallet/ConnectWallet'
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import {

@@ -1,4 +1,4 @@
-import OpenEffect from '@/components/common/OpenEffect'
+import OpenEffect from '@/components/common/organisms/OpenEffect'
 import CallToActionSection from '../organisms/CallToActionSection'
 import HeroSection from '../organisms/HeroSection'
 import PlatformFeaturesSection from '../organisms/PlatformFeaturesSection'

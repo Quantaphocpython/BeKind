@@ -27,8 +27,6 @@ export default function ConnectWallet() {
 
   // Auto-create user when wallet is connected
   useEffect(() => {
-    console.log('ConnectWallet useEffect triggered:', { isConnected, address })
-
     if (isConnected && address) {
       console.log('Creating user with address:', address)
       createUser({

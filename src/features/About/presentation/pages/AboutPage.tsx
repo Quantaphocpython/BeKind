@@ -1,4 +1,4 @@
-import { SlideUp } from '@/components/common/OpenEffect'
+import { SlideUp } from '@/components/common/organisms/OpenEffect'
 import AboutHero from '../organisms/AboutHero'
 import AboutStats from '../organisms/AboutStats'
 import AboutTeam from '../organisms/AboutTeam'

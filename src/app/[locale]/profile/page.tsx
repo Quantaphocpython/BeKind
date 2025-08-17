@@ -1,4 +1,4 @@
-import LoadingSpinner from '@/components/shared/LoadingSpinner'
+import LoadingSpinner from '@/components/common/atoms/Loading/LoadingSpinner'
 import dynamic from 'next/dynamic'
 
 const ProfileRender = dynamic(() => import('@/features/User/presentation').then((mod) => mod.ProfilePage), {

@@ -1,6 +1,6 @@
 'use client'
 
-import Editor from '@/components/common/Editor'
+import Editor from '@/components/common/organisms/Editor'
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
