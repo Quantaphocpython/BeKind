@@ -1,47 +1,52 @@
 'use client'
 
 import Editor from '@/components/common/Editor'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
-import { useApiMutation } from '@/shared/hooks'
+import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Target } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
-import { CAMPAIGN_CONSTANTS, CreateCampaignFormData, createCampaignSchema } from '../../data/constants'
+import { CAMPAIGN_CONSTANTS, FORM_CONFIG, FORM_STATE } from '../../data/constants'
 import { CreateCampaignRequestDto, CreateCampaignResponseDto } from '../../data/dto'
 import { useCampaignContractWrite } from '../../data/hooks'
+import { CreateCampaignFormData, createEnhancedCampaignSchema } from '../../data/schema'
+import { createFormHandlersUtils, createFormUIUtils } from '../../data/utils'
 
 export const CreateCampaignForm = () => {
   const { address, isConnected } = useAccount()
-  const [isContractSuccess, setIsContractSuccess] = useState(false)
+  const t = useTranslations()
+  const [formState, setFormState] = useState<FORM_STATE>(FORM_STATE.IDLE)
   const [formData, setFormData] = useState<CreateCampaignFormData | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors, isSubmitting },
-    reset,
-    watch,
-  } = useForm<CreateCampaignFormData>({
-    resolver: zodResolver(createCampaignSchema),
+  // Initialize utils
+  const formHandlersUtils = createFormHandlersUtils(t)
+  const formUIUtils = createFormUIUtils()
+
+  // Enhanced schema with better validation
+  const enhancedCreateCampaignSchema = createEnhancedCampaignSchema(t)
+
+  const form = useForm<CreateCampaignFormData>({
+    resolver: zodResolver(enhancedCreateCampaignSchema),
     defaultValues: {
       goal: '',
       description: '',
     },
+    mode: 'onChange',
   })
 
-  const {
-    mutateAsync: createCampaignAPI,
-    isPending: isAPIPending,
-    error: apiError,
-  } = useApiMutation<CreateCampaignResponseDto, CreateCampaignRequestDto>(
+  const { mutateAsync: createCampaignAPI, isPending: isAPIPending } = useApiMutation<
+    CreateCampaignResponseDto,
+    CreateCampaignRequestDto
+  >(
     (data) => {
       const campaignService = container.get(TYPES.CampaignService) as CampaignService
       return campaignService.createCampaign(data)
@@ -55,11 +60,58 @@ export const CreateCampaignForm = () => {
     execute: createCampaignContract,
     isLoading: isContractLoading,
     isSuccess: isContractTransactionSuccess,
-    error: contractError,
   } = useCampaignContractWrite('createCampaign')
 
-  const goal = watch('goal')
-  const description = watch('description')
+  const goal = form.watch('goal')
+  const description = form.watch('description')
+
+  // Clear errors when wallet connects
+  useEffect(() => {
+    if (isConnected) {
+      form.clearErrors()
+    }
+  }, [isConnected, form])
+
+  // Handle contract success and create campaign in database
+  const handleContractSuccess = useCallback(async () => {
+    if (!formData || !address) return
+
+    try {
+      setFormState(FORM_STATE.API_PENDING)
+
+      const requestData = formHandlersUtils.createRequestData(formData, address)
+      await createCampaignAPI(requestData)
+
+      setFormState(FORM_STATE.SUCCESS)
+      form.reset()
+      setFormData(null)
+
+      toast.success(t('Success!'), {
+        description: t('Campaign created successfully!'),
+        icon: <Icons.checkCircle className="h-4 w-4" />,
+        duration: 5000,
+      })
+
+      // Reset form state after success
+      setTimeout(() => {
+        setFormState(FORM_STATE.IDLE)
+      }, FORM_CONFIG.SUCCESS_MESSAGE_DURATION)
+    } catch (error) {
+      console.error('Error creating campaign in database:', error)
+      setFormState(FORM_STATE.ERROR)
+      toast.error(t('Database Error'), {
+        description: error instanceof Error ? error.message : t('An unexpected error occurred'),
+        icon: <Icons.alertCircle className="h-4 w-4" />,
+      })
+    }
+  }, [formData, address, createCampaignAPI, form, formHandlersUtils, t])
+
+  useEffect(() => {
+    if (isContractTransactionSuccess && formData && address) {
+      setFormState(FORM_STATE.CONTRACT_SUCCESS)
+      handleContractSuccess()
+    }
+  }, [isContractTransactionSuccess, formData, address, handleContractSuccess])
 
   const onSubmit = async (data: CreateCampaignFormData) => {
     if (!isConnected || !address) {
@@ -67,132 +119,110 @@ export const CreateCampaignForm = () => {
     }
 
     try {
-      // Store form data for later use
+      setFormState(FORM_STATE.CONTRACT_PENDING)
       setFormData(data)
 
-      // First, create campaign on blockchain
+      // Validate goal amount
+      formHandlersUtils.validateGoalAmount(data.goal)
+
+      // Create campaign on blockchain
       createCampaignContract({ goal: data.goal })
     } catch (error) {
       console.error('Error creating campaign:', error)
+      setFormState(FORM_STATE.ERROR)
+      toast.error(t('Error'), {
+        description: error instanceof Error ? error.message : t('An unexpected error occurred'),
+        icon: <Icons.alertCircle className="h-4 w-4" />,
+      })
     }
   }
 
-  // Handle contract success and create campaign in database
-  useEffect(() => {
-    if (isContractTransactionSuccess && formData && address) {
-      setIsContractSuccess(true)
-
-      // Create campaign in database
-      const requestData: CreateCampaignRequestDto = {
-        ...formData,
-        userAddress: address,
-      }
-
-      createCampaignAPI(requestData)
-        .then(() => {
-          reset()
-          setIsContractSuccess(false)
-          setFormData(null)
-        })
-        .catch((error) => {
-          console.error('Error creating campaign in database:', error)
-          setIsContractSuccess(false)
-        })
-    }
-  }, [isContractTransactionSuccess, formData, address, createCampaignAPI, reset])
-
-  const isLoading = isSubmitting || isAPIPending || isContractLoading
+  const isLoading = form.formState.isSubmitting || isAPIPending || isContractLoading
+  const canSubmit = isConnected && form.formState.isValid && !isLoading && formState === FORM_STATE.IDLE
 
   return (
-    <Card className="w-full mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Create New Campaign</CardTitle>
-        <CardDescription>
-          Start a new charitable campaign to help those in need. Set your goal and describe your cause.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Goal Input */}
-          <div className="space-y-2">
-            <label htmlFor="goal" className="text-sm font-medium">
-              Campaign Goal (ETH)
-            </label>
-            <Input
-              id="goal"
-              type="number"
-              step="0.001"
-              placeholder="0.1"
-              {...register('goal')}
-              className={errors.goal ? 'border-red-500' : ''}
-            />
-            {errors.goal && <p className="text-sm text-red-500">{errors.goal.message}</p>}
-            <p className="text-xs text-muted-foreground">
-              Minimum: {CAMPAIGN_CONSTANTS.MIN_GOAL} ETH | Maximum: {CAMPAIGN_CONSTANTS.MAX_GOAL} ETH
-            </p>
+    <Card className="w-full">
+      <CardHeader className="space-y-4">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Target className="h-6 w-6 text-primary" />
           </div>
+          <div>
+            <CardTitle className="text-2xl font-bold">{t('Create New Campaign')}</CardTitle>
+            <CardDescription className="text-base">
+              {t('Start a new charitable campaign to help those in need. Set your goal and describe your cause.')}
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
 
-          {/* Description Input */}
-          <div className="space-y-2">
-            <label htmlFor="description" className="text-sm font-medium">
-              Campaign Description
-            </label>
-            <Controller
-              name="description"
-              control={control}
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Goal Input */}
+            <FormField
+              control={form.control}
+              name="goal"
               render={({ field }) => (
-                <Editor
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={errors.description?.message}
-                  disabled={isLoading}
-                  showPreview={true}
-                />
+                <FormItem>
+                  <FormLabel className="text-sm font-semibold flex items-center space-x-2">
+                    <Target className="h-4 w-4" />
+                    <span>{t('Campaign Goal (ETH)')}</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      {...formUIUtils.getGoalInputProps()}
+                      className="transition-colors"
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-muted-foreground">
+                    {t('Minimum: {min} ETH | Maximum: {max} ETH', {
+                      min: CAMPAIGN_CONSTANTS.MIN_GOAL,
+                      max: CAMPAIGN_CONSTANTS.MAX_GOAL,
+                    })}
+                  </p>
+                </FormItem>
               )}
             />
-            <p className="text-xs text-muted-foreground">
-              {description?.length || 0}/{CAMPAIGN_CONSTANTS.MAX_DESCRIPTION_LENGTH} characters
-            </p>
-          </div>
 
-          {/* Wallet Connection Alert */}
-          {!isConnected && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>Please connect your wallet to create a campaign.</AlertDescription>
-            </Alert>
-          )}
+            {/* Description Input */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-semibold flex items-center space-x-2">
+                    <Icons.post className="h-4 w-4" />
+                    <span>{t('Campaign Description')}</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Editor value={field.value} onChange={field.onChange} disabled={isLoading} showPreview={true} />
+                  </FormControl>
+                  <FormMessage />
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    <span>{t("Describe your campaign's purpose and goals")}</span>
+                    <span className={formUIUtils.getCharacterCountColor(description?.length || 0)}>
+                      {formUIUtils.getCharacterCountText(description?.length || 0)}
+                    </span>
+                  </div>
+                </FormItem>
+              )}
+            />
 
-          {/* Contract Error */}
-          {contractError && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>Contract error: {contractError.message}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* API Error */}
-          {apiError && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>API error: {apiError.message}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Success Message */}
-          {isContractSuccess && (
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>Campaign created successfully on blockchain! Saving to database...</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Submit Button */}
-          <Button type="submit" disabled={!isConnected || isLoading} className="w-full">
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLoading ? 'Creating Campaign...' : 'Create Campaign'}
-          </Button>
-        </form>
+            {/* Submit Button */}
+            <Button type="submit" disabled={!canSubmit} className="w-full h-12 text-base font-semibold">
+              {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+              {isLoading
+                ? t('Creating Campaign...')
+                : !isConnected
+                  ? t('Connect Wallet to Continue')
+                  : t('Create Campaign')}
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   )
