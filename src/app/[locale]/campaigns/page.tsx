@@ -1,4 +1,4 @@
-import LoadingSpinner from 'import LoadingSpinner from '@/components/common/atoms/Loading/LoadingSpinner''
+import LoadingSpinner from '@/components/common/atoms/Loading/LoadingSpinner'
 import dynamic from 'next/dynamic'
 
 const CampaignsPage = dynamic(

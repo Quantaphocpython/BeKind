@@ -238,6 +238,10 @@
     min-height: 0;
   }
 
+  [data-radix-popper-content-wrapper] {
+    background: none !important;
+  }
+
   .reactjs-tiptap-editor {
     .richtext-outline-1 {
       outline-width: 0px !important;

@@ -198,10 +198,13 @@ export const CreateCampaignForm = () => {
                     <Icons.post className="h-4 w-4" />
                     <span>{t('Campaign Description')}</span>
                   </FormLabel>
+
                   <FormControl>
                     <Editor value={field.value} onChange={field.onChange} disabled={isLoading} showPreview={true} />
                   </FormControl>
+
                   <FormMessage />
+
                   <div className="flex justify-between items-center text-xs text-muted-foreground">
                     <span>{t("Describe your campaign's purpose and goals")}</span>
                     <span className={formUIUtils.getCharacterCountColor(description?.length || 0)}>

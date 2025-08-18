@@ -1,5 +1,6 @@
 'use client'
 
+import { useTheme } from 'next-themes'
 import RichTextEditor, { BaseKit } from 'reactjs-tiptap-editor'
 
 import { Bold } from 'reactjs-tiptap-editor/bold'
@@ -85,14 +86,15 @@ const extensions = [
 ]
 
 function RichEditor({ content, setContent }: { content: string; setContent: (value: string) => void }) {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
   return (
     <RichTextEditor
       output="html"
       content={content as any}
       onChangeContent={setContent}
       extensions={extensions}
-      dark={false}
-      // hideBubble={true}
+      dark={isDark}
     />
   )
 }
