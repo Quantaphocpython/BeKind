@@ -15,8 +15,10 @@ model Campaign {
   goal        BigInt   
   score       Int      @default(0)
   balance     BigInt   
-  isExist     Boolean 
+  isExist     Boolean
+  title       String
   description String   
+  coverImage  String
   createdAt   DateTime @default(now()) 
   voteCount   Int      @default(0) 
 
