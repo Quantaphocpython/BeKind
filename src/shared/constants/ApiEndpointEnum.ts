@@ -6,7 +6,6 @@ export enum ApiEndpointEnum {
   CampaignById = '/api/campaigns/{id}',
   // User endpoints
   Users = '/api/users',
-  UserByAddress = '/api/users/{address}',
 }
 
 export const BASE_API = process.env.NEXT_PUBLIC_APP_API

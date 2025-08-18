@@ -12,3 +12,4 @@ export type AnimationType =
   | 'slideUpStagger'
   | 'scaleInStagger'
   | 'fadeInStagger'
+  | 'growIn'

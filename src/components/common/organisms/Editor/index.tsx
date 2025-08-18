@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/shared/utils'
 import { useEffect, useState } from 'react'
 import PanelHeader from './PanelHeader'
 import ParsedContent from './ParsedContent'
@@ -11,9 +12,10 @@ interface ContentEditorProps {
   error?: string
   disabled?: boolean
   showPreview?: boolean
+  className?: string
 }
 
-const Editor = ({ value, onChange, error, disabled = false, showPreview = true }: ContentEditorProps) => {
+const Editor = ({ value, onChange, error, disabled = false, showPreview = true, className }: ContentEditorProps) => {
   const [isEditorExpanded, setIsEditorExpanded] = useState(true)
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(showPreview)
 
@@ -24,20 +26,19 @@ const Editor = ({ value, onChange, error, disabled = false, showPreview = true }
     }
   }, [isEditorExpanded, isPreviewExpanded, showPreview])
 
-  // Calculate panel widths
   const editorWidth = !showPreview || !isPreviewExpanded ? 'w-full' : !isEditorExpanded ? 'w-12' : 'w-1/2'
 
   const previewWidth = !showPreview ? 'w-0' : !isEditorExpanded ? 'w-full' : !isPreviewExpanded ? 'w-12' : 'w-1/2'
 
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       {/* Editor Container */}
-      <div className="flex border rounded-lg overflow-hidden bg-white ">
+      <div className="flex border rounded-lg overflow-hidden bg-card">
         {/* Editor Panel */}
         <div
           className={`
           relative transition-all duration-300 ease-in-out 
-          ${showPreview ? 'border-r border-gray-200' : ''}
+          ${showPreview ? 'border-r border-border' : ''}
           ${editorWidth}
         `}
         >
@@ -49,7 +50,7 @@ const Editor = ({ value, onChange, error, disabled = false, showPreview = true }
           />
 
           {isEditorExpanded && (
-            <div className={`h-full ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
+            <div className={`h-full min-h-64 p-3 ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
               <RichEditor content={value || ''} setContent={onChange} />
             </div>
           )}
@@ -65,7 +66,9 @@ const Editor = ({ value, onChange, error, disabled = false, showPreview = true }
               isEditor={false}
             />
 
-            {isPreviewExpanded && <div>{value ? <ParsedContent htmlContent={value} /> : <p></p>}</div>}
+            {isPreviewExpanded && (
+              <div className="min-h-64 p-3">{value ? <ParsedContent htmlContent={value} /> : <p></p>}</div>
+            )}
           </div>
         )}
       </div>

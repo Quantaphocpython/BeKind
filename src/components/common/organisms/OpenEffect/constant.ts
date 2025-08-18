@@ -55,6 +55,11 @@ const animations = {
     animate: { opacity: 1, rotate: 0 },
     transition: { duration: 0.8, ease: 'easeOut' } as Transition,
   },
+  growIn: {
+    initial: { opacity: 0, y: 20, scale: 0.98 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    transition: { duration: 0.6, ease: 'easeOut' } as Transition,
+  },
 }
 
 // Stagger animations for multiple children
@@ -89,3 +94,4 @@ const staggerAnimations = {
 }
 
 export { animations, staggerAnimations }
+

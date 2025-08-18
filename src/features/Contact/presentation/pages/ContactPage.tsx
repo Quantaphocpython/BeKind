@@ -62,48 +62,6 @@ export default function ContactPage() {
         })
       }
 
-      // Tạm thời tắt ScrollTrigger để fix bug
-      // Scroll-triggered animations
-      // if (contactMethodsRef.current) {
-      //   gsap.fromTo(
-      //     contactMethodsRef.current,
-      //     { y: 50, opacity: 0 },
-      //     {
-      //       y: 0,
-      //       opacity: 1,
-      //       duration: 1,
-      //       ease: 'power2.out',
-      //       scrollTrigger: {
-      //         trigger: contactMethodsRef.current,
-      //         start: 'top 80%',
-      //         end: 'bottom 20%',
-      //         toggleActions: 'play none none reverse',
-      //       },
-      //     },
-      //   )
-      // }
-
-      // if (contactFormRef.current) {
-      //   gsap.fromTo(
-      //     contactFormRef.current,
-      //     { y: 50, opacity: 0, scale: 0.95 },
-      //     {
-      //       y: 0,
-      //       opacity: 1,
-      //       scale: 1,
-      //       duration: 1.2,
-      //       ease: 'power2.out',
-      //       scrollTrigger: {
-      //         trigger: contactFormRef.current,
-      //         start: 'top 80%',
-      //         end: 'bottom 20%',
-      //         toggleActions: 'play none none reverse',
-      //       },
-      //     },
-      //   )
-      // }
-
-      // Parallax effect for background elements
       const parallaxElements = floatingElementsRef.current?.querySelectorAll('.parallax-bg')
       if (parallaxElements && containerRef.current) {
         gsap.to(parallaxElements, {

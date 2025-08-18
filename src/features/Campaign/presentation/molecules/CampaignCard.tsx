@@ -98,13 +98,8 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
             </div>
             <div>
               <p className="text-muted-foreground">Votes</p>
-              <p className="font-medium">{campaign.voteCount}</p>
+              <p className="font-medium">{campaign.votes?.length || 0}</p>
             </div>
-          </div>
-
-          {/* Created Date */}
-          <div className="text-sm text-muted-foreground">
-            Created: {new Date(campaign.createdAt).toLocaleDateString()}
           </div>
 
           {/* Action Button */}

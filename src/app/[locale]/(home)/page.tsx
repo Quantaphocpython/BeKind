@@ -1,4 +1,4 @@
-import LoadingSpinner from '@/components/shared/LoadingSpinner'
+import LoadingSpinner from '@/components/common/atoms/Loading/LoadingSpinner'
 import dynamic from 'next/dynamic'
 
 // Dynamic import for better performance

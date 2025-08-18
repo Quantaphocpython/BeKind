@@ -14,7 +14,8 @@ export default function SettingsDropdown() {
           <span className="sr-only">Settings</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-fit min-w-fit p-3 flex gap-2">
+
+      <DropdownMenuContent align="end" className="w-fit min-w-fit p-3 flex gap-2 bg-none">
         <LanguageSwitcher />
         <ToggleThemeButton />
       </DropdownMenuContent>

@@ -1,4 +1,4 @@
-import OpenEffect from '@/components/common/OpenEffect'
+import OpenEffect from '@/components/common/organisms/OpenEffect'
 import CallToActionSection from '../organisms/CallToActionSection'
 import HeroSection from '../organisms/HeroSection'
 import PlatformFeaturesSection from '../organisms/PlatformFeaturesSection'
@@ -11,23 +11,23 @@ export default function LandingPage() {
     <>
       <HeroSection />
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <StatsSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <PlatformFeaturesSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <ProjectsSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <CallToActionSection />
       </OpenEffect>
 
-      <OpenEffect animation="slideUp">
+      <OpenEffect animation="growIn">
         <TestimonialsSection />
       </OpenEffect>
     </>
