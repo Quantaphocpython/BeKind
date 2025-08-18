@@ -55,7 +55,7 @@ export class CampaignService implements ICampaignService {
           templateId: EmailTemplateEnum.CreateCampaignSuccess,
           params: {
             userName: campaign.ownerUser?.name || 'User',
-            campaignName: `Campaign #${nextCampaignId}`,
+            campaignName: data.title || `Campaign #${nextCampaignId}`,
             campaignGoal: data.goal,
             campaignDescription: data.description,
             campaignId: nextCampaignId.toString(),

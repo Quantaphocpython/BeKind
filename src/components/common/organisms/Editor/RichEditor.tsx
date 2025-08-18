@@ -95,6 +95,7 @@ function RichEditor({ content, setContent }: { content: string; setContent: (val
       onChangeContent={setContent}
       extensions={extensions}
       dark={isDark}
+      hideBubble={true}
     />
   )
 }

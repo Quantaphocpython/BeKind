@@ -34,13 +34,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      const { goal, description, userAddress } = req.body
+      const { goal, title, description, coverImage, userAddress } = req.body
 
-      if (!goal || !description || !userAddress) {
-        return res.status(400).json(HttpResponseUtil.badRequest('Goal, description, and userAddress are required'))
+      if (!goal || !title || !description || !coverImage || !userAddress) {
+        return res.status(400).json(HttpResponseUtil.badRequest('Goal, title, coverImage and userAddress are required'))
       }
 
-      const result = await campaignService.createCampaign({ goal, description }, userAddress)
+      const result = await campaignService.createCampaign({ goal, title, description, coverImage }, userAddress)
 
       if (!result.success) {
         return res.status(400).json(HttpResponseUtil.badRequest(result.error || 'Failed to create campaign'))

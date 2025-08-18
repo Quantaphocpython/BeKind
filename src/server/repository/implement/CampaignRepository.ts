@@ -15,7 +15,9 @@ export class CampaignRepository implements ICampaignRepository {
         goal: goalInWei,
         balance: BigInt(0),
         isExist: true,
+        title: data.title,
         description: data.description,
+        coverImage: data.coverImage,
         voteCount: 0,
       },
       include: {

@@ -6,7 +6,9 @@ export interface CampaignDto {
   goal: string
   balance: string
   isExist: boolean
+  title: string
   description: string
+  coverImage: string
   createdAt: string
   voteCount: number
   ownerUser?: UserDto | null
@@ -43,7 +45,9 @@ export interface VoteDto {
 
 export interface CreateCampaignRequestDto {
   goal: string
+  title: string
   description: string
+  coverImage: string
   userAddress: string
 }
 

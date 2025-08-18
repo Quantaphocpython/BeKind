@@ -1,18 +1,20 @@
 'use client'
 
+import { ImageDropzone } from '@/components/common'
 import Editor from '@/components/common/organisms/Editor'
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { firebaseStorage } from '@/configs/firebase'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Target } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import { CAMPAIGN_CONSTANTS, FORM_CONFIG, FORM_STATE } from '../../data/constants'
@@ -62,8 +64,7 @@ export const CreateCampaignForm = () => {
     isSuccess: isContractTransactionSuccess,
   } = useCampaignContractWrite('createCampaign')
 
-  const goal = form.watch('goal')
-  const description = form.watch('description')
+  const description = useWatch({ control: form.control, name: 'description' })
 
   // Clear errors when wallet connects
   useEffect(() => {
@@ -159,6 +160,58 @@ export const CreateCampaignForm = () => {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Cover Image - moved to top (smaller height) */}
+            <FormField
+              control={form.control}
+              name="coverImage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-semibold flex items-center space-x-2">
+                    <Icons.image className="h-4 w-4" />
+                    <span>{t('Cover Image')}</span>
+                  </FormLabel>
+                  <FormControl>
+                    <ImageDropzone
+                      value={field.value}
+                      placeholder={t('Drag & drop your image here, or click to upload')}
+                      previewAspect={3 / 1}
+                      onChange={async (url, file) => {
+                        if (file) {
+                          const uploaded = await firebaseStorage.uploadFileWithDetails({
+                            file,
+                            path: 'images/campaigns',
+                            fileName: `cover_${Date.now()}`,
+                          })
+                          field.onChange(uploaded.downloadURL)
+                        } else if (url === null) {
+                          field.onChange(null)
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Title */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-semibold flex items-center space-x-2">
+                    <Icons.edit className="h-4 w-4" />
+                    <span>{t('Title')}</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={isLoading} placeholder={t('Enter your campaign title')} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Goal Input */}
             <FormField
               control={form.control}

@@ -8,7 +8,9 @@ export interface Campaign {
   goal: bigint
   balance: bigint
   isExist: boolean
+  title: string
   description: string
+  coverImage: string
   createdAt: Date
   voteCount: number
   ownerUser?: User | null
@@ -36,7 +38,9 @@ export interface CampaignWithDetails extends Campaign {
 // Create campaign request
 export interface CreateCampaignRequest {
   goal: string
+  title: string
   description: string
+  coverImage: string
 }
 
 // Create campaign response

@@ -3,11 +3,13 @@ import { CAMPAIGN_CONSTANTS } from '../constants'
 
 // Base campaign form schema
 export const createCampaignSchema = z.object({
+  title: z.string().min(3, 'Title is required').max(120, 'Title too long'),
   goal: z
     .string()
     .min(1, 'Goal is required')
     .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, 'Goal must be a positive number'),
-  description: z.string().min(10, 'Description must be at least 10 characters').max(1000, 'Description too long'),
+  description: z.string().min(10, 'Description must be at least 10 characters').max(2000, 'Description too long'),
+  coverImage: z.string().url('Cover image is required').min(1, 'Cover image is required'),
 })
 
 export type CreateCampaignFormData = z.infer<typeof createCampaignSchema>
