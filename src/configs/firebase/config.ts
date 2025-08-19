@@ -1,9 +1,6 @@
-import dotenv from 'dotenv'
 import { getAnalytics } from 'firebase/analytics'
 import { initializeApp } from 'firebase/app'
 import { getStorage } from 'firebase/storage'
-
-dotenv.config()
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,

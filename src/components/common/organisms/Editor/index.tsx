@@ -50,7 +50,7 @@ const Editor = ({ value, onChange, error, disabled = false, showPreview = true, 
           />
 
           {isEditorExpanded && (
-            <div className={`h-full min-h-64 p-3 ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
+            <div className={`h-full min-h-64 p-3 overflow-auto ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
               <RichEditor content={value || ''} setContent={onChange} />
             </div>
           )}
@@ -67,7 +67,9 @@ const Editor = ({ value, onChange, error, disabled = false, showPreview = true, 
             />
 
             {isPreviewExpanded && (
-              <div className="min-h-64 p-3">{value ? <ParsedContent htmlContent={value} /> : <p></p>}</div>
+              <div className="min-h-64 p-3 overflow-auto">
+                {value ? <ParsedContent htmlContent={value} /> : <p></p>}
+              </div>
             )}
           </div>
         )}
