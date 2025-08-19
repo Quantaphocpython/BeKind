@@ -6,7 +6,7 @@ import { useEventCallback } from './useEventCallback'
 import { useEventListener } from './useEventListener'
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+   
   interface WindowEventMap {
     'session-storage': CustomEvent
   }
