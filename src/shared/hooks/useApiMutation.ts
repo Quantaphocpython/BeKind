@@ -1,5 +1,5 @@
 import { HttpResponse } from '@/shared/types/httpResponse.type'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query'
 
 // Generic API hook for POST/PUT/DELETE requests
 export const useApiMutation = <TData, TVariables>(
@@ -9,6 +9,7 @@ export const useApiMutation = <TData, TVariables>(
     onError?: (error: Error, variables: TVariables) => void
     invalidateQueries?: string[][]
   },
+  ...props: UseMutationOptions<TData, Error, TVariables>[]
 ) => {
   const queryClient = useQueryClient()
 
@@ -28,5 +29,6 @@ export const useApiMutation = <TData, TVariables>(
     onError: (error, variables) => {
       options?.onError?.(error, variables)
     },
+    ...props,
   })
 }

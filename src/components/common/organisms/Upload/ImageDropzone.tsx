@@ -15,7 +15,7 @@ interface ImageDropzoneProps {
   height?: number
 }
 
-const ImageDropzone: React.FC<ImageDropzoneProps> = ({
+const ImageDropzone = ({
   value,
   onChange,
   disabled,
@@ -25,7 +25,7 @@ const ImageDropzone: React.FC<ImageDropzoneProps> = ({
   previewAspect = 16 / 9,
   placeholder = 'Drag & drop your image here, or click to upload',
   height = 300,
-}) => {
+}: ImageDropzoneProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [dragActive, setDragActive] = useState(false)
   const [localPreview, setLocalPreview] = useState<string | null>(null)
