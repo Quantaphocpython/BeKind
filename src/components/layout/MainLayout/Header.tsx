@@ -44,7 +44,7 @@ export default function Header() {
       id="app-header"
       className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-[var(--header-height)]"
     >
-      <div className="lg:container relative mx-auto px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] items-center h-[var(--header-height)]">
+      <div className="container relative mx-auto px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] items-center h-[var(--header-height)]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-3 justify-self-start">
           <Image src="/images/logo.png" alt="logo" width={32} height={32} />
@@ -52,7 +52,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <nav className="hidden lg:flex items-center space-x-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           {navigation.map((item) => {
             const isActive = !!activeHref && item.href === activeHref
             return (
@@ -72,7 +72,7 @@ export default function Header() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center space-x-3 justify-self-end">
+        <div className="hidden lg:flex items-center space-x-3 justify-self-end">
           <SettingsDropdown />
           <UserProfileDropdown />
         </div>
@@ -80,13 +80,13 @@ export default function Header() {
         {/* Mobile Menu */}
         <Sheet open={toggle} onOpenChange={setToggle}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="md:hidden">
+            <Button variant="outline" size="lg" className="lg:hidden h-8 w-8 ml-auto">
               <Icons.menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
 
           <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <div className="flex flex-col space-y-6 mt-8">
+            <div className="flex flex-col space-y-6 mt-8 p-8">
               {navigation.map((item) => (
                 <Link
                   key={item.name}

@@ -28,6 +28,7 @@ export const CreateCampaignForm = () => {
   const t = useTranslations()
   const [formState, setFormState] = useState<FORM_STATE>(FORM_STATE.IDLE)
   const [formData, setFormData] = useState<CreateCampaignFormData | null>(null)
+  const [coverFile, setCoverFile] = useState<File | null>(null)
 
   // Initialize utils
   const formHandlersUtils = useMemo(() => createFormHandlersUtils(t), [t])
@@ -124,11 +125,33 @@ export const CreateCampaignForm = () => {
     }
 
     try {
-      setFormState(FORM_STATE.CONTRACT_PENDING)
-      setFormData(data)
-
       // Validate goal amount
       formHandlersUtils.validateGoalAmount(data.goal)
+
+      if (!coverFile) {
+        toast.error(t('Database Error'), {
+          description: t('Cover Image is required'),
+          icon: <Icons.alertCircle className="h-4 w-4" />,
+        })
+        return
+      }
+      if (coverFile.size > 5 * 1024 * 1024) {
+        toast.error(t('An error occurred while creating the campaign'), {
+          description: t('Please upload an image smaller than 5MB'),
+          icon: <Icons.alertCircle className="h-4 w-4" />,
+        })
+        return
+      }
+
+      const uploaded = await firebaseStorage.uploadFileWithDetails({
+        file: coverFile,
+        path: 'images/campaigns',
+        fileName: `cover_${Date.now()}`,
+      })
+
+      const preparedData = { ...data, coverImage: uploaded.downloadURL }
+      setFormState(FORM_STATE.CONTRACT_PENDING)
+      setFormData(preparedData)
 
       // Create campaign on blockchain
       createCampaignContract({ goal: data.goal })
@@ -179,15 +202,18 @@ export const CreateCampaignForm = () => {
                       value={field.value}
                       placeholder={t('Drag & drop your image here, or click to upload')}
                       previewAspect={3 / 1}
-                      onChange={async (url, file) => {
-                        if (file) {
-                          const uploaded = await firebaseStorage.uploadFileWithDetails({
-                            file,
-                            path: 'images/campaigns',
-                            fileName: `cover_${Date.now()}`,
+                      onChange={(payload) => {
+                        if (!payload) return
+                        const { objectUrl, file } = payload
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast.error(t('An error occurred while creating the campaign'), {
+                            description: t('Please upload an image smaller than 5MB'),
+                            icon: <Icons.alertCircle className="h-4 w-4" />,
                           })
-                          field.onChange(uploaded.downloadURL)
+                          return
                         }
+                        setCoverFile(file)
+                        field.onChange(objectUrl)
                       }}
                     />
                   </FormControl>

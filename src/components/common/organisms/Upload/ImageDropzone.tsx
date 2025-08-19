@@ -5,7 +5,7 @@ import React, { useCallback, useRef, useState } from 'react'
 
 interface ImageDropzoneProps {
   value?: string
-  onChange?: (url: string | null, file?: File) => void
+  onChange?: (value: { objectUrl: string; file: File } | null) => void
   disabled?: boolean
   className?: string
   accept?: string
@@ -39,7 +39,7 @@ const ImageDropzone = ({
       }
       const objectUrl = URL.createObjectURL(file)
       setLocalPreview(objectUrl)
-      onChange?.(objectUrl, file)
+      onChange?.({ objectUrl, file })
     },
     [maxSizeMb, onChange],
   )
