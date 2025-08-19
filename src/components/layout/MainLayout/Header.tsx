@@ -26,28 +26,25 @@ export default function Header() {
 
   const locales = ['en', 'vi'] as const
   const normalizePath = useCallback((path: string) => {
-    const localePrefix = new RegExp(`^/(${locales.join('|')})(?=/|$)`) // ^/(en|vi)(/|$)
+    const localePrefix = new RegExp(`^/(${locales.join('|')})(?=/|$)`)
     const normalized = path.replace(localePrefix, '') || '/'
     return normalized
   }, [])
 
   const activeHref = useMemo(() => {
     const current = normalizePath(pathname || '')
-    // Match exact or section route (e.g. /campaigns/123)
     const match = navigation.find((item) =>
       item.href === '/' ? current === '/' : current === item.href || current.startsWith(`${item.href}/`),
     )
     return match?.href
   }, [pathname, normalizePath])
 
-  // No animated indicator; only color + underline on active link
-
   return (
     <header
       id="app-header"
       className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-[var(--header-height)]"
     >
-      <div className="container relative mx-auto px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] items-center h-[var(--header-height)]">
+      <div className="lg:container relative mx-auto px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] items-center h-[var(--header-height)]">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-3 justify-self-start">
           <Image src="/images/logo.png" alt="logo" width={32} height={32} />

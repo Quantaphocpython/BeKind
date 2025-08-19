@@ -13,7 +13,7 @@ import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Target } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
@@ -30,8 +30,8 @@ export const CreateCampaignForm = () => {
   const [formData, setFormData] = useState<CreateCampaignFormData | null>(null)
 
   // Initialize utils
-  const formHandlersUtils = createFormHandlersUtils(t)
-  const formUIUtils = createFormUIUtils()
+  const formHandlersUtils = useMemo(() => createFormHandlersUtils(t), [t])
+  const formUIUtils = useMemo(() => createFormUIUtils(), [])
 
   // Enhanced schema with better validation
   const enhancedCreateCampaignSchema = createEnhancedCampaignSchema(t)
@@ -39,8 +39,10 @@ export const CreateCampaignForm = () => {
   const form = useForm<CreateCampaignFormData>({
     resolver: zodResolver(enhancedCreateCampaignSchema),
     defaultValues: {
+      title: '',
       goal: '',
       description: '',
+      coverImage: '',
     },
     mode: 'onChange',
   })
@@ -108,11 +110,13 @@ export const CreateCampaignForm = () => {
   }, [formData, address, createCampaignAPI, form, formHandlersUtils, t])
 
   useEffect(() => {
-    if (isContractTransactionSuccess && formData && address) {
+    if (isContractTransactionSuccess && formData && address && formState === FORM_STATE.CONTRACT_PENDING) {
       setFormState(FORM_STATE.CONTRACT_SUCCESS)
       handleContractSuccess()
     }
-  }, [isContractTransactionSuccess, formData, address, handleContractSuccess])
+    // Intentionally only depend on isContractTransactionSuccess to avoid re-run loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isContractTransactionSuccess])
 
   const onSubmit = async (data: CreateCampaignFormData) => {
     if (!isConnected || !address) {
@@ -183,8 +187,6 @@ export const CreateCampaignForm = () => {
                             fileName: `cover_${Date.now()}`,
                           })
                           field.onChange(uploaded.downloadURL)
-                        } else if (url === null) {
-                          field.onChange(null)
                         }
                       }}
                     />

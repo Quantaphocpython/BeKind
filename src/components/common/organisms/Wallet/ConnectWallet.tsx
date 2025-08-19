@@ -80,7 +80,7 @@ export default function ConnectWallet() {
               return (
                 <div style={{ display: 'flex', gap: 12 }}>
                   <Button onClick={openAccountModal} type="button" disabled={isCreatingUser}>
-                    {isCreatingUser ? 'Creating Account...' : account.displayName}
+                    {isCreatingUser ? t('Loading...') : account.displayName}
                   </Button>
                 </div>
               )

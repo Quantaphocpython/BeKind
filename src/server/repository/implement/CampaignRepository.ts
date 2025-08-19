@@ -1,17 +1,24 @@
 import prisma from '@/configs/prisma'
 import { Campaign, CreateCampaignRequest } from '@/features/Campaign/data/types'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
+import { TYPES } from '../../container/types'
 import { ICampaignRepository } from '../interface'
+import type { IUserRepository } from '../interface/UserRepository.interface'
 
 @injectable()
 export class CampaignRepository implements ICampaignRepository {
+  constructor(@inject(TYPES.UserRepository) private readonly userRepository: IUserRepository) {}
+
   async createCampaign(data: CreateCampaignRequest, campaignId: bigint, ownerAddress: string): Promise<Campaign> {
     const goalInWei = BigInt(Math.floor(parseFloat(data.goal) * 10 ** 18))
+
+    const existingUser = await this.userRepository.getUserByAddress(ownerAddress)
+    const ownerId = existingUser ? existingUser.id : (await this.userRepository.createUser(ownerAddress)).id
 
     return await prisma.campaign.create({
       data: {
         campaignId,
-        owner: ownerAddress,
+        owner: ownerId,
         goal: goalInWei,
         balance: BigInt(0),
         isExist: true,
@@ -40,8 +47,11 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async getCampaignsByOwner(ownerAddress: string): Promise<Campaign[]> {
+    // Map address -> userId then filter by owner ObjectId
+    const user = await this.userRepository.getUserByAddress(ownerAddress)
+    const ownerId = user?.id || '__invalid__'
     return await prisma.campaign.findMany({
-      where: { owner: ownerAddress },
+      where: { owner: ownerId },
       include: {
         ownerUser: true,
         proofs: true,

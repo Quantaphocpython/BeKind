@@ -207,6 +207,8 @@
   "Saving campaign to database...": "Saving campaign to database...",
   "Campaign created successfully!": "Campaign created successfully!",
   "An error occurred while creating the campaign": "An error occurred while creating the campaign",
+  "Database Error": "Database Error",
+  "An unexpected error occurred": "An unexpected error occurred",
   "Guest": "Guest",
   "Profile": "Profile",
   "Settings": "Settings",

@@ -37,17 +37,8 @@ export const UserProfileDropdown: React.FC = () => {
     router.push(RouteEnum.Home)
   }
 
-  if (!isConnected || !address) {
+  if (!isConnected || !address || isLoading || !user) {
     return <ConnectWallet />
-  }
-
-  if (!user || isLoading) {
-    return (
-      <Button variant="ghost" size="sm">
-        <Icons.user className="h-4 w-4 mr-2" />
-        {t('Guest')}
-      </Button>
-    )
   }
 
   return (
@@ -61,6 +52,7 @@ export const UserProfileDropdown: React.FC = () => {
           <Icons.chevronDown className="h-3 w-3" />
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
@@ -68,16 +60,21 @@ export const UserProfileDropdown: React.FC = () => {
             <p className="text-xs leading-none text-muted-foreground">{getShortAddress(user.address)}</p>
           </div>
         </DropdownMenuLabel>
+
         <DropdownMenuSeparator />
+
         <DropdownMenuItem onClick={handleProfileClick}>
           <Icons.user className="mr-2 h-4 w-4" />
           <span>{t('Profile')}</span>
         </DropdownMenuItem>
+
         <DropdownMenuItem>
           <Icons.settings className="mr-2 h-4 w-4" />
           <span>{t('Settings')}</span>
         </DropdownMenuItem>
+
         <DropdownMenuSeparator />
+
         <DropdownMenuItem onClick={handleDisconnect}>
           <Icons.login className="mr-2 h-4 w-4" />
           <span>{t('Disconnect')}</span>
