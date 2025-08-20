@@ -1,5 +1,6 @@
 'use client'
 
+import ParsedContent from '@/components/common/organisms/Editor/ParsedContent'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -51,20 +52,22 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
   }
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200">
+    <Card className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl font-bold">Campaign #{campaign.campaignId}</CardTitle>
-            <CardDescription className="mt-2">
-              {campaign.description.length > 100
-                ? `${campaign.description.substring(0, 100)}...`
-                : campaign.description}
+            <div className="flex items-center gap-2 justify-between">
+              <CardTitle className="text-xl font-bold overflow-hidden">Campaign #{campaign.campaignId}</CardTitle>
+              <Badge className={getStatusColor(status)}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
+            </div>
+
+            <CardDescription className="mt-2 overflow-hidden line-clamp-2 ">
+              <ParsedContent className="overflow-hidden"  htmlContent={campaign.description} />
             </CardDescription>
           </div>
-          <Badge className={getStatusColor(status)}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
         </div>
       </CardHeader>
+
       <CardContent>
         <div className="space-y-4">
           {/* Progress Section */}

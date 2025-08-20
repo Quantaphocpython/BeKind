@@ -87,10 +87,10 @@ export const CreateCampaignForm = () => {
       await createCampaignAPI(requestData)
 
       setFormState(FORM_STATE.SUCCESS)
-      form.reset()
       setFormData(null)
+      form.reset()
 
-      toast.success(t('Success!'), {
+      toast.success(t('Success'), {
         description: t('Campaign created successfully!'),
         icon: <Icons.checkCircle className="h-4 w-4" />,
         duration: 5000,
@@ -197,6 +197,7 @@ export const CreateCampaignForm = () => {
                     <Icons.image className="h-4 w-4" />
                     <span>{t('Cover Image')}</span>
                   </FormLabel>
+
                   <FormControl>
                     <ImageDropzone
                       value={field.value}
@@ -232,6 +233,7 @@ export const CreateCampaignForm = () => {
                     <Icons.edit className="h-4 w-4" />
                     <span>{t('Title')}</span>
                   </FormLabel>
+
                   <FormControl>
                     <Input {...field} disabled={isLoading} placeholder={t('Enter your campaign title')} />
                   </FormControl>
@@ -250,6 +252,7 @@ export const CreateCampaignForm = () => {
                     <Target className="h-4 w-4" />
                     <span>{t('Campaign Goal (ETH)')}</span>
                   </FormLabel>
+
                   <FormControl>
                     <Input
                       {...field}

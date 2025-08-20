@@ -17,8 +17,8 @@ class CampaignMapper {
       createdAt: campaign.createdAt.toISOString(),
       voteCount: campaign.voteCount,
       ownerUser: campaign.ownerUser ? userMapper.toUserDto(campaign.ownerUser) : null,
-      proofs: campaign.proofs ? campaign.proofs.map(this.toProofDto) : [],
-      votes: campaign.votes ? campaign.votes.map(this.toVoteDto) : [],
+      proofs: campaign.proofs ? campaign.proofs.map((proof) => this.toProofDto(proof)) : [],
+      votes: campaign.votes ? campaign.votes.map((vote) => this.toVoteDto(vote)) : [],
     }
   }
 
@@ -46,7 +46,7 @@ class CampaignMapper {
   }
 
   toCampaignListDto(campaigns: Campaign[]): CampaignDto[] {
-    return campaigns.map(this.toCampaignDto)
+    return campaigns.map((campaign) => this.toCampaignDto(campaign))
   }
 }
 

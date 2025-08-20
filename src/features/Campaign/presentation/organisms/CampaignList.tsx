@@ -11,7 +11,8 @@ import { useApiQuery } from '@/shared/hooks'
 import { routeConfig } from '@/shared/utils/route'
 import { Filter, Plus, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { CampaignCard } from '../molecules/CampaignCard'
 import { CampaignCardSkeleton } from '../molecules/CampaignCardSkeleton'
 
@@ -35,6 +36,13 @@ export const CampaignList = () => {
     },
   )
 
+  useEffect(() => {
+    if (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      toast.error('Error loading campaigns', { description: message })
+    }
+  }, [error])
+
   const filteredCampaigns =
     campaignsResponse?.campaigns?.filter((campaign: CampaignDto) => {
       const matchesSearch =
@@ -52,14 +60,6 @@ export const CampaignList = () => {
   const handleCreateCampaign = () => {
     const url = routeConfig(RouteEnum.CreateCampaign)
     router.push(url)
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-red-500">Error loading campaigns: {error.message}</p>
-      </div>
-    )
   }
 
   return (

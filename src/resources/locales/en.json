@@ -235,5 +235,7 @@
   "Poor": "Poor",
   "Member Since": "Member Since",
   "Wallet Address": "Wallet Address",
-  "Anonymous User": "Anonymous User"
+  "Anonymous User": "Anonymous User",
+  "Success": "Success",
+  "Error": "Error"
 }
