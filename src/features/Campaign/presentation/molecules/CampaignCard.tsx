@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { cn } from '@/shared/utils'
 import { routeConfig } from '@/shared/utils/route'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { formatEther } from 'viem'
 import { CampaignStatus } from '../../data/constants'
@@ -19,6 +20,7 @@ interface CampaignCardProps {
 
 export const CampaignCard = ({ campaign }: CampaignCardProps) => {
   const router = useRouter()
+  const DEFAULT_COVER_IMAGE = '/images/hero-section.jpg'
 
   // Calculate progress
   const goalInEth = parseFloat(formatEther(BigInt(campaign.goal)))
@@ -53,27 +55,39 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
   }
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div className="w-full">
-            <div className="flex items-center gap-2 justify-between">
-              <CardTitle className="text-xl font-bold overflow-hidden">Campaign #{campaign.campaignId}</CardTitle>
-              <Badge className={cn(getStatusColor(status))}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
-            </div>
+    <Card className="hover:shadow-lg transition-shadow duration-200 overflow-hidden pt-0">
+      {/* Banner Image */}
+      <div className="relative aspect-[16/9] w-full overflow-hidden">
+        <Image
+          src={campaign.coverImage || DEFAULT_COVER_IMAGE}
+          alt={campaign.title || `Campaign #${campaign.campaignId}`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+        <div className="absolute left-3 top-3 flex items-center gap-2">
+          <Badge className={cn(getStatusColor(status))}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
+          <span className="text-xs px-2 py-0.5 rounded-md bg-black/50 text-white">#{campaign.campaignId}</span>
+        </div>
+      </div>
 
-            <CardDescription className="mt-2">
-              <ParsedContent
-                className="overflow-hidden"
-                contentClassName="line-clamp-3 break-all whitespace-normal max-w-full"
-                htmlContent={campaign.description}
-              />
-            </CardDescription>
-          </div>
+      <CardHeader>
+        <div className="flex flex-col gap-1">
+          <CardTitle className="text-xl font-bold [overflow-wrap:anywhere] line-clamp-2" title={campaign.title}>
+            {campaign.title || `Campaign #${campaign.campaignId}`}
+          </CardTitle>
+          <CardDescription className="mt-1">
+            <ParsedContent
+              className="overflow-hidden"
+              contentClassName="line-clamp-3 [overflow-wrap:anywhere] max-w-full"
+              htmlContent={campaign.description}
+            />
+          </CardDescription>
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="mt-auto">
         <div className="space-y-4">
           {/* Progress Section */}
           <div>
@@ -90,6 +104,7 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
               <p className="text-sm text-muted-foreground">Goal</p>
               <p className="text-lg font-semibold">{goalInEth.toFixed(3)} ETH</p>
             </div>
+
             <div>
               <p className="text-sm text-muted-foreground">Raised</p>
               <p className="text-lg font-semibold text-green-600">{balanceInEth.toFixed(3)} ETH</p>
