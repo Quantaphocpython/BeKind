@@ -14,6 +14,9 @@ export interface CampaignDto {
   ownerUser?: UserDto | null
   proofs?: ProofDto[]
   votes?: VoteDto[]
+  milestones?: MilestoneDto[]
+  withdrawals?: WithdrawalDto[]
+  comments?: CommentDto[]
 }
 
 export interface UserDto {
@@ -40,6 +43,37 @@ export interface VoteDto {
   userId: string
   createdAt: string
   campaign?: CampaignDto
+  user?: UserDto
+}
+
+export interface MilestoneDto {
+  id: string
+  campaignId: string
+  index: number
+  title: string
+  description?: string
+  percentage: number
+  isReleased: boolean
+  releasedAt?: string
+  createdAt: string
+}
+
+export interface WithdrawalDto {
+  id: string
+  campaignId: string
+  amount: string
+  milestoneIdx?: number
+  txHash?: string
+  createdAt: string
+}
+
+export interface CommentDto {
+  id: string
+  campaignId: string
+  userId: string
+  content: string
+  parentId?: string
+  createdAt: string
   user?: UserDto
 }
 

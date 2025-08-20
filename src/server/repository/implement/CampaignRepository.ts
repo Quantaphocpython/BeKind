@@ -1,5 +1,5 @@
 import prisma from '@/configs/prisma'
-import { Campaign, CreateCampaignRequest } from '@/features/Campaign/data/types'
+import { Campaign, Comment, CreateCampaignRequest, Milestone, Withdrawal } from '@/features/Campaign/data/types'
 import { inject, injectable } from 'inversify'
 import { TYPES } from '../../container/types'
 import { ICampaignRepository } from '../interface'
@@ -42,6 +42,10 @@ export class CampaignRepository implements ICampaignRepository {
         ownerUser: true,
         proofs: true,
         votes: true,
+        // @ts-ignore enrich with new relations
+        milestones: true,
+        withdrawals: true,
+        comments: { include: { user: true } },
       },
     })
   }
@@ -70,6 +74,22 @@ export class CampaignRepository implements ICampaignRepository {
         votes: true,
       },
       orderBy: { createdAt: 'desc' },
+    })
+  }
+
+  async getRelatedCampaigns(currentCampaignId: bigint, limit: number = 3): Promise<Campaign[]> {
+    return await prisma.campaign.findMany({
+      where: {
+        isExist: true,
+        campaignId: { not: currentCampaignId },
+      },
+      include: {
+        ownerUser: true,
+        proofs: true,
+        votes: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
     })
   }
 
@@ -105,6 +125,72 @@ export class CampaignRepository implements ICampaignRepository {
           increment: 1,
         },
       },
+    })
+  }
+
+  async upsertMilestones(
+    campaignId: bigint,
+    milestones: { index: number; title: string; description?: string; percentage: number }[],
+  ): Promise<void> {
+    // delete existing then recreate for simplicity
+    await prisma.milestone.deleteMany({ where: { campaignId: campaignId } })
+    if (!milestones?.length) return
+    await prisma.milestone.createMany({
+      data: milestones.map((m) => ({
+        campaignId: campaignId,
+        index: m.index,
+        title: m.title,
+        description: m.description ?? null,
+        percentage: m.percentage,
+      })),
+    })
+  }
+
+  async listMilestones(campaignId: bigint): Promise<Milestone[]> {
+    return await prisma.milestone.findMany({ where: { campaignId: campaignId }, orderBy: { index: 'asc' } })
+  }
+
+  async createWithdrawal(data: {
+    campaignId: bigint
+    amount: bigint
+    milestoneIdx?: number
+    txHash?: string
+  }): Promise<Withdrawal> {
+    return await prisma.withdrawal.create({
+      data: {
+        campaignId: data.campaignId,
+        amount: data.amount,
+        milestoneIdx: data.milestoneIdx ?? null,
+        txHash: data.txHash ?? null,
+      },
+    })
+  }
+
+  async listWithdrawals(campaignId: bigint): Promise<Withdrawal[]> {
+    return await prisma.withdrawal.findMany({ where: { campaignId: campaignId }, orderBy: { createdAt: 'desc' } })
+  }
+
+  async createComment(data: {
+    campaignId: bigint
+    userId: string
+    content: string
+    parentId?: string
+  }): Promise<Comment> {
+    return await prisma.comment.create({
+      data: {
+        campaignId: data.campaignId,
+        userId: data.userId,
+        content: data.content,
+        parentId: data.parentId ?? null,
+      },
+    })
+  }
+
+  async listComments(campaignId: bigint): Promise<Comment[]> {
+    return await prisma.comment.findMany({
+      where: { campaignId: campaignId },
+      include: { user: true },
+      orderBy: { createdAt: 'desc' },
     })
   }
 }

@@ -11,13 +11,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const { id } = req.query
+      const { id, action } = req.query
 
       if (!id || typeof id !== 'string') {
         return res.status(400).json(HttpResponseUtil.badRequest('Campaign ID is required'))
       }
 
       const campaignId = BigInt(id)
+
+      if (action === 'related') {
+        // Get related campaigns
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 3
+        const relatedCampaigns = await campaignService.getRelatedCampaigns(campaignId, limit)
+        const relatedCampaignDtos: CampaignDto[] = relatedCampaigns.map((c) => campaignMapper.toCampaignDto(c))
+        return res.status(200).json(HttpResponseUtil.success(relatedCampaignDtos, 'Related campaigns retrieved successfully'))
+      }
+
+      // Get campaign details
       const campaign = await campaignService.getCampaignById(campaignId)
 
       if (!campaign) {
@@ -28,6 +38,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json(HttpResponseUtil.success(campaignDto, 'Campaign retrieved successfully'))
     } catch (error) {
       console.error('Error in campaign detail API:', error)
+      return res.status(500).json(HttpResponseUtil.internalServerError())
+    }
+  }
+
+  if (req.method === 'POST') {
+    try {
+      const { action } = req.query
+      const { milestones, comment, userId, parentId } = req.body || {}
+
+      if (action === 'milestones') {
+        await campaignService.upsertMilestones(BigInt(String(req.query.id)), milestones || [])
+        return res.status(200).json(HttpResponseUtil.success(null, 'Milestones updated'))
+      }
+      if (action === 'comment') {
+        const created = await campaignService.createComment({
+          campaignId: BigInt(String(req.query.id)),
+          userId,
+          content: comment,
+          parentId,
+        })
+        return res.status(200).json(HttpResponseUtil.success(created, 'Comment created'))
+      }
+
+      return res.status(400).json(HttpResponseUtil.badRequest('Invalid action'))
+    } catch (error) {
+      console.error('Error in campaign POST API:', error)
       return res.status(500).json(HttpResponseUtil.internalServerError())
     }
   }

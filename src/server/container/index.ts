@@ -4,8 +4,12 @@ import { TYPES } from './types'
 
 // Repositories
 import { CampaignRepository } from '../repository/implement/CampaignRepository'
+import { CommentRepository } from '../repository/implement/CommentRepository'
+import { MilestoneRepository } from '../repository/implement/MilestoneRepository'
 import { UserRepository } from '../repository/implement/UserRepository'
 import type { ICampaignRepository } from '../repository/interface/CampaignRepository.interface'
+import type { ICommentRepository } from '../repository/interface/CommentRepository.interface'
+import type { IMilestoneRepository } from '../repository/interface/MilestoneRepository.interface'
 import type { IUserRepository } from '../repository/interface/UserRepository.interface'
 
 // Services
@@ -26,6 +30,8 @@ const container = new Container()
 // Repository bindings (classes)
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository).inSingletonScope()
 container.bind<ICampaignRepository>(TYPES.CampaignRepository).to(CampaignRepository).inSingletonScope()
+container.bind<IMilestoneRepository>(TYPES.MilestoneRepository).to(MilestoneRepository).inSingletonScope()
+container.bind<ICommentRepository>(TYPES.CommentRepository).to(CommentRepository).inSingletonScope()
 
 // Service bindings (classes)
 container.bind<IUserService>(TYPES.UserService).to(UserService).inSingletonScope()

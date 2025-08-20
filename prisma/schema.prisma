@@ -25,6 +25,9 @@ model Campaign {
   proofs      Proof[]  @relation("CampaignProofs")
   ownerUser   User?    @relation("UserCampaigns", fields: [owner], references: [id])
   votes       Vote[]   @relation("CampaignVotes")
+  milestones  Milestone[] @relation("CampaignMilestones")
+  withdrawals Withdrawal[] @relation("CampaignWithdrawals")
+  comments    Comment[]  @relation("CampaignComments")
 }
 
 model User {
@@ -38,6 +41,7 @@ model User {
   campaigns   Campaign[] @relation("UserCampaigns")
   proofs      Proof[]    @relation("UserProofs")
   votes       Vote[]     @relation("UserVotes")
+  comments    Comment[]  @relation("UserComments")
 }
 
 model Proof {
@@ -61,4 +65,45 @@ model Vote {
   user        User     @relation("UserVotes", fields: [userId], references: [id])
 
   @@unique([campaignId, userId])
+}
+
+model Milestone {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  campaignId   BigInt
+  index        Int      // 1, 2, ...
+  title        String
+  description  String?
+  percentage   Int      // percent of goal allocated to this milestone
+  isReleased   Boolean  @default(false)
+  releasedAt   DateTime?
+  createdAt    DateTime @default(now())
+
+  campaign   Campaign @relation("CampaignMilestones", fields: [campaignId], references: [campaignId])
+
+  @@unique([campaignId, index])
+}
+
+/// Withdrawal records
+model Withdrawal {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  campaignId   BigInt
+  amount       BigInt
+  milestoneIdx Int?
+  txHash       String?
+  createdAt    DateTime @default(now())
+
+  campaign     Campaign @relation("CampaignWithdrawals", fields: [campaignId], references: [campaignId])
+}
+
+/// Comments under a campaign
+model Comment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  campaignId  BigInt
+  userId      String   @db.ObjectId
+  content     String
+  parentId    String?  @db.ObjectId
+  createdAt   DateTime @default(now())
+
+  campaign    Campaign @relation("CampaignComments", fields: [campaignId], references: [campaignId])
+  user        User     @relation("UserComments", fields: [userId], references: [id])
 }

@@ -1,6 +1,13 @@
 import { abi } from '@/configs/abis'
 import { CONTRACT_CONSTANTS } from '@/features/Campaign/data/constants'
-import { Campaign, CreateCampaignRequest, CreateCampaignResponse } from '@/features/Campaign/data/types'
+import {
+  Campaign,
+  Comment,
+  CreateCampaignRequest,
+  CreateCampaignResponse,
+  Milestone,
+  Withdrawal,
+} from '@/features/Campaign/data/types'
 import { EmailTemplateEnum } from '@/shared/constants/EmailTemplateEnum'
 import { ethers } from 'ethers'
 import { inject, injectable } from 'inversify'
@@ -93,6 +100,10 @@ export class CampaignService implements ICampaignService {
     return await this.campaignRepository.getAllCampaigns()
   }
 
+  async getRelatedCampaigns(currentCampaignId: bigint, limit: number = 3): Promise<Campaign[]> {
+    return await this.campaignRepository.getRelatedCampaigns(currentCampaignId, limit)
+  }
+
   async updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign> {
     return await this.campaignRepository.updateCampaignBalance(campaignId, balance)
   }
@@ -122,5 +133,33 @@ export class CampaignService implements ICampaignService {
     const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
     const balance = await contract.getBalance(campaignId)
     return await this.campaignRepository.updateCampaignBalance(campaignId, balance)
+  }
+
+  async upsertMilestones(
+    campaignId: bigint,
+    milestones: { index: number; title: string; description?: string; percentage: number }[],
+  ): Promise<void> {
+    await this.campaignRepository.upsertMilestones(campaignId, milestones)
+  }
+
+  async listMilestones(campaignId: bigint): Promise<Milestone[]> {
+    return await this.campaignRepository.listMilestones(campaignId)
+  }
+
+  async createComment(data: {
+    campaignId: bigint
+    userId: string
+    content: string
+    parentId?: string
+  }): Promise<Comment> {
+    return await this.campaignRepository.createComment(data)
+  }
+
+  async listComments(campaignId: bigint): Promise<Comment[]> {
+    return await this.campaignRepository.listComments(campaignId)
+  }
+
+  async listWithdrawals(campaignId: bigint): Promise<Withdrawal[]> {
+    return await this.campaignRepository.listWithdrawals(campaignId)
   }
 }

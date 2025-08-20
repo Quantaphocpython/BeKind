@@ -2,6 +2,8 @@ export const TYPES = {
   // Repositories
   UserRepository: Symbol.for('UserRepository'),
   CampaignRepository: Symbol.for('CampaignRepository'),
+  MilestoneRepository: Symbol.for('MilestoneRepository'),
+  CommentRepository: Symbol.for('CommentRepository'),
 
   // Services
   UserService: Symbol.for('UserService'),

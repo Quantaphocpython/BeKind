@@ -1,5 +1,36 @@
 import { CampaignStatus } from '../constants'
 
+export interface Milestone {
+  id: string
+  campaignId: bigint
+  index: number
+  title: string
+  description: string | null
+  percentage: number
+  isReleased: boolean
+  releasedAt: Date | null
+  createdAt: Date
+}
+
+export interface Withdrawal {
+  id: string
+  campaignId: bigint
+  amount: bigint
+  milestoneIdx: number | null
+  txHash: string | null
+  createdAt: Date
+}
+
+export interface Comment {
+  id: string
+  campaignId: bigint
+  userId: string
+  content: string
+  parentId: string | null
+  createdAt: Date
+  user?: User
+}
+
 // Campaign from database
 export interface Campaign {
   id: string
@@ -16,6 +47,9 @@ export interface Campaign {
   ownerUser?: User | null
   proofs?: Proof[]
   votes?: Vote[]
+  milestones?: Milestone[]
+  withdrawals?: Withdrawal[]
+  comments?: Comment[]
 }
 
 // Campaign from blockchain

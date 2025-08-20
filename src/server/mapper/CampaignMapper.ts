@@ -1,5 +1,6 @@
-import { Campaign, Proof, Vote } from '@/features/Campaign/data/types'
-import { CampaignDto, ProofDto, VoteDto } from '@/server/dto/campaign.dto'
+import { Campaign, Comment, Milestone, Proof, Vote } from '@/features/Campaign/data/types'
+import { CampaignDto, CommentDto, MilestoneDto, ProofDto, VoteDto, WithdrawalDto } from '@/server/dto/campaign.dto'
+import type { Withdrawal } from '@prisma/client'
 import { userMapper } from './UserMapper'
 
 class CampaignMapper {
@@ -19,6 +20,9 @@ class CampaignMapper {
       ownerUser: campaign.ownerUser ? userMapper.toUserDto(campaign.ownerUser) : null,
       proofs: campaign.proofs ? campaign.proofs.map((proof) => this.toProofDto(proof)) : [],
       votes: campaign.votes ? campaign.votes.map((vote) => this.toVoteDto(vote)) : [],
+      milestones: campaign.milestones ? campaign.milestones.map((m) => this.toMilestoneDto(m)) : [],
+      withdrawals: campaign.withdrawals ? campaign.withdrawals.map((w) => this.toWithdrawalDto(w)) : [],
+      comments: campaign.comments ? campaign.comments.map((c) => this.toCommentDto(c)) : [],
     }
   }
 
@@ -42,6 +46,44 @@ class CampaignMapper {
       createdAt: vote.createdAt.toISOString(),
       campaign: vote.campaign ? this.toCampaignDto(vote.campaign) : undefined,
       user: vote.user ? userMapper.toUserDto(vote.user) : undefined,
+    }
+  }
+
+  toMilestoneDto(m: Milestone): MilestoneDto {
+    return {
+      id: m.id,
+      campaignId: m.campaignId.toString(),
+      index: m.index,
+      title: m.title,
+      description: m.description ?? undefined,
+      percentage: m.percentage,
+      isReleased: m.isReleased,
+      releasedAt: m.releasedAt ? m.releasedAt.toISOString() : undefined,
+      createdAt: m.createdAt.toISOString(),
+    }
+  }
+
+  toWithdrawalDto(w: Withdrawal): WithdrawalDto {
+    return {
+      id: w.id,
+      campaignId: w.campaignId.toString(),
+      amount: w.amount.toString(),
+      milestoneIdx: w.milestoneIdx ?? undefined,
+      txHash: w.txHash ?? undefined,
+      createdAt: w.createdAt.toISOString(),
+    }
+  }
+
+  toCommentDto(c: Comment): CommentDto {
+    return {
+      id: c.id,
+      campaignId: c.campaignId.toString(),
+      userId: c.userId,
+      content: c.content,
+      parentId: c.parentId ?? undefined,
+      createdAt: c.createdAt.toISOString(),
+      // user relation is optional; mapper of list includes user
+      user: (c as any).user ? userMapper.toUserDto((c as any).user) : undefined,
     }
   }
 

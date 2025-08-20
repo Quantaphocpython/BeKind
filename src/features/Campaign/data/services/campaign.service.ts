@@ -24,4 +24,9 @@ export class CampaignService {
     const url = routeConfig(ApiEndpointEnum.CampaignById, { id })
     return await this.httpClient.get(url)
   }
+
+  async getRelatedCampaigns(id: string, limit?: number): Promise<HttpResponse<CampaignDto[]>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'related', limit: limit?.toString() })
+    return await this.httpClient.get(url)
+  }
 }
