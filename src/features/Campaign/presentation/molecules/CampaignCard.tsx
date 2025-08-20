@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
+import { cn } from '@/shared/utils'
 import { routeConfig } from '@/shared/utils/route'
 import { useRouter } from 'next/navigation'
 import { formatEther } from 'viem'
@@ -55,14 +56,18 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
     <Card className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <div>
+          <div className="w-full">
             <div className="flex items-center gap-2 justify-between">
               <CardTitle className="text-xl font-bold overflow-hidden">Campaign #{campaign.campaignId}</CardTitle>
-              <Badge className={getStatusColor(status)}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
+              <Badge className={cn(getStatusColor(status))}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
             </div>
 
-            <CardDescription className="mt-2 overflow-hidden line-clamp-2 ">
-              <ParsedContent className="overflow-hidden"  htmlContent={campaign.description} />
+            <CardDescription className="mt-2">
+              <ParsedContent
+                className="overflow-hidden"
+                contentClassName="line-clamp-3 break-all whitespace-normal max-w-full"
+                htmlContent={campaign.description}
+              />
             </CardDescription>
           </div>
         </div>

@@ -249,7 +249,7 @@
 
     .parsed-content {
       min-height: unset !important;
-      padding: 10px !important;
+      /* padding: 10px !important; */
       .image {
         img {
           display: inline-block !important;
