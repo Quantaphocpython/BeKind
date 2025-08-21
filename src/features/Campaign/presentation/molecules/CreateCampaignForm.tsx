@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import { CAMPAIGN_CONSTANTS, FORM_CONFIG, FORM_STATE } from '../../data/constants'
 import { CreateCampaignRequestDto, CreateCampaignResponseDto } from '../../data/dto'
-import { useCampaignContractWrite } from '../../data/hooks'
+import { useCampaignContractRead, useCampaignContractWrite } from '../../data/hooks'
 import { CreateCampaignFormData, createEnhancedCampaignSchema } from '../../data/schema'
 import { createFormHandlersUtils, createFormUIUtils } from '../../data/utils'
 
@@ -29,6 +29,7 @@ export const CreateCampaignForm = () => {
   const [formState, setFormState] = useState<FORM_STATE>(FORM_STATE.IDLE)
   const [formData, setFormData] = useState<CreateCampaignFormData | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [predictedCampaignId, setPredictedCampaignId] = useState<string | null>(null)
 
   // Initialize utils
   const formHandlersUtils = useMemo(() => createFormHandlersUtils(t), [t])
@@ -67,6 +68,9 @@ export const CreateCampaignForm = () => {
     isSuccess: isContractTransactionSuccess,
   } = useCampaignContractWrite('createCampaign')
 
+  // Read nextCampaignId to predict created id
+  const { data: nextIdData } = useCampaignContractRead('nextCampaignId', {})
+
   const description = useWatch({ control: form.control, name: 'description' })
 
   // Clear errors when wallet connects
@@ -83,11 +87,12 @@ export const CreateCampaignForm = () => {
     try {
       setFormState(FORM_STATE.API_PENDING)
 
-      const requestData = formHandlersUtils.createRequestData(formData, address)
+      const requestData = formHandlersUtils.createRequestData(formData, address, predictedCampaignId || undefined)
       await createCampaignAPI(requestData)
 
       setFormState(FORM_STATE.SUCCESS)
       setFormData(null)
+      setPredictedCampaignId(null)
       form.reset()
 
       toast.success(t('Success'), {
@@ -108,14 +113,13 @@ export const CreateCampaignForm = () => {
         icon: <Icons.alertCircle className="h-4 w-4" />,
       })
     }
-  }, [formData, address, createCampaignAPI, form, formHandlersUtils, t])
+  }, [formData, address, createCampaignAPI, form, formHandlersUtils, t, predictedCampaignId])
 
   useEffect(() => {
     if (isContractTransactionSuccess && formData && address && formState === FORM_STATE.CONTRACT_PENDING) {
       setFormState(FORM_STATE.CONTRACT_SUCCESS)
       handleContractSuccess()
     }
-    // Intentionally only depend on isContractTransactionSuccess to avoid re-run loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isContractTransactionSuccess])
 
@@ -152,6 +156,13 @@ export const CreateCampaignForm = () => {
       const preparedData = { ...data, coverImage: uploaded.downloadURL }
       setFormState(FORM_STATE.CONTRACT_PENDING)
       setFormData(preparedData)
+
+      // Predict created id from current nextCampaignId
+      if (typeof nextIdData !== 'undefined' && nextIdData !== null) {
+        try {
+          setPredictedCampaignId(String(nextIdData as any))
+        } catch {}
+      }
 
       // Create campaign on blockchain
       createCampaignContract({ goal: data.goal })

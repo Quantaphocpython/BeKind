@@ -15,8 +15,9 @@ export class CampaignRepository implements ICampaignRepository {
     const existingUser = await this.userRepository.getUserByAddress(ownerAddress)
     const ownerId = existingUser ? existingUser.id : (await this.userRepository.createUser(ownerAddress)).id
 
-    return await prisma.campaign.create({
-      data: {
+    return await prisma.campaign.upsert({
+      where: { campaignId },
+      create: {
         campaignId,
         owner: ownerId,
         goal: goalInWei,
@@ -26,6 +27,14 @@ export class CampaignRepository implements ICampaignRepository {
         description: data.description,
         coverImage: data.coverImage,
         voteCount: 0,
+      },
+      update: {
+        owner: ownerId,
+        goal: goalInWei,
+        title: data.title,
+        description: data.description,
+        coverImage: data.coverImage,
+        isExist: true,
       },
       include: {
         ownerUser: true,

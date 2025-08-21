@@ -2,6 +2,7 @@ import { container, TYPES } from '@/server/container'
 import { CampaignDto } from '@/server/dto/campaign.dto'
 import type { ICampaignService } from '@/server/service/interface/CampaignService.interface'
 import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
+import { ethers } from 'ethers'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -24,7 +25,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const limit = req.query.limit ? parseInt(req.query.limit as string) : 3
         const relatedCampaigns = await campaignService.getRelatedCampaigns(campaignId, limit)
         const relatedCampaignDtos: CampaignDto[] = relatedCampaigns.map((c) => campaignMapper.toCampaignDto(c))
-        return res.status(200).json(HttpResponseUtil.success(relatedCampaignDtos, 'Related campaigns retrieved successfully'))
+        return res
+          .status(200)
+          .json(HttpResponseUtil.success(relatedCampaignDtos, 'Related campaigns retrieved successfully'))
+      }
+
+      if (action === 'supporters') {
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 100
+        try {
+          console.log(`Fetching supporters for campaign ${campaignId} with limit ${limit}`)
+          const supporters = await campaignService.getSupportersFromChain(campaignId, limit)
+          console.log(`Found ${supporters.length} supporters for campaign ${campaignId}`)
+          console.log('Supporters data:', JSON.stringify(supporters, null, 2))
+          return res.status(200).json(HttpResponseUtil.success(supporters, 'Supporters retrieved successfully'))
+        } catch (e) {
+          console.error('supporters endpoint error:', e)
+          console.error('Error details:', {
+            message: e instanceof Error ? e.message : String(e),
+            stack: e instanceof Error ? e.stack : undefined,
+            campaignId: campaignId.toString(),
+          })
+          return res.status(200).json(HttpResponseUtil.success([], 'Supporters temporarily unavailable'))
+        }
       }
 
       // Get campaign details
@@ -45,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     try {
       const { action } = req.query
-      const { milestones, comment, userId, parentId } = req.body || {}
+      const { milestones, comment, userId, parentId, userAddress, amount } = req.body || {}
 
       if (action === 'milestones') {
         await campaignService.upsertMilestones(BigInt(String(req.query.id)), milestones || [])
@@ -59,6 +81,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           parentId,
         })
         return res.status(200).json(HttpResponseUtil.success(created, 'Comment created'))
+      }
+      if (action === 'donated') {
+        if (!userAddress || typeof userAddress !== 'string') {
+          return res.status(400).json(HttpResponseUtil.badRequest('userAddress is required'))
+        }
+        let amountWei = BigInt(0)
+        try {
+          if (amount) amountWei = ethers.parseEther(String(amount))
+        } catch (e) {
+          console.warn('Invalid amount provided to donated action:', amount)
+        }
+        await campaignService.handleDonation(userAddress, amountWei)
+        return res.status(200).json(HttpResponseUtil.success(null, 'Donation processed'))
       }
 
       return res.status(400).json(HttpResponseUtil.badRequest('Invalid action'))

@@ -4,7 +4,11 @@ import { CreateCampaignFormData } from '../schema'
 
 export interface FormHandlersUtils {
   validateGoalAmount: (goal: string) => void
-  createRequestData: (formData: CreateCampaignFormData, address: string) => CreateCampaignRequestDto
+  createRequestData: (
+    formData: CreateCampaignFormData,
+    address: string,
+    campaignId?: string,
+  ) => CreateCampaignRequestDto
 }
 
 export const createFormHandlersUtils = (t: (key: string) => string): FormHandlersUtils => ({
@@ -15,10 +19,15 @@ export const createFormHandlersUtils = (t: (key: string) => string): FormHandler
     }
   },
 
-  createRequestData: (formData: CreateCampaignFormData, address: string): CreateCampaignRequestDto => {
+  createRequestData: (
+    formData: CreateCampaignFormData,
+    address: string,
+    campaignId?: string,
+  ): CreateCampaignRequestDto => {
     return {
       ...formData,
       userAddress: address,
+      ...(campaignId ? { campaignId } : {}),
     }
   },
 })

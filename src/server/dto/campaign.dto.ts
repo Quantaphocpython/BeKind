@@ -42,6 +42,9 @@ export interface VoteDto {
   campaignId: string
   userId: string
   createdAt: string
+  amount?: string // Amount in ETH
+  transactionHash?: string // Transaction hash
+  blockNumber?: number // Block number
   campaign?: CampaignDto
   user?: UserDto
 }

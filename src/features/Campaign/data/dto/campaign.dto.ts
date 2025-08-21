@@ -49,6 +49,7 @@ export interface CreateCampaignRequestDto {
   description: string
   coverImage: string
   userAddress: string
+  campaignId?: string
 }
 
 export interface CreateCampaignResponseDto {

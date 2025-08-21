@@ -29,4 +29,14 @@ export class CampaignService {
     const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'related', limit: limit?.toString() })
     return await this.httpClient.get(url)
   }
+
+  async getSupporters(id: string, limit?: number): Promise<HttpResponse<any[]>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'supporters', limit: limit?.toString() })
+    return await this.httpClient.get(url)
+  }
+
+  async notifyDonation(id: string, payload: { userAddress: string; amount: string }): Promise<HttpResponse<null>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'donated' })
+    return await this.httpClient.post(url, payload)
+  }
 }

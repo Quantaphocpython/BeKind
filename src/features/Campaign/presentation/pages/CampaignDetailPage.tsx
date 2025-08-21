@@ -9,11 +9,13 @@ import type { CampaignDto } from '@/features/Campaign/data/dto'
 import type { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
+import type { VoteDto } from '@/server/dto/campaign.dto'
 import { useApiQuery } from '@/shared/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
+import { useCampaignContractRead } from '../../data/hooks'
 import { CampaignDonate } from '../atoms/CampaignDonate'
 import { CampaignBanner } from '../molecules/CampaignBanner'
 import { CampaignDetailSkeleton } from '../molecules/CampaignDetailSkeleton'
@@ -40,6 +42,27 @@ export const CampaignDetailPage = () => {
     },
   )
 
+  const {
+    data: supporters = [],
+    isLoading: isLoadingSupporters,
+    error: supportersError,
+  } = useApiQuery<VoteDto[]>(
+    ['campaign-supporters', id],
+    () => {
+      const campaignService = container.get(TYPES.CampaignService) as CampaignService
+      return campaignService.getSupporters(String(id))
+    },
+    {
+      enabled: Boolean(id),
+      select: (res) => res.data,
+    },
+  )
+
+  // Read on-chain balance using the smart contract getBalance
+  const { data: onchainBalance } = useCampaignContractRead('getBalance', {
+    campaignId: campaign ? BigInt(String(campaign.campaignId)) : BigInt(0),
+  })
+
   useEffect(() => {
     if (error) {
       const message = error instanceof Error ? error.message : String(error)
@@ -50,7 +73,16 @@ export const CampaignDetailPage = () => {
   if (isLoading || !campaign) return <CampaignDetailSkeleton />
 
   const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
-  const balanceInEth = Number.parseFloat(formatEther(BigInt(campaign.balance)))
+  const balanceWei = (() => {
+    try {
+      if (typeof onchainBalance === 'bigint') return onchainBalance
+      if (onchainBalance != null) return BigInt(onchainBalance as any)
+      return BigInt(0)
+    } catch {
+      return BigInt(0)
+    }
+  })()
+  const balanceInEth = Number.parseFloat(formatEther(balanceWei))
   const progress = Math.min((balanceInEth / goalInEth) * 100, 100)
 
   return (
@@ -117,7 +149,7 @@ export const CampaignDetailPage = () => {
                 <div className="flex items-center gap-2">
                   <Icons.users className="h-4 w-4 text-primary" />
                   <span>
-                    <span className="font-medium text-foreground">{campaign.votes?.length || 0}</span> supporters
+                    <span className="font-medium text-foreground">{supporters.length}</span> supporters
                   </span>
                 </div>
 
@@ -129,16 +161,11 @@ export const CampaignDetailPage = () => {
               </div>
             </div>
 
-            <CampaignStats
-              goalEth={goalInEth}
-              raisedEth={balanceInEth}
-              votes={campaign.votes?.length || 0}
-              size="default"
-            />
+            <CampaignStats goalEth={goalInEth} raisedEth={balanceInEth} votes={supporters.length} size="default" />
           </div>
 
           <div className="lg:w-80 w-full">
-            <CampaignDonate />
+            <CampaignDonate campaignId={campaign.campaignId} />
           </div>
         </div>
 
@@ -171,27 +198,90 @@ export const CampaignDetailPage = () => {
                 <TabsContent value="supporters">
                   <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
                     <CardHeader className="pb-4">
-                      <CardTitle className="text-xl">Supporters</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-xl">Supporters</CardTitle>
+                        <div className="text-sm text-muted-foreground">
+                          {supporters.length} supporter{supporters.length !== 1 ? 's' : ''}
+                          {supporters.some((s) => s.amount) && (
+                            <span className="ml-2 text-green-600 dark:text-green-400 font-medium">
+                              •{' '}
+                              {supporters
+                                .filter((s) => s.amount)
+                                .reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
+                                .toFixed(4)}{' '}
+                              ETH total
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {(campaign.votes || []).map((v) => (
-                          <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
-                            <Avatar className="size-8">
+                        {supporters.map((v: VoteDto) => (
+                          <div
+                            key={v.id}
+                            className="flex items-start gap-3 p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                          >
+                            <Avatar className="size-10 mt-1">
                               <AvatarImage src={generateUserAvatarSync(v.userId)} alt="Supporter" />
                               <AvatarFallback>SP</AvatarFallback>
                             </Avatar>
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium truncate">{v.user?.name || v.userId}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(v.createdAt).toLocaleDateString()}
-                              </p>
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium truncate">{getShortAddress(v.userId)}</p>
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        await navigator.clipboard.writeText(v.userId)
+                                        toast.success('Address copied to clipboard')
+                                      } catch (err) {
+                                        toast.error('Failed to copy address')
+                                      }
+                                    }}
+                                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                                    title="Copy address"
+                                  >
+                                    📋
+                                  </button>
+                                </div>
+                                {v.amount && (
+                                  <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                                    {parseFloat(v.amount).toFixed(4)} ETH
+                                  </span>
+                                )}
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(v.createdAt).toLocaleString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                                {v.transactionHash && (
+                                  <div className="flex items-center gap-1">
+                                    <Icons.hash className="h-3 w-3 text-muted-foreground" />
+                                    <a
+                                      href={`https://sepolia.etherscan.io/tx/${v.transactionHash}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-primary hover:underline truncate"
+                                    >
+                                      {v.transactionHash.slice(0, 8)}...{v.transactionHash.slice(-6)}
+                                    </a>
+                                  </div>
+                                )}
+                                {v.blockNumber && (
+                                  <p className="text-xs text-muted-foreground">Block #{v.blockNumber}</p>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))}
-                        {(!campaign.votes || campaign.votes.length === 0) && (
-                          <p className="text-sm text-muted-foreground">No supporters yet.</p>
-                        )}
+                        {supporters.length === 0 && <p className="text-sm text-muted-foreground">No supporters yet.</p>}
                       </div>
                     </CardContent>
                   </Card>
