@@ -13,13 +13,13 @@ import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Target } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import { CAMPAIGN_CONSTANTS, FORM_CONFIG, FORM_STATE } from '../../data/constants'
 import { CreateCampaignRequestDto, CreateCampaignResponseDto } from '../../data/dto'
-import { useCampaignContractWrite } from '../../data/hooks'
+import { useCampaignContractRead, useCampaignContractWrite } from '../../data/hooks'
 import { CreateCampaignFormData, createEnhancedCampaignSchema } from '../../data/schema'
 import { createFormHandlersUtils, createFormUIUtils } from '../../data/utils'
 
@@ -28,10 +28,12 @@ export const CreateCampaignForm = () => {
   const t = useTranslations()
   const [formState, setFormState] = useState<FORM_STATE>(FORM_STATE.IDLE)
   const [formData, setFormData] = useState<CreateCampaignFormData | null>(null)
+  const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [predictedCampaignId, setPredictedCampaignId] = useState<string | null>(null)
 
   // Initialize utils
-  const formHandlersUtils = createFormHandlersUtils(t)
-  const formUIUtils = createFormUIUtils()
+  const formHandlersUtils = useMemo(() => createFormHandlersUtils(t), [t])
+  const formUIUtils = useMemo(() => createFormUIUtils(), [])
 
   // Enhanced schema with better validation
   const enhancedCreateCampaignSchema = createEnhancedCampaignSchema(t)
@@ -39,8 +41,10 @@ export const CreateCampaignForm = () => {
   const form = useForm<CreateCampaignFormData>({
     resolver: zodResolver(enhancedCreateCampaignSchema),
     defaultValues: {
+      title: '',
       goal: '',
       description: '',
+      coverImage: '',
     },
     mode: 'onChange',
   })
@@ -64,6 +68,9 @@ export const CreateCampaignForm = () => {
     isSuccess: isContractTransactionSuccess,
   } = useCampaignContractWrite('createCampaign')
 
+  // Read nextCampaignId to predict created id
+  const { data: nextIdData } = useCampaignContractRead('nextCampaignId', {})
+
   const description = useWatch({ control: form.control, name: 'description' })
 
   // Clear errors when wallet connects
@@ -80,14 +87,15 @@ export const CreateCampaignForm = () => {
     try {
       setFormState(FORM_STATE.API_PENDING)
 
-      const requestData = formHandlersUtils.createRequestData(formData, address)
+      const requestData = formHandlersUtils.createRequestData(formData, address, predictedCampaignId || undefined)
       await createCampaignAPI(requestData)
 
       setFormState(FORM_STATE.SUCCESS)
-      form.reset()
       setFormData(null)
+      setPredictedCampaignId(null)
+      form.reset()
 
-      toast.success(t('Success!'), {
+      toast.success(t('Success'), {
         description: t('Campaign created successfully!'),
         icon: <Icons.checkCircle className="h-4 w-4" />,
         duration: 5000,
@@ -105,14 +113,15 @@ export const CreateCampaignForm = () => {
         icon: <Icons.alertCircle className="h-4 w-4" />,
       })
     }
-  }, [formData, address, createCampaignAPI, form, formHandlersUtils, t])
+  }, [formData, address, createCampaignAPI, form, formHandlersUtils, t, predictedCampaignId])
 
   useEffect(() => {
-    if (isContractTransactionSuccess && formData && address) {
+    if (isContractTransactionSuccess && formData && address && formState === FORM_STATE.CONTRACT_PENDING) {
       setFormState(FORM_STATE.CONTRACT_SUCCESS)
       handleContractSuccess()
     }
-  }, [isContractTransactionSuccess, formData, address, handleContractSuccess])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isContractTransactionSuccess])
 
   const onSubmit = async (data: CreateCampaignFormData) => {
     if (!isConnected || !address) {
@@ -120,11 +129,40 @@ export const CreateCampaignForm = () => {
     }
 
     try {
-      setFormState(FORM_STATE.CONTRACT_PENDING)
-      setFormData(data)
-
       // Validate goal amount
       formHandlersUtils.validateGoalAmount(data.goal)
+
+      if (!coverFile) {
+        toast.error(t('Database Error'), {
+          description: t('Cover Image is required'),
+          icon: <Icons.alertCircle className="h-4 w-4" />,
+        })
+        return
+      }
+      if (coverFile.size > 5 * 1024 * 1024) {
+        toast.error(t('An error occurred while creating the campaign'), {
+          description: t('Please upload an image smaller than 5MB'),
+          icon: <Icons.alertCircle className="h-4 w-4" />,
+        })
+        return
+      }
+
+      const uploaded = await firebaseStorage.uploadFileWithDetails({
+        file: coverFile,
+        path: 'images/campaigns',
+        fileName: `cover_${Date.now()}`,
+      })
+
+      const preparedData = { ...data, coverImage: uploaded.downloadURL }
+      setFormState(FORM_STATE.CONTRACT_PENDING)
+      setFormData(preparedData)
+
+      // Predict created id from current nextCampaignId
+      if (typeof nextIdData !== 'undefined' && nextIdData !== null) {
+        try {
+          setPredictedCampaignId(String(nextIdData as any))
+        } catch {}
+      }
 
       // Create campaign on blockchain
       createCampaignContract({ goal: data.goal })
@@ -170,22 +208,24 @@ export const CreateCampaignForm = () => {
                     <Icons.image className="h-4 w-4" />
                     <span>{t('Cover Image')}</span>
                   </FormLabel>
+
                   <FormControl>
                     <ImageDropzone
                       value={field.value}
                       placeholder={t('Drag & drop your image here, or click to upload')}
                       previewAspect={3 / 1}
-                      onChange={async (url, file) => {
-                        if (file) {
-                          const uploaded = await firebaseStorage.uploadFileWithDetails({
-                            file,
-                            path: 'images/campaigns',
-                            fileName: `cover_${Date.now()}`,
+                      onChange={(payload) => {
+                        if (!payload) return
+                        const { objectUrl, file } = payload
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast.error(t('An error occurred while creating the campaign'), {
+                            description: t('Please upload an image smaller than 5MB'),
+                            icon: <Icons.alertCircle className="h-4 w-4" />,
                           })
-                          field.onChange(uploaded.downloadURL)
-                        } else if (url === null) {
-                          field.onChange(null)
+                          return
                         }
+                        setCoverFile(file)
+                        field.onChange(objectUrl)
                       }}
                     />
                   </FormControl>
@@ -204,6 +244,7 @@ export const CreateCampaignForm = () => {
                     <Icons.edit className="h-4 w-4" />
                     <span>{t('Title')}</span>
                   </FormLabel>
+
                   <FormControl>
                     <Input {...field} disabled={isLoading} placeholder={t('Enter your campaign title')} />
                   </FormControl>
@@ -222,6 +263,7 @@ export const CreateCampaignForm = () => {
                     <Target className="h-4 w-4" />
                     <span>{t('Campaign Goal (ETH)')}</span>
                   </FormLabel>
+
                   <FormControl>
                     <Input
                       {...field}

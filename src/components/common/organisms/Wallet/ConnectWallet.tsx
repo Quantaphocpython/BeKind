@@ -28,16 +28,9 @@ export default function ConnectWallet() {
   // Auto-create user when wallet is connected
   useEffect(() => {
     if (isConnected && address) {
-      console.log('Creating user with address:', address)
       createUser({
         address,
       })
-        .then((response) => {
-          console.log('User created successfully:', response)
-        })
-        .catch((error) => {
-          console.error('Failed to create user:', error)
-        })
     }
   }, [isConnected, address, createUser])
 
@@ -80,7 +73,7 @@ export default function ConnectWallet() {
               return (
                 <div style={{ display: 'flex', gap: 12 }}>
                   <Button onClick={openAccountModal} type="button" disabled={isCreatingUser}>
-                    {isCreatingUser ? 'Creating Account...' : account.displayName}
+                    {isCreatingUser ? t('Loading...') : account.displayName}
                   </Button>
                 </div>
               )

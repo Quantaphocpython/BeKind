@@ -43,6 +43,7 @@ export default async function LocaleLayout({ children }: LocaleLayoutProps) {
         <I18nProvider locale={localeHeader}>
           <Providers>
             <NextTopLoader showSpinner={false} color="var(--primary)" />
+
             <NuqsAdapter>
               <MainLayout>{children}</MainLayout>
             </NuqsAdapter>

@@ -1,10 +1,10 @@
 'use client'
 
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import React from 'react'
 import { AutoScrollTopProvider } from './AutoScrollTopProvider'
 import QueryClientProvider from './QueryClientProvider'
+import RainbowKitProvider from './RainbowKitProvider'
 import { ThemeProvider } from './ThemeProvider'
 import ToasterProvider from './ToasterProvider'
 import WagmiProvider from './WagmiProvider'
@@ -19,7 +19,7 @@ const Providers = ({ children }: ProvidersProps) => {
       <ThemeProvider>
         <WagmiProvider>
           <QueryClientProvider>
-            <RainbowKitProvider id="rainbowkit">
+            <RainbowKitProvider>
               <TooltipProvider>
                 <AutoScrollTopProvider />
                 <ToasterProvider />

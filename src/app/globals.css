@@ -248,7 +248,8 @@
     }
 
     .parsed-content {
-      padding: 10px !important;
+      min-height: unset !important;
+      /* padding: 10px !important; */
       .image {
         img {
           display: inline-block !important;

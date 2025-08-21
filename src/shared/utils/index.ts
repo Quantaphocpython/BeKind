@@ -1,5 +1,6 @@
 export * from './classHelper'
 export * from './dateHelper'
+export * from './delayed'
 export * from './httpResponse.util'
 export * from './route'
 export * from './tailwindHelper'

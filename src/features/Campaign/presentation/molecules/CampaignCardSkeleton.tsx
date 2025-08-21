@@ -3,8 +3,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export const CampaignCardSkeleton = () => {
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200">
-      <CardHeader>
+    <Card className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+      <div className="w-full aspect-[16/9] bg-accent animate-pulse" />
+      <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <Skeleton className="h-6 w-32 mb-2" />

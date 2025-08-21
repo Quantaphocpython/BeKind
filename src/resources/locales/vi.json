@@ -207,6 +207,8 @@
   "Saving campaign to database...": "Đang lưu chiến dịch vào cơ sở dữ liệu...",
   "Campaign created successfully!": "Chiến dịch đã được tạo thành công!",
   "An error occurred while creating the campaign": "Đã xảy ra lỗi khi tạo chiến dịch",
+  "Database Error": "Lỗi cơ sở dữ liệu",
+  "An unexpected error occurred": "Đã xảy ra lỗi không mong muốn",
   "Guest": "Khách",
   "Profile": "Hồ sơ",
   "Settings": "Cài đặt",
@@ -233,5 +235,7 @@
   "Poor": "Kém",
   "Member Since": "Thành viên từ",
   "Wallet Address": "Địa chỉ ví",
-  "Anonymous User": "Người dùng ẩn danh"
+  "Anonymous User": "Người dùng ẩn danh",
+  "Success": "Thành công",
+  "Error": "Lỗi"
 }

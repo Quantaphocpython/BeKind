@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         campaigns = await campaignService.getAllCampaigns()
       }
 
-      const campaignDtos: CampaignDto[] = campaigns.map(campaignMapper.toCampaignDto)
+      const campaignDtos: CampaignDto[] = campaigns.map((c) => campaignMapper.toCampaignDto(c))
       const response: CampaignListResponseDto = { campaigns: campaignDtos }
 
       return res.status(200).json(HttpResponseUtil.success(response, 'Campaigns retrieved successfully'))

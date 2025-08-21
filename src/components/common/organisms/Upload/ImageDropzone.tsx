@@ -5,7 +5,7 @@ import React, { useCallback, useRef, useState } from 'react'
 
 interface ImageDropzoneProps {
   value?: string
-  onChange?: (url: string | null, file?: File) => void
+  onChange?: (value: { objectUrl: string; file: File } | null) => void
   disabled?: boolean
   className?: string
   accept?: string
@@ -28,7 +28,6 @@ const ImageDropzone = ({
 }: ImageDropzoneProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [dragActive, setDragActive] = useState(false)
-  const [localPreview, setLocalPreview] = useState<string | null>(null)
 
   const handleFiles = useCallback(
     (files: FileList | null) => {
@@ -38,8 +37,7 @@ const ImageDropzone = ({
         return
       }
       const objectUrl = URL.createObjectURL(file)
-      setLocalPreview(objectUrl)
-      onChange?.(objectUrl, file)
+      onChange?.({ objectUrl, file })
     },
     [maxSizeMb, onChange],
   )
@@ -56,7 +54,7 @@ const ImageDropzone = ({
     if (!disabled) inputRef.current?.click()
   }
 
-  const currentPreview = value || localPreview
+  const currentPreview = value
 
   return (
     <div className={cn('w-full', className)}>

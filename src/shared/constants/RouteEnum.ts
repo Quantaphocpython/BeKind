@@ -5,7 +5,7 @@ export enum RouteEnum {
   // User routes
   Profile = '/profile',
   // Campaign routes
-  CreateCampaign = '/create-campaign',
+  CreateCampaign = '/campaigns/create',
   Campaigns = '/campaigns',
   CampaignDetail = '/campaigns/{id}',
 }
