@@ -3,28 +3,24 @@
 import ParsedContent from '@/components/common/organisms/Editor/ParsedContent'
 import { Icons } from '@/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { CampaignDto } from '@/features/Campaign/data/dto'
 import type { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
-import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useApiQuery } from '@/shared/hooks'
-import { routeConfig } from '@/shared/utils/route'
-import { CalendarDays, Heart, Users } from 'lucide-react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
+import { CampaignDonate } from '../atoms/CampaignDonate'
 import { CampaignBanner } from '../molecules/CampaignBanner'
 import { CampaignDetailSkeleton } from '../molecules/CampaignDetailSkeleton'
 import { CampaignStats } from '../molecules/CampaignStats'
 import { RelatedCampaigns } from '../molecules/RelatedCampaigns'
 
 export const CampaignDetailPage = () => {
-  const router = useRouter()
   const params = useParams<{ id?: string }>()
   const id = params?.id ?? ''
 
@@ -59,7 +55,7 @@ export const CampaignDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <div className="container mx-auto px-4 max-w-7xl py-8 space-y-12">
+      <div className="container mx-auto px-4 max-w-7xl py-6 space-y-10">
         <CampaignBanner
           title={campaign.title}
           coverImage={campaign.coverImage}
@@ -72,74 +68,79 @@ export const CampaignDetailPage = () => {
                 ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
                 : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800',
           }}
+          variant="compact"
         />
 
-        <div className="flex flex-col lg:flex-row gap-8 lg:items-start lg:justify-between">
+        <div className="flex flex-col lg:flex-row gap-8 lg:items-start lg:justify-between ">
           <div className="flex-1 space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-5 rounded-2xl border bg-card p-4 shadow-sm bg-gradient-to-br from-primary/10 via-card to-accent/10 backdrop-blur-sm">
+              {/* Created date + Share */}
               <div className="flex items-center justify-between text-muted-foreground">
-                <div className="flex items-center gap-3">
-                  <CalendarDays className="h-5 w-5" />
-                  <span className="text-sm font-medium">
+                <div className="flex items-center gap-2">
+                  <Icons.calendarDays className="h-4 w-4 text-primary" />
+                  <span className="text-sm">
                     Created on{' '}
-                    {new Date(campaign.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    <span className="font-medium text-foreground">
+                      {new Date(campaign.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </span>
                   </span>
                 </div>
                 <button
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-md border bg-transparent hover:bg-muted/50 transition-colors"
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-full border bg-background hover:bg-muted transition-colors"
                   aria-label="Share campaign"
                 >
                   <Icons.externalLink className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              {/* Owner + supporters + ID */}
+              <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                {/* Owner */}
                 <div className="flex items-center gap-2 min-w-0">
-                  <Avatar className="size-6">
+                  <Avatar className="size-7 ring-2 ring-offset-1 ring-primary/20">
                     <AvatarImage
                       src={generateUserAvatarSync(campaign.ownerUser?.address || campaign.owner)}
                       alt="Owner"
                     />
                     <AvatarFallback>OW</AvatarFallback>
                   </Avatar>
-                  <span className="truncate max-w-[10rem]">
+                  <span className="truncate max-w-[10rem] font-medium text-foreground">
                     {campaign.ownerUser?.name || getShortAddress(campaign.owner)}
                   </span>
                 </div>
+
+                {/* Supporters */}
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  <span>{campaign.votes?.length || 0} supporters</span>
+                  <Icons.users className="h-4 w-4 text-primary" />
+                  <span>
+                    <span className="font-medium text-foreground">{campaign.votes?.length || 0}</span> supporters
+                  </span>
                 </div>
+
+                {/* Campaign ID */}
                 <div className="flex items-center gap-2">
-                  <Icons.hash className="h-4 w-4" />
-                  <span>Campaign #{campaign.campaignId}</span>
+                  <Icons.hash className="h-4 w-4 text-primary" />
+                  <span className="font-mono text-foreground">#{campaign.campaignId}</span>
                 </div>
               </div>
             </div>
+
+            <CampaignStats
+              goalEth={goalInEth}
+              raisedEth={balanceInEth}
+              votes={campaign.votes?.length || 0}
+              size="default"
+            />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 lg:flex-col lg:w-48">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
-              onClick={() => router.push(routeConfig(RouteEnum.Campaigns))}
-            >
-              <Heart className="h-4 w-4 mr-2" />
-              Donate Now
-            </Button>
+          <div className="lg:w-80 w-full">
+            <CampaignDonate />
           </div>
         </div>
-
-        <CampaignStats
-          goalEth={goalInEth}
-          raisedEth={balanceInEth}
-          votes={campaign.votes?.length || 0}
-          size="default"
-        />
 
         {/* Main Content - Left Column */}
         <div className="">
@@ -149,7 +150,7 @@ export const CampaignDetailPage = () => {
               <TabsTrigger value="supporters">Supporters</TabsTrigger>
             </TabsList>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
               <div>
                 <TabsContent value="description">
                   <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
@@ -198,7 +199,7 @@ export const CampaignDetailPage = () => {
               </div>
 
               {/* Sidebar - Right Column */}
-              <div className="">
+              <div>
                 <div className="sticky top-8 space-y-6">
                   <RelatedCampaigns currentCampaignId={campaign.campaignId} />
                 </div>

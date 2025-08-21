@@ -9,12 +9,27 @@ export interface CampaignBannerProps {
   coverImage: string
   campaignId: string | number
   statusBadge?: { label: string; className?: string }
+  variant?: 'default' | 'compact'
+  className?: string
 }
 
-export const CampaignBanner = ({ title, coverImage, campaignId, statusBadge }: CampaignBannerProps) => {
+export const CampaignBanner = ({
+  title,
+  coverImage,
+  campaignId,
+  statusBadge,
+  variant = 'default',
+  className,
+}: CampaignBannerProps) => {
   return (
     // <CHANGE> Enhanced banner with better gradient overlay and improved visual hierarchy
-    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-2xl">
+    <div
+      className={cn(
+        'relative w-full overflow-hidden rounded-2xl shadow-2xl',
+        variant === 'compact' ? 'aspect-[16/6] md:aspect-[16/5]' : 'aspect-[16/9]',
+        className,
+      )}
+    >
       <Image
         src={coverImage || '/placeholder.svg'}
         alt={title}
@@ -44,8 +59,15 @@ export const CampaignBanner = ({ title, coverImage, campaignId, statusBadge }: C
       </div>
 
       {/* <CHANGE> Added bottom overlay with campaign title for better visual hierarchy */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-        <h1 className="text-white text-2xl md:text-4xl font-bold leading-tight drop-shadow-lg">{title}</h1>
+      <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
+        <h1
+          className={cn(
+            'text-white font-bold leading-tight drop-shadow-lg',
+            variant === 'compact' ? 'text-xl md:text-3xl' : 'text-2xl md:text-4xl',
+          )}
+        >
+          {title}
+        </h1>
       </div>
     </div>
   )
