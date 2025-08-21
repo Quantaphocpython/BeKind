@@ -20,6 +20,7 @@ import { CampaignDonate } from '../atoms/CampaignDonate'
 import { CampaignBanner } from '../molecules/CampaignBanner'
 import { CampaignDetailSkeleton } from '../molecules/CampaignDetailSkeleton'
 import { CampaignStats } from '../molecules/CampaignStats'
+import { CommentSection } from '../molecules/CommentSection'
 import { RelatedCampaigns } from '../molecules/RelatedCampaigns'
 
 export const CampaignDetailPage = () => {
@@ -296,6 +297,9 @@ export const CampaignDetailPage = () => {
               </div>
             </div>
           </Tabs>
+
+          {/* Comments Section - Below Description */}
+          <CommentSection campaignId={campaign.campaignId} />
         </div>
       </div>
     </div>

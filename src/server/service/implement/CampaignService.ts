@@ -129,7 +129,6 @@ export class CampaignService implements ICampaignService {
       // Ultra fallback: last 5k blocks
       const currentBlock = await this.provider.getBlockNumber()
       const fallbackBlock = Math.max(0, currentBlock - 5000)
-      console.log(`getReasonableStartBlock: Using ultra fallback block ${fallbackBlock}`)
       return fallbackBlock
     }
   }
@@ -324,7 +323,20 @@ export class CampaignService implements ICampaignService {
   }
 
   async listComments(campaignId: bigint): Promise<Comment[]> {
-    return await this.campaignRepository.listComments(campaignId)
+    const comments = await this.campaignRepository.listComments(campaignId)
+
+    // Populate user information for each comment
+    const commentsWithUsers = await Promise.all(
+      comments.map(async (comment) => {
+        const user = await this.userService.getUserByAddress(comment.userId)
+        return {
+          ...comment,
+          user: user || undefined,
+        }
+      }),
+    )
+
+    return commentsWithUsers
   }
 
   async listWithdrawals(campaignId: bigint): Promise<Withdrawal[]> {

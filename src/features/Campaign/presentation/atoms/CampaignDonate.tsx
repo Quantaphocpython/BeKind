@@ -38,7 +38,6 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
         ['campaign', String(campaignId)],
       ],
       onSuccess: (data, variables) => {
-        console.log('notifyDonation success', { data, variables })
         toast.success('Thank you for your donation!')
       },
       onError: (err, variables) => {
@@ -77,7 +76,6 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
         toast.error('Please enter a valid amount')
         return
       }
-      console.log('donate: submitting', { campaignId, amount })
       toast.info('Confirm the donation in your wallet...')
       execute({ campaignId: BigInt(campaignId), amount })
     } catch (e) {

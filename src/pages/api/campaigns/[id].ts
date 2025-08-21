@@ -33,10 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (action === 'supporters') {
         const limit = req.query.limit ? parseInt(req.query.limit as string) : 100
         try {
-          console.log(`Fetching supporters for campaign ${campaignId} with limit ${limit}`)
           const supporters = await campaignService.getSupportersFromChain(campaignId, limit)
-          console.log(`Found ${supporters.length} supporters for campaign ${campaignId}`)
-          console.log('Supporters data:', JSON.stringify(supporters, null, 2))
           return res.status(200).json(HttpResponseUtil.success(supporters, 'Supporters retrieved successfully'))
         } catch (e) {
           console.error('supporters endpoint error:', e)
@@ -46,6 +43,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             campaignId: campaignId.toString(),
           })
           return res.status(200).json(HttpResponseUtil.success([], 'Supporters temporarily unavailable'))
+        }
+      }
+
+      if (action === 'comments') {
+        try {
+          const comments = await campaignService.listComments(campaignId)
+          const commentDtos = comments.map((c) => ({
+            id: c.id,
+            campaignId: c.campaignId.toString(),
+            userId: c.userId,
+            content: c.content,
+            parentId: c.parentId,
+            createdAt: c.createdAt.toISOString(),
+            user: c.user
+              ? {
+                  id: c.user.id,
+                  address: c.user.address,
+                  name: c.user.name,
+                  trustScore: c.user.trustScore,
+                  createdAt: c.user.createdAt.toISOString(),
+                }
+              : undefined,
+          }))
+          return res.status(200).json(HttpResponseUtil.success(commentDtos, 'Comments retrieved successfully'))
+        } catch (e) {
+          console.error('comments endpoint error:', e)
+          return res.status(500).json(HttpResponseUtil.internalServerError())
         }
       }
 
@@ -74,11 +98,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(HttpResponseUtil.success(null, 'Milestones updated'))
       }
       if (action === 'comment') {
+        if (!comment || typeof comment !== 'string') {
+          return res.status(400).json(HttpResponseUtil.badRequest('Comment content is required'))
+        }
+        if (!userId || typeof userId !== 'string') {
+          return res.status(400).json(HttpResponseUtil.badRequest('User ID is required'))
+        }
+
         const created = await campaignService.createComment({
           campaignId: BigInt(String(req.query.id)),
           userId,
           content: comment,
-          parentId,
+          parentId: parentId || undefined,
         })
         return res.status(200).json(HttpResponseUtil.success(created, 'Comment created'))
       }

@@ -69,6 +69,7 @@ import {
   Mail,
   MapPin,
   Menu,
+  MessageSquare,
   Minus,
   Moon,
   MoreVertical,
@@ -246,6 +247,7 @@ export const Icons = {
   lock: Lock,
   star: Star,
   linkedIn: Linkedin,
+  messageSquare: MessageSquare,
   vietnamFlag: ({ ...props }: LucideProps) => (
     <svg width="800px" height="800px" viewBox="0 -4 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <g clipPath="url(#clip0_503_2795)">

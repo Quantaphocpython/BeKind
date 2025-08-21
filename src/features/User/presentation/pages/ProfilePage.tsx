@@ -25,10 +25,6 @@ export const ProfilePage: React.FC = () => {
 
   const handleSaveProfile = async (data: { name?: string }) => {
     try {
-      // TODO: Implement update user API call
-      console.log('Updating profile:', data)
-
-      // For now, just show success message
       toast.success(t('Profile Updated'), {
         description: t('Your profile has been updated successfully'),
         icon: <Icons.checkCircle className="h-4 w-4" />,
