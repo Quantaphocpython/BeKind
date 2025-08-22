@@ -5,12 +5,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
+import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import type { CommentDto } from '@/server/dto/campaign.dto'
 import { useApiMutation, useApiQuery } from '@/shared/hooks'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
+import { CampaignService } from '../../data/services/campaign.service'
 import { CommentSectionSkeleton } from './CommentSectionSkeleton'
 
 interface CommentSectionProps {
@@ -24,6 +26,8 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const [replyText, setReplyText] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const campaignService = container.get<CampaignService>(TYPES.CampaignService)
+
   // Fetch comments
   const {
     data: comments = [],
@@ -31,27 +35,23 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
     error,
   } = useApiQuery<CommentDto[]>(
     ['campaign-comments', campaignId],
-    () =>
-      fetch(`/api/campaigns/${campaignId}?action=comments`)
-        .then((res) => res.json())
-        .then((data) => data.data || []),
+    () => campaignService.getCampaignComments(campaignId),
     {
       enabled: Boolean(campaignId),
+      select: (response) => response.data || [],
     },
   )
 
   // Create comment mutation
   const createCommentMutation = useApiMutation(
     (data: { content: string; parentId?: string }) =>
-      fetch(`/api/campaigns/${campaignId}?action=comment`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          comment: data.content,
+      campaignService
+        .createComment(campaignId, {
+          content: data.content,
           parentId: data.parentId,
-          userId: address,
-        }),
-      }).then((res) => res.json()),
+          userId: address!,
+        })
+        .then((res) => res.data),
     {
       invalidateQueries: [['campaign-comments', campaignId]],
       onSuccess: () => {

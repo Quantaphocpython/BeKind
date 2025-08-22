@@ -88,7 +88,8 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
     <Card className="border-0 shadow-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 backdrop-blur-sm overflow-hidden relative group">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
-      <CardContent className="p-6 text-center space-y-6 relative z-10">
+
+      <CardContent className="px-6 text-center space-y-6 relative z-10">
         <div className="space-y-2">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mb-2">
             <Icons.heart className="h-8 w-8 text-primary" />

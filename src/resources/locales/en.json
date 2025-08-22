@@ -237,5 +237,22 @@
   "Wallet Address": "Wallet Address",
   "Anonymous User": "Anonymous User",
   "Success": "Success",
-  "Error": "Error"
+  "Error": "Error",
+  "Donation History": "Donation History",
+  "All donation transactions for this campaign": "All donation transactions for this campaign",
+  "All Donations": "All Donations",
+  "Recent": "Recent",
+  "Highest Amount": "Highest Amount",
+  "No donations found": "No donations found",
+  "Donations will appear here once the campaign receives support": "Donations will appear here once the campaign receives support",
+  "Campaign Supporters": "Campaign Supporters",
+  "People who have supported this campaign": "People who have supported this campaign",
+  "Total Supporters": "Total Supporters",
+  "supporter": "supporter",
+  "supporters": "supporters",
+  "ETH total": "ETH total",
+  "No supporters yet": "No supporters yet",
+  "Be the first to support this campaign!": "Be the first to support this campaign!",
+  "Campaign Description": "Campaign Description",
+  "Detailed information about this charitable campaign": "Detailed information about this charitable campaign"
 }

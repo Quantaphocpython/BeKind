@@ -8,7 +8,7 @@ import {
   Milestone,
   Withdrawal,
 } from '@/features/Campaign/data/types'
-import type { VoteDto } from '@/server/dto/campaign.dto'
+import type { TransactionDto, VoteDto } from '@/server/dto/campaign.dto'
 import { EmailTemplateEnum } from '@/shared/constants/EmailTemplateEnum'
 import { ethers } from 'ethers'
 import { inject, injectable } from 'inversify'
@@ -341,5 +341,61 @@ export class CampaignService implements ICampaignService {
 
   async listWithdrawals(campaignId: bigint): Promise<Withdrawal[]> {
     return await this.campaignRepository.listWithdrawals(campaignId)
+  }
+
+  async getCampaignTransactions(campaignId: bigint, limit: number = 50): Promise<TransactionDto[]> {
+    try {
+      const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
+      const currentBlock = await this.provider.getBlockNumber()
+      const fromBlock = await this.getReasonableStartBlock()
+
+      const transactions: TransactionDto[] = []
+
+      // Get donation events only
+      const donationFilter = contract.filters?.Donation ? contract.filters.Donation(campaignId, null) : null
+      if (donationFilter) {
+        const donationEvents = await contract.queryFilter(donationFilter, fromBlock, currentBlock)
+
+        for (const event of donationEvents) {
+          const args = (event as any).args
+          if (!args) continue
+
+          const parsedCampaignId = args[0] as bigint
+          if (BigInt(parsedCampaignId) !== BigInt(campaignId)) continue
+
+          const donor = args[1] as string
+          const amount = args[2] as bigint
+
+          // Get transaction receipt to check status
+          const receipt = await this.provider.getTransactionReceipt(event.transactionHash)
+          const status: 'success' | 'pending' | 'failed' = receipt?.status === 1 ? 'success' : 'failed'
+
+          // Get block timestamp
+          const block = await this.provider.getBlock(event.blockNumber)
+          const timestamp = block?.timestamp ? new Date(block.timestamp * 1000).toISOString() : new Date().toISOString()
+
+          transactions.push({
+            id: `${event.transactionHash}-${(event as any).logIndex}`,
+            hash: event.transactionHash,
+            from: donor,
+            to: this.contractAddress,
+            value: amount.toString(),
+            blockNumber: event.blockNumber.toString(),
+            timestamp,
+            status,
+            type: 'donation',
+            campaignId: campaignId.toString(),
+          })
+        }
+      }
+
+      // Sort by timestamp (newest first) and limit results
+      return transactions
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, limit)
+    } catch (error) {
+      console.error('Error getting campaign transactions:', error)
+      return []
+    }
   }
 }

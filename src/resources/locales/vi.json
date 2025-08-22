@@ -237,5 +237,22 @@
   "Wallet Address": "Địa chỉ ví",
   "Anonymous User": "Người dùng ẩn danh",
   "Success": "Thành công",
-  "Error": "Lỗi"
+  "Error": "Lỗi",
+  "Donation History": "Lịch sử quyên góp",
+  "All donation transactions for this campaign": "Tất cả giao dịch quyên góp cho chiến dịch này",
+  "All Donations": "Tất cả quyên góp",
+  "Recent": "Gần đây",
+  "Highest Amount": "Số tiền cao nhất",
+  "No donations found": "Không tìm thấy quyên góp",
+  "Donations will appear here once the campaign receives support": "Quyên góp sẽ xuất hiện ở đây khi chiến dịch nhận được hỗ trợ",
+  "Campaign Supporters": "Người ủng hộ chiến dịch",
+  "People who have supported this campaign": "Những người đã ủng hộ chiến dịch này",
+  "Total Supporters": "Tổng người ủng hộ",
+  "supporter": "người ủng hộ",
+  "supporters": "người ủng hộ",
+  "ETH total": "ETH tổng cộng",
+  "No supporters yet": "Chưa có người ủng hộ",
+  "Be the first to support this campaign!": "Hãy là người đầu tiên ủng hộ chiến dịch này!",
+  "Campaign Description": "Mô tả chiến dịch",
+  "Detailed information about this charitable campaign": "Thông tin chi tiết về chiến dịch từ thiện này"
 }

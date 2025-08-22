@@ -1,5 +1,6 @@
 import type { IHttpClient } from '@/configs/httpClient'
 import { TYPES } from '@/features/Common/container/types'
+import type { CommentDto, TransactionDto } from '@/server/dto/campaign.dto'
 import { ApiEndpointEnum } from '@/shared/constants/ApiEndpointEnum'
 import { HttpResponse } from '@/shared/types/httpResponse.type'
 import { routeConfig } from '@/shared/utils/route'
@@ -38,5 +39,23 @@ export class CampaignService {
   async notifyDonation(id: string, payload: { userAddress: string; amount: string }): Promise<HttpResponse<null>> {
     const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'donated' })
     return await this.httpClient.post(url, payload)
+  }
+
+  async getCampaignTransactions(id: string, limit?: number): Promise<HttpResponse<TransactionDto[]>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignTransactions, { id }, { limit: limit?.toString() })
+    return await this.httpClient.get(url)
+  }
+
+  async getCampaignComments(id: string): Promise<HttpResponse<CommentDto[]>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignComments, { id })
+    return await this.httpClient.get(url)
+  }
+
+  async createComment(
+    id: string,
+    data: { content: string; parentId?: string; userId: string },
+  ): Promise<HttpResponse<any>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignComment, { id })
+    return await this.httpClient.post(url, data)
   }
 }
