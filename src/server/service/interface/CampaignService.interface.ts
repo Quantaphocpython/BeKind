@@ -15,7 +15,13 @@ export interface ICampaignService {
   getAllCampaigns(): Promise<Campaign[]>
   getRelatedCampaigns(currentCampaignId: bigint, limit?: number): Promise<Campaign[]>
   getSupportersFromChain(campaignId: bigint, limit?: number): Promise<VoteDto[]>
-  handleDonation(userAddress: string, amount: bigint): Promise<boolean>
+  handleDonation(
+    userAddress: string,
+    amount: bigint,
+    campaignId?: bigint,
+    transactionHash?: string,
+    blockNumber?: number,
+  ): Promise<boolean>
   updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign>
   closeCampaign(campaignId: bigint, ownerAddress: string): Promise<Campaign>
   incrementVoteCount(campaignId: bigint): Promise<void>

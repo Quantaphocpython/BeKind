@@ -4,7 +4,7 @@ import type { CampaignDto } from '@/features/Campaign/data/dto'
 import type { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import type { VoteDto } from '@/server/dto/campaign.dto'
-import { useApiQuery } from '@/shared/hooks'
+import { useApiQuery, useCampaignRealtime } from '@/shared/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
@@ -57,6 +57,12 @@ export const CampaignDetailPage = () => {
   // Read on-chain balance using the smart contract getBalance
   const { data: onchainBalance } = useCampaignContractRead('getBalance', {
     campaignId: campaign ? BigInt(String(campaign.campaignId)) : BigInt(0),
+  })
+
+  // Enable real-time updates for this campaign
+  useCampaignRealtime({
+    campaignId: id,
+    enabled: Boolean(campaign),
   })
 
   useEffect(() => {

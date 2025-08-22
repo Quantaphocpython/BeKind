@@ -36,7 +36,10 @@ export class CampaignService {
     return await this.httpClient.get(url)
   }
 
-  async notifyDonation(id: string, payload: { userAddress: string; amount: string }): Promise<HttpResponse<null>> {
+  async notifyDonation(
+    id: string,
+    payload: { userAddress: string; amount: string; transactionHash?: string; blockNumber?: number },
+  ): Promise<HttpResponse<null>> {
     const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'donated' })
     return await this.httpClient.post(url, payload)
   }

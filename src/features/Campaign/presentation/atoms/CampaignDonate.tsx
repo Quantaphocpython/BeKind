@@ -22,11 +22,11 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
   const { address, isConnected } = useAccount()
   const [amount, setAmount] = useState<string>('0.001')
 
-  const { execute, isLoading, isSuccess, error } = useCampaignContractWrite('donate')
+  const { execute, isLoading, isSuccess, error, hash } = useCampaignContractWrite('donate')
 
   const { mutateAsync: notifyDonation, isPending: isNotifyPending } = useApiMutation<
     null,
-    { userAddress: string; amount: string }
+    { userAddress: string; amount: string; transactionHash?: string; blockNumber?: number }
   >(
     (payload) => {
       const campaignService = container.get(TYPES.CampaignService) as CampaignService
@@ -58,13 +58,18 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
     const notifyBackend = async () => {
       if (!isSuccess || !address) return
       try {
-        await notifyDonation({ userAddress: address, amount })
+        await notifyDonation({
+          userAddress: address,
+          amount,
+          transactionHash: hash,
+          blockNumber: undefined, // We don't have block number from wagmi, but can get it later
+        })
       } catch (e) {
         // error handled in onError
       }
     }
     notifyBackend()
-  }, [isSuccess, address, campaignId, amount, notifyDonation])
+  }, [isSuccess, address, campaignId, amount, hash, notifyDonation])
 
   const onDonate = () => {
     try {

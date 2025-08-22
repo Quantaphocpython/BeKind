@@ -14,6 +14,7 @@ import { ethers } from 'ethers'
 import { inject, injectable } from 'inversify'
 import { TYPES } from '../../container/types'
 import type { ICampaignRepository } from '../../repository/interface/CampaignRepository.interface'
+import { emitBalanceUpdate, emitNewDonation } from '../../utils/socketEmitter'
 import { ICampaignService } from '../interface/CampaignService.interface'
 import type { IEmailService } from '../interface/EmailService.interface'
 import type { IUserService } from '../interface/UserService.interface'
@@ -137,6 +138,10 @@ export class CampaignService implements ICampaignService {
   private supportersCache = new Map<string, { data: VoteDto[]; timestamp: number }>()
   private readonly CACHE_DURATION = 30000 // 30 seconds
 
+  // Cache for transactions to avoid repeated queries
+  private transactionsCache = new Map<string, { data: TransactionDto[]; timestamp: number }>()
+  private readonly TRANSACTIONS_CACHE_DURATION = 60000 // 1 minute
+
   async getSupportersFromChain(
     campaignId: bigint,
     limit: number = 100,
@@ -256,7 +261,13 @@ export class CampaignService implements ICampaignService {
     }
   }
 
-  async handleDonation(userAddress: string, amount: bigint): Promise<boolean> {
+  async handleDonation(
+    userAddress: string,
+    amount: bigint,
+    campaignId?: bigint,
+    transactionHash?: string,
+    blockNumber?: number,
+  ): Promise<boolean> {
     // Ensure user exists
     await this.userService.createUserIfNotExists(userAddress)
     // Increment trust score with a simple rule: +1 per donation (could be amount-based)
@@ -265,8 +276,29 @@ export class CampaignService implements ICampaignService {
     const increment = 1
     await this.userService.updateUserTrustScore(userAddress, current + increment)
 
-    // Clear supporters cache since new donation was made
+    // Clear caches since new donation was made
     this.supportersCache.clear()
+    this.transactionsCache.clear()
+
+    // Emit real-time update if campaignId is provided
+    if (campaignId) {
+      try {
+        emitNewDonation(campaignId.toString(), {
+          donor: userAddress,
+          amount: ethers.formatEther(amount),
+          transactionHash: transactionHash || '',
+          blockNumber: blockNumber || 0,
+          timestamp: new Date().toISOString(),
+        })
+
+        // Also emit balance update
+        const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
+        const newBalance = await contract.getBalance(campaignId)
+        emitBalanceUpdate(campaignId.toString(), ethers.formatEther(newBalance))
+      } catch (error) {
+        console.error('Failed to emit socket events:', error)
+      }
+    }
 
     return true
   }
@@ -345,6 +377,15 @@ export class CampaignService implements ICampaignService {
 
   async getCampaignTransactions(campaignId: bigint, limit: number = 50): Promise<TransactionDto[]> {
     try {
+      // Check cache first
+      const cacheKey = `${campaignId}-${limit}`
+      const cached = this.transactionsCache.get(cacheKey)
+      const now = Date.now()
+
+      if (cached && now - cached.timestamp < this.TRANSACTIONS_CACHE_DURATION) {
+        return cached.data
+      }
+
       const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
       const currentBlock = await this.provider.getBlockNumber()
       const fromBlock = await this.getReasonableStartBlock()
@@ -356,7 +397,30 @@ export class CampaignService implements ICampaignService {
       if (donationFilter) {
         const donationEvents = await contract.queryFilter(donationFilter, fromBlock, currentBlock)
 
-        for (const event of donationEvents) {
+        // Process events with pagination for better performance
+        const eventsToProcess = donationEvents.slice(0, limit) // Only process what we need
+
+        // Get unique block numbers to batch fetch timestamps
+        const uniqueBlockNumbers = [...new Set(eventsToProcess.map((event) => event.blockNumber))]
+
+        // Batch fetch block timestamps
+        const blockTimestamps = new Map<number, number>()
+        const timestampPromises = uniqueBlockNumbers.map(async (blockNumber) => {
+          try {
+            const block = await this.provider.getBlock(blockNumber)
+            if (block?.timestamp) {
+              blockTimestamps.set(blockNumber, block.timestamp)
+            }
+          } catch (error) {
+            console.warn(`Failed to get block ${blockNumber}:`, error)
+          }
+        })
+
+        // Wait for all timestamp fetches to complete
+        await Promise.all(timestampPromises)
+
+        // Process events with cached timestamps
+        for (const event of eventsToProcess) {
           const args = (event as any).args
           if (!args) continue
 
@@ -366,13 +430,12 @@ export class CampaignService implements ICampaignService {
           const donor = args[1] as string
           const amount = args[2] as bigint
 
-          // Get transaction receipt to check status
-          const receipt = await this.provider.getTransactionReceipt(event.transactionHash)
-          const status: 'success' | 'pending' | 'failed' = receipt?.status === 1 ? 'success' : 'failed'
+          // Use cached timestamp or estimate from block number
+          const blockTimestamp = blockTimestamps.get(event.blockNumber)
+          const timestamp = blockTimestamp ? new Date(blockTimestamp * 1000).toISOString() : new Date().toISOString() // Fallback to current time
 
-          // Get block timestamp
-          const block = await this.provider.getBlock(event.blockNumber)
-          const timestamp = block?.timestamp ? new Date(block.timestamp * 1000).toISOString() : new Date().toISOString()
+          // Assume success for donation events (they wouldn't emit if failed)
+          const status: 'success' | 'pending' | 'failed' = 'success'
 
           transactions.push({
             id: `${event.transactionHash}-${(event as any).logIndex}`,
@@ -386,13 +449,21 @@ export class CampaignService implements ICampaignService {
             type: 'donation',
             campaignId: campaignId.toString(),
           })
+
+          // Break if we have enough transactions
+          if (transactions.length >= limit) break
         }
       }
 
-      // Sort by timestamp (newest first) and limit results
-      return transactions
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      // Sort by block number (newest first) and limit results
+      const sortedTransactions = transactions
+        .sort((a, b) => parseInt(b.blockNumber) - parseInt(a.blockNumber))
         .slice(0, limit)
+
+      // Cache the results
+      this.transactionsCache.set(cacheKey, { data: sortedTransactions, timestamp: now })
+
+      return sortedTransactions
     } catch (error) {
       console.error('Error getting campaign transactions:', error)
       return []
