@@ -70,6 +70,19 @@ export interface WithdrawalDto {
   createdAt: string
 }
 
+export interface TransactionDto {
+  id: string
+  hash: string
+  from: string
+  to: string
+  value: string
+  blockNumber: string
+  timestamp: string
+  status: 'success' | 'pending' | 'failed'
+  type: 'donation' | 'withdrawal' | 'creation'
+  campaignId: string
+}
+
 export interface CommentDto {
   id: string
   campaignId: string

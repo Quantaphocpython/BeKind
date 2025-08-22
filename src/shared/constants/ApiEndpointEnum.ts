@@ -4,6 +4,9 @@ export enum ApiEndpointEnum {
   // Campaign endpoints
   Campaigns = '/api/campaigns',
   CampaignById = '/api/campaigns/{id}',
+  CampaignTransactions = '/api/campaigns/{id}/transactions',
+  CampaignComments = '/api/campaigns/{id}?action=comments',
+  CampaignComment = '/api/campaigns/{id}?action=comment',
   // User endpoints
   Users = '/api/users',
 }

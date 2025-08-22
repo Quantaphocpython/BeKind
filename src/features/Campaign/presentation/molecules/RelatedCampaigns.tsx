@@ -54,7 +54,16 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
   }
 
   if (relatedCampaigns.length === 0) {
-    return null
+    return (
+      <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl">Related Campaigns</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">No related campaigns found.</p>
+        </CardContent>
+      </Card>
+    )
   }
 
   const handleCampaignClick = (campaignId: string) => {

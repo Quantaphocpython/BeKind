@@ -51,7 +51,6 @@ export class CampaignRepository implements ICampaignRepository {
         ownerUser: true,
         proofs: true,
         votes: true,
-        // @ts-ignore enrich with new relations
         milestones: true,
         withdrawals: true,
         comments: { include: { user: true } },
