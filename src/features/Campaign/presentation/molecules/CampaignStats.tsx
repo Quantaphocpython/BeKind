@@ -3,6 +3,7 @@
 import { Icons } from '@/components/icons'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { useTranslations } from '@/shared/hooks/useTranslations'
 
 interface CampaignStatsProps {
   goalEth: number
@@ -12,6 +13,7 @@ interface CampaignStatsProps {
 }
 
 export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: CampaignStatsProps) => {
+  const t = useTranslations()
   const titleClass = size === 'compact' ? 'text-sm' : 'text-base'
   const valueClass = size === 'compact' ? 'text-xl md:text-2xl' : 'text-3xl'
 
@@ -27,7 +29,7 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
             <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
               <Icons.target className="h-4 w-4 text-primary" />
             </div>
-            Goal
+            {t('Goal')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -43,13 +45,15 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
             <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900/50 transition-colors">
               <Icons.wallet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            Raised
+            {t('Raised')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className={`${valueClass} font-bold text-emerald-600 dark:text-emerald-400`}>{raisedEth.toFixed(3)} ETH</p>
           <Progress value={progress} className="h-2" />
-          <p className="text-xs text-muted-foreground">{progress.toFixed(1)}% of goal</p>
+          <p className="text-xs text-muted-foreground">
+            {progress.toFixed(1)}% {t('of goal')}
+          </p>
         </CardContent>
       </Card>
 
@@ -61,7 +65,7 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
             <div className="p-2 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
               <Icons.thumbsUp className="h-4 w-4 text-accent" />
             </div>
-            Votes
+            {t('Votes')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -77,7 +81,7 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
             <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
               <Icons.trendingUp className="h-4 w-4 text-primary" />
             </div>
-            Progress
+            {t('Progress')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -85,7 +89,7 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
           <div className="space-y-1">
             <Progress value={progress} className="h-3" />
             <p className="text-xs text-muted-foreground">
-              {progress >= 100 ? 'Goal achieved!' : `${(goalEth - raisedEth).toFixed(3)} ETH remaining`}
+              {progress >= 100 ? t('Goal achieved!') : `${(goalEth - raisedEth).toFixed(3)} ${t('ETH remaining')}`}
             </p>
           </div>
         </CardContent>

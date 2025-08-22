@@ -2,6 +2,7 @@ import { publicSocket } from '@/configs/socket'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
+import { useTranslations } from './useTranslations'
 
 interface UseCampaignRealtimeProps {
   campaignId: string
@@ -9,6 +10,7 @@ interface UseCampaignRealtimeProps {
 }
 
 export const useCampaignRealtime = ({ campaignId, enabled = true }: UseCampaignRealtimeProps) => {
+  const t = useTranslations()
   const queryClient = useQueryClient()
   const eventHandlers = useRef<{ [key: string]: () => void }>({})
 
@@ -34,7 +36,7 @@ export const useCampaignRealtime = ({ campaignId, enabled = true }: UseCampaignR
         queryClient.invalidateQueries({ queryKey: ['campaign', campaignId] })
 
         // Show toast notification
-        toast.success('New donation received!', {
+        toast.success(t('New donation received!'), {
           description: `${data.amount} ETH from ${data.donor.slice(0, 6)}...${data.donor.slice(-4)}`,
         })
       }
@@ -70,7 +72,7 @@ export const useCampaignRealtime = ({ campaignId, enabled = true }: UseCampaignR
 
         // Show toast notification
         const userName = data.comment.user?.name || data.comment.userId.slice(0, 6) + '...'
-        toast.success('New comment!', {
+        toast.success(t('New comment!'), {
           description: `${userName}: ${data.comment.content.slice(0, 50)}${data.comment.content.length > 50 ? '...' : ''}`,
         })
       }
@@ -83,8 +85,8 @@ export const useCampaignRealtime = ({ campaignId, enabled = true }: UseCampaignR
         queryClient.invalidateQueries({ queryKey: ['campaign', campaignId] })
 
         // Show toast notification
-        toast.info(`Campaign status changed to ${data.status}`, {
-          description: 'The campaign status has been updated',
+        toast.info(t('Campaign status changed to {status}', { status: data.status }), {
+          description: t('The campaign status has been updated'),
         })
       }
     }
@@ -112,7 +114,7 @@ export const useCampaignRealtime = ({ campaignId, enabled = true }: UseCampaignR
       Object.values(eventHandlers.current).forEach((cleanup) => cleanup())
       eventHandlers.current = {}
     }
-  }, [campaignId, enabled, queryClient])
+  }, [campaignId, enabled, queryClient, t])
 
   return {
     // Expose socket methods if needed

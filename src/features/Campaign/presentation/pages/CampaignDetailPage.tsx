@@ -4,7 +4,7 @@ import type { CampaignDto } from '@/features/Campaign/data/dto'
 import type { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import type { VoteDto } from '@/server/dto/campaign.dto'
-import { useApiQuery, useCampaignRealtime } from '@/shared/hooks'
+import { useApiQuery, useCampaignRealtime, useTranslations } from '@/shared/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
@@ -19,6 +19,7 @@ import { CommentSection } from '../molecules/CommentSection'
 import { CampaignContentTabs } from '../organisms/CampaignContentTabs'
 
 export const CampaignDetailPage = () => {
+  const t = useTranslations()
   const params = useParams<{ id?: string }>()
   const id = params?.id ?? ''
 
@@ -68,9 +69,9 @@ export const CampaignDetailPage = () => {
   useEffect(() => {
     if (error) {
       const message = error instanceof Error ? error.message : String(error)
-      toast.error('Error loading campaign', { description: message })
+      toast.error(t('Error loading campaign'), { description: message })
     }
-  }, [error])
+  }, [error, t])
 
   if (isLoading || !campaign) return <CampaignDetailSkeleton />
 
@@ -95,7 +96,7 @@ export const CampaignDetailPage = () => {
           coverImage={campaign.coverImage}
           campaignId={campaign.campaignId}
           statusBadge={{
-            label: !campaign.isExist ? 'Closed' : progress >= 100 ? 'Completed' : 'Active',
+            label: !campaign.isExist ? t('Closed') : progress >= 100 ? t('Completed') : t('Active'),
             className: !campaign.isExist
               ? 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700'
               : progress >= 100

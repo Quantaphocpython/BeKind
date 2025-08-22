@@ -60,12 +60,12 @@ export const CampaignTransactions = ({ campaignId, className }: CampaignTransact
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="text-center sm:text-right p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200/50 dark:border-green-800/50">
-              <p className="text-xs text-muted-foreground font-medium">Total Volume</p>
+              <p className="text-xs text-muted-foreground font-medium">{t('Total Volume')}</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">{totalVolumeEth.toFixed(4)} ETH</p>
             </div>
             <Select defaultValue="all">
               <SelectTrigger className="w-[160px] bg-background/80 backdrop-blur-sm border-primary/20">
-                <SelectValue placeholder="Filter by type" />
+                <SelectValue placeholder={t('Filter by type')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t('All Donations')}</SelectItem>
@@ -88,8 +88,8 @@ export const CampaignTransactions = ({ campaignId, className }: CampaignTransact
         ) : error ? (
           <div className="flex flex-col items-center justify-center text-center py-12 rounded-lg border bg-card">
             <Icons.alertCircle className="h-8 w-8 text-red-500 mb-2" />
-            <p className="text-sm text-muted-foreground">Failed to load transactions.</p>
-            <p className="text-xs text-muted-foreground">Please try again later.</p>
+            <p className="text-sm text-muted-foreground">{t('Failed to load transactions.')}</p>
+            <p className="text-xs text-muted-foreground">{t('Please try again later.')}</p>
           </div>
         ) : (
           <div className="space-y-4">

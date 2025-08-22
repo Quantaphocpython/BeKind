@@ -4,6 +4,7 @@ import { Icons } from '@/components/icons'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { CampaignDto } from '@/features/Campaign/data/dto'
 import type { VoteDto } from '@/server/dto/campaign.dto'
+import { useTranslations } from '@/shared/hooks/useTranslations'
 import { CampaignDescription } from '../molecules/CampaignDescription'
 import { CampaignSidebar } from '../molecules/CampaignSidebar'
 import { CampaignSupporters } from '../molecules/CampaignSupporters'
@@ -15,6 +16,7 @@ interface CampaignContentTabsProps {
 }
 
 export const CampaignContentTabs = ({ campaign, supporters }: CampaignContentTabsProps) => {
+  const t = useTranslations()
   return (
     <Tabs defaultValue="description" className="w-full">
       <TabsList className="mb-6 h-12 bg-muted/50 p-1 rounded-xl relative z-20">
@@ -23,21 +25,21 @@ export const CampaignContentTabs = ({ campaign, supporters }: CampaignContentTab
           className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg px-4 py-2 relative z-10 cursor-pointer"
         >
           <Icons.edit className="h-4 w-4" />
-          Description
+          {t('Description')}
         </TabsTrigger>
         <TabsTrigger
           value="supporters"
           className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg px-4 py-2 relative z-10 cursor-pointer"
         >
           <Icons.users className="h-4 w-4" />
-          Supporters
+          {t('Supporters')}
         </TabsTrigger>
         <TabsTrigger
           value="transactions"
           className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg px-4 py-2 relative z-10 cursor-pointer"
         >
           <Icons.trendingUp className="h-4 w-4" />
-          Transactions
+          {t('Transactions')}
         </TabsTrigger>
       </TabsList>
 

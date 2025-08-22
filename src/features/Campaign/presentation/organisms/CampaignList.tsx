@@ -9,6 +9,7 @@ import { CampaignService } from '@/features/Campaign/data/services/campaign.serv
 import { container, TYPES } from '@/features/Common/container'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useApiQuery } from '@/shared/hooks'
+import { useTranslations } from '@/shared/hooks/useTranslations'
 import { routeConfig } from '@/shared/utils/route'
 import { Filter, Plus, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -18,6 +19,7 @@ import { CampaignCard } from '../molecules/CampaignCard'
 import { CampaignCardSkeleton } from '../molecules/CampaignCardSkeleton'
 
 export const CampaignList = () => {
+  const t = useTranslations()
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -40,9 +42,9 @@ export const CampaignList = () => {
   useEffect(() => {
     if (error) {
       const message = error instanceof Error ? error.message : String(error)
-      toast.error('Error loading campaigns', { description: message })
+      toast.error(t('Error loading campaigns'), { description: message })
     }
-  }, [error])
+  }, [error, t])
 
   const filteredCampaigns =
     campaignsResponse?.campaigns?.filter((campaign: CampaignDto) => {
@@ -68,12 +70,12 @@ export const CampaignList = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Campaigns</h1>
-          <p className="text-muted-foreground">Discover and support charitable campaigns on the blockchain</p>
+          <h1 className="text-3xl font-bold">{t('Campaigns')}</h1>
+          <p className="text-muted-foreground">{t('Discover and support charitable campaigns on the blockchain')}</p>
         </div>
         <Button onClick={handleCreateCampaign} className="flex items-center gap-2 cursor-pointer">
           <Plus className="h-4 w-4" />
-          Create Campaign
+          {t('Create Campaign')}
         </Button>
       </div>
 
@@ -82,7 +84,7 @@ export const CampaignList = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search campaigns..."
+            placeholder={t('Search campaigns...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -91,13 +93,13 @@ export const CampaignList = () => {
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-[180px]">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder={t('Filter by status')} />
           </SelectTrigger>
 
           <SelectContent>
-            <SelectItem value="all">All Campaigns</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="all">{t('All Campaigns')}</SelectItem>
+            <SelectItem value="active">{t('Active')}</SelectItem>
+            <SelectItem value="closed">{t('Closed')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -107,7 +109,7 @@ export const CampaignList = () => {
         {isLoading ? (
           <Skeleton className="h-4 w-40" />
         ) : (
-          `${filteredCampaigns.length} campaign${filteredCampaigns.length !== 1 ? 's' : ''} found`
+          `${filteredCampaigns.length} ${filteredCampaigns.length !== 1 ? t('campaigns found') : t('campaign found')}`
         )}
       </div>
 
@@ -129,14 +131,14 @@ export const CampaignList = () => {
           <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
             <Search className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">No campaigns found</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('No campaigns found')}</h3>
           <p className="text-muted-foreground mb-4">
             {searchTerm || statusFilter !== 'all'
-              ? 'Try adjusting your search or filters'
-              : 'Be the first to create a campaign!'}
+              ? t('Try adjusting your search or filters')
+              : t('Be the first to create a campaign!')}
           </p>
           {!searchTerm && statusFilter === 'all' && (
-            <Button onClick={handleCreateCampaign}>Create Your First Campaign</Button>
+            <Button onClick={handleCreateCampaign}>{t('Create Your First Campaign')}</Button>
           )}
         </div>
       )}
