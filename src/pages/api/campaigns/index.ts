@@ -1,5 +1,5 @@
 import { container, TYPES } from '@/server/container'
-import { CampaignDto, CampaignListResponseDto } from '@/server/dto/campaign.dto'
+import { CampaignListQueryDto, CampaignListResponseDto } from '@/server/dto/campaign.dto'
 import type { ICampaignService } from '@/server/service/interface/CampaignService.interface'
 import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
 import { NextApiRequest, NextApiResponse } from 'next'
@@ -11,24 +11,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const { owner } = req.query
+      const { owner, page, limit, search, status, sortBy, sortOrder } = req.query
 
-      let campaigns
+      // If owner is provided, get campaigns by owner
       if (owner && typeof owner === 'string') {
-        // Get campaigns by owner
-        campaigns = await campaignService.getCampaignsByOwner(owner)
-      } else {
-        // Get all campaigns
-        campaigns = await campaignService.getAllCampaigns()
+        const campaigns = await campaignService.getCampaignsByOwner(owner)
+        const campaignDtos = campaigns.map((campaign) => campaignMapper.toCampaignDto(campaign))
+        const response: CampaignListResponseDto = { campaigns: campaignDtos }
+        const httpResponse = HttpResponseUtil.success(response, 'Campaigns retrieved successfully')
+        return res.status(httpResponse.status).json(httpResponse)
       }
 
-      const campaignDtos: CampaignDto[] = campaigns.map((c) => campaignMapper.toCampaignDto(c))
-      const response: CampaignListResponseDto = { campaigns: campaignDtos }
+      // If pagination parameters are provided, get paginated campaigns
+      if (page || limit || search || status || sortBy || sortOrder) {
+        const query: CampaignListQueryDto = {
+          page: page ? parseInt(page as string) : undefined,
+          limit: limit ? parseInt(limit as string) : undefined,
+          search: search as string,
+          status: status as 'all' | 'active' | 'closed',
+          sortBy: sortBy as 'createdAt' | 'title' | 'goal' | 'balance' | 'voteCount',
+          sortOrder: sortOrder as 'asc' | 'desc',
+        }
+        const paginatedResponse = await campaignService.getCampaignsPaginated(query)
+        return res.status(paginatedResponse.status).json(paginatedResponse)
+      }
 
-      return res.status(200).json(HttpResponseUtil.success(response, 'Campaigns retrieved successfully'))
+      // Default: get all campaigns
+      const campaigns = await campaignService.getAllCampaigns()
+      const campaignDtos = campaigns.map((campaign) => campaignMapper.toCampaignDto(campaign))
+      const response: CampaignListResponseDto = { campaigns: campaignDtos }
+      const httpResponse = HttpResponseUtil.success(response, 'Campaigns retrieved successfully')
+      return res.status(httpResponse.status).json(httpResponse)
     } catch (error) {
-      console.error('Error in campaigns API:', error)
-      return res.status(500).json(HttpResponseUtil.internalServerError())
+      console.error('Error fetching campaigns:', error)
+      const httpResponse = HttpResponseUtil.error('Failed to fetch campaigns', 500)
+      return res.status(httpResponse.status).json(httpResponse)
     }
   }
 
@@ -37,27 +54,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { goal, title, description, coverImage, userAddress } = req.body
 
       if (!goal || !title || !description || !coverImage || !userAddress) {
-        return res.status(400).json(HttpResponseUtil.badRequest('Goal, title, coverImage and userAddress are required'))
+        const httpResponse = HttpResponseUtil.error('Missing required fields', 400)
+        return res.status(httpResponse.status).json(httpResponse)
       }
 
-      const result = await campaignService.createCampaign({ goal, title, description, coverImage }, userAddress)
+      const createCampaignRequest = {
+        goal,
+        title,
+        description,
+        coverImage,
+      }
+
+      const result = await campaignService.createCampaign(createCampaignRequest, userAddress)
 
       if (!result.success) {
-        return res.status(400).json(HttpResponseUtil.badRequest(result.error || 'Failed to create campaign'))
+        const httpResponse = HttpResponseUtil.error(result.error || 'Failed to create campaign', 400)
+        return res.status(httpResponse.status).json(httpResponse)
       }
 
-      const campaignDto: CampaignDto = campaignMapper.toCampaignDto(result.campaign!)
+      const campaignDto = campaignMapper.toCampaignDto(result.campaign!)
       const response = {
         campaign: campaignDto,
         campaignId: result.campaignId!.toString(),
       }
 
-      return res.status(201).json(HttpResponseUtil.success(response, 'Campaign created successfully', 201))
+      const httpResponse = HttpResponseUtil.success(response, 'Campaign created successfully')
+      return res.status(httpResponse.status).json(httpResponse)
     } catch (error) {
-      console.error('Error in campaigns API:', error)
-      return res.status(500).json(HttpResponseUtil.internalServerError())
+      console.error('Error creating campaign:', error)
+      const httpResponse = HttpResponseUtil.error('Failed to create campaign', 500)
+      return res.status(httpResponse.status).json(httpResponse)
     }
   }
 
-  return res.status(405).json(HttpResponseUtil.methodNotAllowed())
+  const httpResponse = HttpResponseUtil.error('Method not allowed', 405)
+  return res.status(httpResponse.status).json(httpResponse)
 }

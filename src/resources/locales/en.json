@@ -281,6 +281,8 @@
   "View Campaign Details": "View Campaign Details",
   "Campaigns": "Campaigns",
   "Discover and support charitable campaigns on the blockchain": "Discover and support charitable campaigns on the blockchain",
+  "Discover and support charitable campaigns": "Discover and support charitable campaigns",
+  "Explore featured causes, track progress transparently, and make an impact with secure on-chain donations.": "Explore featured causes, track progress transparently, and make an impact with secure on-chain donations.",
   "Search campaigns...": "Search campaigns...",
   "Filter by status": "Filter by status",
   "All Campaigns": "All Campaigns",
@@ -316,5 +318,7 @@
   "Progress": "Progress",
   "of goal": "of goal",
   "Goal achieved!": "Goal achieved!",
-  "ETH remaining": "ETH remaining"
+  "ETH remaining": "ETH remaining",
+  "Previous": "Previous",
+  "Next": "Next"
 }

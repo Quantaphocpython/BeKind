@@ -281,6 +281,8 @@
   "View Campaign Details": "Xem chi tiết chiến dịch",
   "Campaigns": "Chiến dịch",
   "Discover and support charitable campaigns on the blockchain": "Khám phá và ủng hộ các chiến dịch từ thiện trên blockchain",
+  "Discover and support charitable campaigns": "Khám phá và ủng hộ các chiến dịch từ thiện",
+  "Explore featured causes, track progress transparently, and make an impact with secure on-chain donations.": "Khám phá các dự án nổi bật, theo dõi tiến độ minh bạch và tạo tác động với các khoản đóng góp an toàn trên blockchain.",
   "Search campaigns...": "Tìm kiếm chiến dịch...",
   "Filter by status": "Lọc theo trạng thái",
   "All Campaigns": "Tất cả chiến dịch",
@@ -316,5 +318,7 @@
   "Progress": "Tiến độ",
   "of goal": "của mục tiêu",
   "Goal achieved!": "Đạt mục tiêu!",
-  "ETH remaining": "ETH còn lại"
+  "ETH remaining": "ETH còn lại",
+  "Previous": "Trước",
+  "Next": "Tiếp"
 }

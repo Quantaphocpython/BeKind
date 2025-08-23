@@ -8,7 +8,12 @@ import {
   Milestone,
   Withdrawal,
 } from '@/features/Campaign/data/types'
-import type { TransactionDto, VoteDto } from '@/server/dto/campaign.dto'
+import type {
+  CampaignListPaginatedResponseDto,
+  CampaignListQueryDto,
+  TransactionDto,
+  VoteDto,
+} from '@/server/dto/campaign.dto'
 import { EmailTemplateEnum } from '@/shared/constants/EmailTemplateEnum'
 import { ethers } from 'ethers'
 import { inject, injectable } from 'inversify'
@@ -112,6 +117,10 @@ export class CampaignService implements ICampaignService {
 
   async getAllCampaigns(): Promise<Campaign[]> {
     return await this.campaignRepository.getAllCampaigns()
+  }
+
+  async getCampaignsPaginated(query: CampaignListQueryDto): Promise<CampaignListPaginatedResponseDto> {
+    return await this.campaignRepository.getCampaignsPaginated(query)
   }
 
   async getRelatedCampaigns(currentCampaignId: bigint, limit: number = 3): Promise<Campaign[]> {

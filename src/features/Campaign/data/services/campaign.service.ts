@@ -1,6 +1,11 @@
 import type { IHttpClient } from '@/configs/httpClient'
 import { TYPES } from '@/features/Common/container/types'
-import type { CommentDto, TransactionDto } from '@/server/dto/campaign.dto'
+import type {
+  CampaignListPaginatedResponseDto,
+  CampaignListQueryDto,
+  CommentDto,
+  TransactionDto,
+} from '@/server/dto/campaign.dto'
 import { ApiEndpointEnum } from '@/shared/constants/ApiEndpointEnum'
 import { HttpResponse } from '@/shared/types/httpResponse.type'
 import { routeConfig } from '@/shared/utils/route'
@@ -18,6 +23,22 @@ export class CampaignService {
 
   async getCampaigns(owner?: string): Promise<HttpResponse<CampaignListResponseDto>> {
     const url = routeConfig(ApiEndpointEnum.Campaigns, {}, { owner })
+    return await this.httpClient.get(url)
+  }
+
+  async getCampaignsPaginated(query: CampaignListQueryDto): Promise<HttpResponse<CampaignListPaginatedResponseDto>> {
+    const url = routeConfig(
+      ApiEndpointEnum.Campaigns,
+      {},
+      {
+        page: query.page?.toString(),
+        limit: query.limit?.toString(),
+        search: query.search,
+        status: query.status,
+        sortBy: query.sortBy,
+        sortOrder: query.sortOrder,
+      },
+    )
     return await this.httpClient.get(url)
   }
 

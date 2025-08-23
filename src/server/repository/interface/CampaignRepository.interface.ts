@@ -1,10 +1,12 @@
 import { Campaign, Comment, CreateCampaignRequest, Milestone, Withdrawal } from '@/features/Campaign/data/types'
+import { CampaignListPaginatedResponseDto, CampaignListQueryDto } from '@/server/dto/campaign.dto'
 
 export interface ICampaignRepository {
   createCampaign(data: CreateCampaignRequest, campaignId: bigint, ownerAddress: string): Promise<Campaign>
   getCampaignById(campaignId: bigint): Promise<Campaign | null>
   getCampaignsByOwner(ownerAddress: string): Promise<Campaign[]>
   getAllCampaigns(): Promise<Campaign[]>
+  getCampaignsPaginated(query: CampaignListQueryDto): Promise<CampaignListPaginatedResponseDto>
   getRelatedCampaigns(currentCampaignId: bigint, limit?: number): Promise<Campaign[]>
   updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign>
   closeCampaign(campaignId: bigint): Promise<Campaign>

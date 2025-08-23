@@ -6,13 +6,19 @@ import {
   Milestone,
   Withdrawal,
 } from '@/features/Campaign/data/types'
-import type { TransactionDto, VoteDto } from '@/server/dto/campaign.dto'
+import type {
+  CampaignListPaginatedResponseDto,
+  CampaignListQueryDto,
+  TransactionDto,
+  VoteDto,
+} from '@/server/dto/campaign.dto'
 
 export interface ICampaignService {
   createCampaign(data: CreateCampaignRequest, ownerAddress: string): Promise<CreateCampaignResponse>
   getCampaignById(campaignId: bigint): Promise<Campaign | null>
   getCampaignsByOwner(ownerAddress: string): Promise<Campaign[]>
   getAllCampaigns(): Promise<Campaign[]>
+  getCampaignsPaginated(query: CampaignListQueryDto): Promise<CampaignListPaginatedResponseDto>
   getRelatedCampaigns(currentCampaignId: bigint, limit?: number): Promise<Campaign[]>
   getSupportersFromChain(campaignId: bigint, limit?: number): Promise<VoteDto[]>
   handleDonation(
