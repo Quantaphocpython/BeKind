@@ -31,6 +31,7 @@ class CampaignMapper {
       id: proof.id,
       campaignId: proof.campaignId.toString(),
       userId: proof.userId,
+      title: proof.title,
       content: proof.content,
       createdAt: proof.createdAt.toISOString(),
       campaign: proof.campaign ? this.toCampaignDto(proof.campaign) : undefined,

@@ -4,6 +4,8 @@ import {
   CreateCampaignRequest,
   CreateCampaignResponse,
   Milestone,
+  Proof,
+  User,
   Withdrawal,
 } from '@/features/Campaign/data/types'
 import type {
@@ -40,4 +42,9 @@ export interface ICampaignService {
   listComments(campaignId: bigint): Promise<Comment[]>
   listWithdrawals(campaignId: bigint): Promise<Withdrawal[]>
   getCampaignTransactions(campaignId: bigint, limit?: number): Promise<TransactionDto[]>
+
+  // Proofs
+  createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof>
+  listProofs(campaignId: bigint): Promise<Proof[]>
+  getUserByAddress(address: string): Promise<User | null>
 }

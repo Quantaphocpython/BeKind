@@ -1,87 +1,37 @@
+import { SocketEventEnum, SocketEventPayloads } from '@/shared/constants'
 import { Server as SocketIOServer } from 'socket.io'
 
-// Global socket instance
-let io: SocketIOServer | null = null
+// Generic Socket Emitter Class
+export class SocketEmitter {
+  private io: SocketIOServer | null = null
 
-export const setSocketIO = (socketIO: SocketIOServer) => {
-  io = socketIO
-}
-
-export const getSocketIO = () => {
-  return io
-}
-
-// Emit new donation event to campaign room
-export const emitNewDonation = (
-  campaignId: string,
-  data: {
-    donor: string
-    amount: string
-    transactionHash: string
-    blockNumber: number
-    timestamp: string
-  },
-) => {
-  if (!io) {
-    console.warn('Socket.IO not initialized')
-    return
+  setSocketIO(socketIO: SocketIOServer) {
+    this.io = socketIO
   }
 
-  io.to(`campaign-${campaignId}`).emit('new-donation', {
-    campaignId,
-    ...data,
-  })
-}
-
-// Emit balance update event to campaign room
-export const emitBalanceUpdate = (campaignId: string, newBalance: string) => {
-  if (!io) {
-    console.warn('Socket.IO not initialized')
-    return
+  getSocketIO(): SocketIOServer | null {
+    return this.io
   }
 
-  io.to(`campaign-${campaignId}`).emit('balance-update', {
-    campaignId,
-    newBalance,
-  })
-}
-
-// Emit new comment event to campaign room
-export const emitNewComment = (
-  campaignId: string,
-  comment: {
-    id: string
-    userId: string
-    content: string
-    parentId?: string
-    createdAt: string
-    user?: {
-      id: string
-      address: string
-      name?: string
+  // Generic emit method
+  emit<T extends SocketEventEnum>(event: T, payload: SocketEventPayloads[T], room?: string): void {
+    if (!this.io) {
+      console.warn('Socket.IO not initialized')
+      return
     }
-  },
-) => {
-  if (!io) {
-    console.warn('Socket.IO not initialized')
-    return
+
+    if (room) {
+      this.io.to(room).emit(event, payload)
+    } else {
+      this.io.emit(event, payload)
+    }
   }
 
-  io.to(`campaign-${campaignId}`).emit('new-comment', {
-    campaignId,
-    comment,
-  })
-}
-
-// Emit campaign status change event to campaign room
-export const emitCampaignStatusChange = (campaignId: string, status: 'active' | 'completed' | 'closed') => {
-  if (!io) {
-    console.warn('Socket.IO not initialized')
-    return
+  // Emit to all connected clients
+  emitToAll<T extends SocketEventEnum>(event: T, payload: SocketEventPayloads[T]): void {
+    this.emit(event, payload)
   }
-
-  io.to(`campaign-${campaignId}`).emit('campaign-status-change', {
-    campaignId,
-    status,
-  })
 }
+
+// Global instance - use this directly
+export const socketEmitter = new SocketEmitter()

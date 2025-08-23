@@ -20,7 +20,7 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
   const progress = Math.min((raisedEth / goalEth) * 100, 100)
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-muted/50 hover:-translate-y-1">
         <CardHeader className="pb-3">
           <CardTitle
@@ -70,28 +70,6 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
         </CardHeader>
         <CardContent>
           <p className={`${valueClass} font-bold text-foreground`}>{votes}</p>
-        </CardContent>
-      </Card>
-
-      <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-primary/5 to-accent/5 hover:-translate-y-1">
-        <CardHeader className="pb-3">
-          <CardTitle
-            className={`${titleClass} font-semibold flex items-center gap-2 text-muted-foreground group-hover:text-primary transition-colors`}
-          >
-            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-              <Icons.trendingUp className="h-4 w-4 text-primary" />
-            </div>
-            {t('Progress')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className={`${valueClass} font-bold text-primary`}>{progress.toFixed(1)}%</p>
-          <div className="space-y-1">
-            <Progress value={progress} className="h-3" />
-            <p className="text-xs text-muted-foreground">
-              {progress >= 100 ? t('Goal achieved!') : `${(goalEth - raisedEth).toFixed(3)} ${t('ETH remaining')}`}
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

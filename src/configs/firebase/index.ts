@@ -125,7 +125,7 @@ class FirebaseStorageService {
       const storageRef = ref(this.storage, fileUrl)
       await getDownloadURL(storageRef)
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   }

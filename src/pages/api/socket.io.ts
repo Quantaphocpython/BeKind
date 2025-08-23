@@ -1,3 +1,5 @@
+import { socketEmitter } from '@/server/utils/socketEmitter'
+import { ApiEndpointEnum } from '@/shared/constants/ApiEndpointEnum'
 import { Server as NetServer } from 'http'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { Server as SocketIOServer } from 'socket.io'
@@ -19,27 +21,16 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
 
   console.log('Setting up socket')
   const io = new SocketIOServer(res.socket.server, {
-    path: '/api/v1/socket.io/',
+    path: ApiEndpointEnum.PrivateSocket,
     addTrailingSlash: false,
   })
   res.socket.server.io = io
 
+  // Set socket instance to our emitter
+  socketEmitter.setSocketIO(io)
+
   io.on('connection', (socket) => {
     console.log('Client connected:', socket.id)
-
-    // Handle joining campaign room
-    socket.on('join-campaign', (data: { campaignId: string }) => {
-      const { campaignId } = data
-      socket.join(`campaign-${campaignId}`)
-      console.log(`Client ${socket.id} joined campaign ${campaignId}`)
-    })
-
-    // Handle leaving campaign room
-    socket.on('leave-campaign', (data: { campaignId: string }) => {
-      const { campaignId } = data
-      socket.leave(`campaign-${campaignId}`)
-      console.log(`Client ${socket.id} left campaign ${campaignId}`)
-    })
 
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id)

@@ -17,7 +17,7 @@ export interface ContractArgs {
   donate: { campaignId: bigint; amount: string }
   withdraw: { campaignId: bigint; amount: string }
   closeCampaign: { campaignId: bigint }
-  nextCampaignId: {}
+  nextCampaignId: Record<string, never>
   campaigns: { campaignId: bigint }
   getBalance: { campaignId: bigint }
   getGoal: { campaignId: bigint }

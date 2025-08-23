@@ -3,7 +3,7 @@ import React from 'react'
 import { generateUserAvatarSync, getShortAddress } from '../../data/utils'
 
 interface UserAvatarProps {
-  address: string
+  address?: string
   name?: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
@@ -17,8 +17,8 @@ const sizeClasses = {
 }
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({ address, name, size = 'md', className = '' }) => {
-  const avatarUrl = generateUserAvatarSync(address)
-  const displayName = name || getShortAddress(address)
+  const avatarUrl = generateUserAvatarSync(address || '')
+  const displayName = name || getShortAddress(address || '')
   const fallbackText = displayName.slice(0, 2).toUpperCase()
 
   return (

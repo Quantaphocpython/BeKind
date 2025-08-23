@@ -10,6 +10,7 @@ import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/ut
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useApiQuery } from '@/shared/hooks'
 import { routeConfig } from '@/shared/utils/route'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { formatEther } from 'viem'
 
@@ -92,9 +93,11 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
               >
                 <div className="flex items-start gap-3">
                   <div className="relative flex-shrink-0">
-                    <img
+                    <Image
                       src={campaign.coverImage || '/images/hero-section.jpg'}
                       alt={campaign.title}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 rounded-lg object-cover"
                     />
                     <Badge variant="secondary" className="absolute -top-2 -right-2 text-xs px-2 py-1">

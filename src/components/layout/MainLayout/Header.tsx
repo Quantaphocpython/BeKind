@@ -25,11 +25,14 @@ export default function Header() {
   const pathname = usePathname()
 
   const locales = ['en', 'vi'] as const
-  const normalizePath = useCallback((path: string) => {
-    const localePrefix = new RegExp(`^/(${locales.join('|')})(?=/|$)`)
-    const normalized = path.replace(localePrefix, '') || '/'
-    return normalized
-  }, [])
+  const normalizePath = useCallback(
+    (path: string) => {
+      const localePrefix = new RegExp(`^/(${locales.join('|')})(?=/|$)`)
+      const normalized = path.replace(localePrefix, '') || '/'
+      return normalized
+    },
+    [locales],
+  )
 
   const activeHref = useMemo(() => {
     const current = normalizePath(pathname || '')

@@ -120,7 +120,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         let amountWei = BigInt(0)
         try {
           if (amount) amountWei = ethers.parseEther(String(amount))
-        } catch (e) {
+        } catch {
           console.warn('Invalid amount provided to donated action:', amount)
         }
 

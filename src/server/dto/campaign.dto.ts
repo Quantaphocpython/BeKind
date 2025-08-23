@@ -33,6 +33,7 @@ export interface ProofDto {
   id: string
   campaignId: string
   userId: string
+  title: string
   content: string
   createdAt: string
   campaign?: CampaignDto
@@ -122,3 +123,13 @@ export interface CampaignListQueryDto {
 }
 
 export type CampaignListPaginatedResponseDto = PaginationResponse<CampaignDto>
+
+export interface CreateProofRequestDto {
+  title: string
+  content: string
+  userAddress: string
+}
+
+export interface CreateProofResponseDto {
+  proof: ProofDto
+}

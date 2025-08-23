@@ -15,7 +15,7 @@ export const SupporterAddress = ({ address, className }: SupporterAddressProps) 
     try {
       await navigator.clipboard.writeText(address)
       toast.success(t('Address copied to clipboard'))
-    } catch (err) {
+    } catch {
       toast.error(t('Failed to copy address'))
     }
   }

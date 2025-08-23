@@ -11,7 +11,16 @@ import { useUserStore } from '../state'
 
 export const useUser = (queryOptions?: any, mutationOptions?: any) => {
   const { address, isConnected } = useAccount()
-  const { setUser, setLoading, setError, clearUser } = useUserStore()
+  const {
+    user: cachedUser,
+    setUser,
+    setLoading,
+    setError,
+    clearUser,
+    shouldRefetch,
+    setLastFetched,
+    invalidateCache,
+  } = useUserStore()
   const hasAttemptedCreate = useRef(false)
 
   // Query to get user by address
@@ -31,7 +40,7 @@ export const useUser = (queryOptions?: any, mutationOptions?: any) => {
       return await userService.getUserByAddress(address)
     },
     {
-      enabled: !!address && isConnected,
+      enabled: !!address && isConnected && shouldRefetch(),
       select: (response) => response?.data || null,
       ...queryOptions,
     },
@@ -72,6 +81,9 @@ export const useUser = (queryOptions?: any, mutationOptions?: any) => {
     }
   }, [userResponse, isLoadingUser, userError, setUser, setLoading, setError])
 
+  // Return cached user if available and not loading
+  const user = userResponse || (cachedUser && !shouldRefetch() ? cachedUser : null)
+
   // Clear user when wallet disconnects
   useEffect(() => {
     if (!isConnected || !address) {
@@ -97,12 +109,13 @@ export const useUser = (queryOptions?: any, mutationOptions?: any) => {
   }, [isConnected, address, isLoadingUser, userResponse, userError, createUser, isCreatingUser])
 
   return {
-    user: userResponse,
+    user,
     isLoading: isLoadingUser || isCreatingUser,
     error: userError || createError,
     refetchUser,
     createUser,
     isCreatingUser,
+    invalidateCache,
     ...queryProps,
     ...mutationProps,
   }

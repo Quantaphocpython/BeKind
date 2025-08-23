@@ -52,7 +52,7 @@ export default function TestimonialsSection() {
                     <Icons.star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
                   ))}
                 </div>
-                <p className="text-muted-foreground mb-6 italic">"{testimonial.content}"</p>
+                <p className="text-muted-foreground mb-6 italic">&ldquo;{testimonial.content}&rdquo;</p>
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
                     {/* <AvatarImage src={testimonial.avatar} alt={testimonial.name} /> */}

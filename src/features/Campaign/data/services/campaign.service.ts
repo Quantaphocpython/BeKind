@@ -11,6 +11,7 @@ import { HttpResponse } from '@/shared/types/httpResponse.type'
 import { routeConfig } from '@/shared/utils/route'
 import { inject, injectable } from 'inversify'
 import { CampaignDto, CampaignListResponseDto, CreateCampaignRequestDto, CreateCampaignResponseDto } from '../dto'
+import { CreateProofResponseDto, ProofDto } from '../dto/proof.dto'
 
 @injectable()
 export class CampaignService {
@@ -71,7 +72,7 @@ export class CampaignService {
   }
 
   async getCampaignComments(id: string): Promise<HttpResponse<CommentDto[]>> {
-    const url = routeConfig(ApiEndpointEnum.CampaignComments, { id })
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'comments' })
     return await this.httpClient.get(url)
   }
 
@@ -79,7 +80,20 @@ export class CampaignService {
     id: string,
     data: { content: string; parentId?: string; userId: string },
   ): Promise<HttpResponse<any>> {
-    const url = routeConfig(ApiEndpointEnum.CampaignComment, { id })
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'comment' })
+    return await this.httpClient.post(url, data)
+  }
+
+  async getCampaignProofs(id: string): Promise<HttpResponse<ProofDto[]>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignProofs, { id })
+    return await this.httpClient.get(url)
+  }
+
+  async createProof(
+    id: string,
+    data: { title: string; content: string; userAddress: string },
+  ): Promise<HttpResponse<CreateProofResponseDto>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignProofs, { id })
     return await this.httpClient.post(url, data)
   }
 }

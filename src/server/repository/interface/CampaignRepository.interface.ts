@@ -1,4 +1,4 @@
-import { Campaign, Comment, CreateCampaignRequest, Milestone, Withdrawal } from '@/features/Campaign/data/types'
+import { Campaign, Comment, CreateCampaignRequest, Milestone, Proof, Withdrawal } from '@/features/Campaign/data/types'
 import { CampaignListPaginatedResponseDto, CampaignListQueryDto } from '@/server/dto/campaign.dto'
 
 export interface ICampaignRepository {
@@ -28,4 +28,8 @@ export interface ICampaignRepository {
   // Comments
   createComment(data: { campaignId: bigint; userId: string; content: string; parentId?: string }): Promise<Comment>
   listComments(campaignId: bigint): Promise<Comment[]>
+
+  // Proofs
+  createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof>
+  listProofs(campaignId: bigint): Promise<Proof[]>
 }

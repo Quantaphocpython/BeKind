@@ -6,8 +6,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation, useTranslations } from '@/shared/hooks'
+import { cn } from '@/shared/utils'
 import { Heart } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
@@ -15,11 +15,11 @@ import { useCampaignContractWrite } from '../../data/hooks'
 
 interface CampaignDonateProps {
   campaignId: string
+  className?: string
 }
 
-export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
+export const CampaignDonate = ({ campaignId, className }: CampaignDonateProps) => {
   const t = useTranslations()
-  const router = useRouter()
   const { address, isConnected } = useAccount()
   const [amount, setAmount] = useState<string>('0.001')
 
@@ -38,11 +38,11 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
         ['campaign-supporters', String(campaignId)],
         ['campaign', String(campaignId)],
       ],
-      onSuccess: (data, variables) => {
+      onSuccess: () => {
         toast.success(t('Thank you for your donation!'))
       },
-      onError: (err, variables) => {
-        console.error('notifyDonation error', err, variables)
+      onError: (err) => {
+        console.error('notifyDonation error', err)
         toast.error(t('Donation recorded but post-processing failed'))
       },
     },
@@ -65,8 +65,8 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
           transactionHash: hash,
           blockNumber: undefined, // We don't have block number from wagmi, but can get it later
         })
-      } catch (e) {
-        // error handled in onError
+      } catch {
+        console.error('notifyBackend error', error)
       }
     }
     notifyBackend()
@@ -91,7 +91,12 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
   }
 
   return (
-    <Card className="border-0 shadow-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 backdrop-blur-sm overflow-hidden relative group">
+    <Card
+      className={cn(
+        'border-0 shadow-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 backdrop-blur-sm overflow-hidden relative group',
+        className,
+      )}
+    >
       <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
 

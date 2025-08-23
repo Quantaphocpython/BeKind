@@ -29,11 +29,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const campaignService = container.get<CampaignService>(TYPES.CampaignService)
 
   // Fetch comments
-  const {
-    data: comments = [],
-    isLoading,
-    error,
-  } = useApiQuery<CommentDto[]>(
+  const { data: comments = [], isLoading } = useApiQuery<CommentDto[]>(
     ['campaign-comments', campaignId],
     () => campaignService.getCampaignComments(campaignId),
     {

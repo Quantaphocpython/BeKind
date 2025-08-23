@@ -1,5 +1,5 @@
 import prisma from '@/configs/prisma'
-import { Campaign, Comment, CreateCampaignRequest, Milestone, Withdrawal } from '@/features/Campaign/data/types'
+import { Campaign, Comment, CreateCampaignRequest, Milestone, Proof, Withdrawal } from '@/features/Campaign/data/types'
 import { CampaignListPaginatedResponseDto, CampaignListQueryDto } from '@/server/dto/campaign.dto'
 import { inject, injectable } from 'inversify'
 import { TYPES } from '../../container/types'
@@ -15,7 +15,9 @@ export class CampaignRepository implements ICampaignRepository {
     const goalInWei = BigInt(Math.floor(parseFloat(data.goal) * 10 ** 18))
 
     const existingUser = await this.userRepository.getUserByAddress(ownerAddress)
-    const ownerId = existingUser ? existingUser.id : (await this.userRepository.createUser(ownerAddress)).id
+    const ownerId = existingUser
+      ? existingUser.id
+      : (await this.userRepository.createUser({ address: ownerAddress })).id
 
     return await prisma.campaign.upsert({
       where: { campaignId },
@@ -198,6 +200,26 @@ export class CampaignRepository implements ICampaignRepository {
 
   async listComments(campaignId: bigint): Promise<Comment[]> {
     return await prisma.comment.findMany({
+      where: { campaignId: campaignId },
+      include: { user: true },
+      orderBy: { createdAt: 'desc' },
+    })
+  }
+
+  async createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof> {
+    return await prisma.proof.create({
+      data: {
+        campaignId: data.campaignId,
+        userId: data.userId,
+        title: data.title,
+        content: data.content,
+      },
+      include: { user: true },
+    })
+  }
+
+  async listProofs(campaignId: bigint): Promise<Proof[]> {
+    return await prisma.proof.findMany({
       where: { campaignId: campaignId },
       include: { user: true },
       orderBy: { createdAt: 'desc' },

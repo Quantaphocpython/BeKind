@@ -6,6 +6,8 @@ import {
   CreateCampaignRequest,
   CreateCampaignResponse,
   Milestone,
+  Proof,
+  User,
   Withdrawal,
 } from '@/features/Campaign/data/types'
 import type {
@@ -14,12 +16,13 @@ import type {
   TransactionDto,
   VoteDto,
 } from '@/server/dto/campaign.dto'
+import { SocketEventEnum } from '@/shared/constants'
 import { EmailTemplateEnum } from '@/shared/constants/EmailTemplateEnum'
 import { ethers } from 'ethers'
 import { inject, injectable } from 'inversify'
 import { TYPES } from '../../container/types'
 import type { ICampaignRepository } from '../../repository/interface/CampaignRepository.interface'
-import { emitBalanceUpdate, emitNewDonation } from '../../utils/socketEmitter'
+import { socketEmitter } from '../../utils/socketEmitter'
 import { ICampaignService } from '../interface/CampaignService.interface'
 import type { IEmailService } from '../interface/EmailService.interface'
 import type { IUserService } from '../interface/UserService.interface'
@@ -151,11 +154,7 @@ export class CampaignService implements ICampaignService {
   private transactionsCache = new Map<string, { data: TransactionDto[]; timestamp: number }>()
   private readonly TRANSACTIONS_CACHE_DURATION = 60000 // 1 minute
 
-  async getSupportersFromChain(
-    campaignId: bigint,
-    limit: number = 100,
-    chunkSize: number = 100000,
-  ): Promise<VoteDto[]> {
+  async getSupportersFromChain(campaignId: bigint, limit: number = 100): Promise<VoteDto[]> {
     try {
       // Check cache first
       const cacheKey = `${campaignId}-${limit}`
@@ -278,12 +277,17 @@ export class CampaignService implements ICampaignService {
     blockNumber?: number,
   ): Promise<boolean> {
     // Ensure user exists
-    await this.userService.createUserIfNotExists(userAddress)
+    const existingUser = await this.userService.getUserByAddress(userAddress)
+    if (!existingUser) {
+      await this.userService.createUser({ address: userAddress })
+    }
+
     // Increment trust score with a simple rule: +1 per donation (could be amount-based)
-    const existing = await this.userService.getUserByAddress(userAddress)
-    const current = existing?.trustScore ?? 0
+    const current = existingUser?.trustScore ?? 0
     const increment = 1
-    await this.userService.updateUserTrustScore(userAddress, current + increment)
+    if (existingUser) {
+      await this.userService.updateUser(existingUser.id, { trustScore: current + increment })
+    }
 
     // Clear caches since new donation was made
     this.supportersCache.clear()
@@ -292,7 +296,8 @@ export class CampaignService implements ICampaignService {
     // Emit real-time update if campaignId is provided
     if (campaignId) {
       try {
-        emitNewDonation(campaignId.toString(), {
+        socketEmitter.emitToAll(SocketEventEnum.NEW_DONATION, {
+          campaignId: campaignId.toString(),
           donor: userAddress,
           amount: ethers.formatEther(amount),
           transactionHash: transactionHash || '',
@@ -303,7 +308,10 @@ export class CampaignService implements ICampaignService {
         // Also emit balance update
         const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
         const newBalance = await contract.getBalance(campaignId)
-        emitBalanceUpdate(campaignId.toString(), ethers.formatEther(newBalance))
+        socketEmitter.emitToAll(SocketEventEnum.BALANCE_UPDATE, {
+          campaignId: campaignId.toString(),
+          newBalance: ethers.formatEther(newBalance),
+        })
       } catch (error) {
         console.error('Failed to emit socket events:', error)
       }
@@ -477,5 +485,17 @@ export class CampaignService implements ICampaignService {
       console.error('Error getting campaign transactions:', error)
       return []
     }
+  }
+
+  async createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof> {
+    return await this.campaignRepository.createProof(data)
+  }
+
+  async listProofs(campaignId: bigint): Promise<Proof[]> {
+    return await this.campaignRepository.listProofs(campaignId)
+  }
+
+  async getUserByAddress(address: string): Promise<User | null> {
+    return await this.userService.getUserByAddress(address)
   }
 }

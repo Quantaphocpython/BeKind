@@ -4,18 +4,19 @@ import type { CampaignDto } from '@/features/Campaign/data/dto'
 import type { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import type { VoteDto } from '@/server/dto/campaign.dto'
-import { useApiQuery, useCampaignRealtime, useTranslations } from '@/shared/hooks'
+import { useApiQuery, useTranslations } from '@/shared/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
-import { useCampaignContractRead } from '../../data/hooks'
+import { useCampaignContractRead, useCampaignRealtime } from '../../data/hooks'
 import { CampaignDonate } from '../atoms/CampaignDonate'
 import { CampaignBanner } from '../molecules/CampaignBanner'
 import { CampaignDetailSkeleton } from '../molecules/CampaignDetailSkeleton'
 import { CampaignInfo } from '../molecules/CampaignInfo'
 import { CampaignStats } from '../molecules/CampaignStats'
 import { CommentSection } from '../molecules/CommentSection'
+import { RelatedCampaigns } from '../molecules/RelatedCampaigns'
 import { CampaignContentTabs } from '../organisms/CampaignContentTabs'
 
 export const CampaignDetailPage = () => {
@@ -39,11 +40,7 @@ export const CampaignDetailPage = () => {
     },
   )
 
-  const {
-    data: supporters = [],
-    isLoading: isLoadingSupporters,
-    error: supportersError,
-  } = useApiQuery<VoteDto[]>(
+  const { data: supporters = [] } = useApiQuery<VoteDto[]>(
     ['campaign-supporters', id],
     () => {
       const campaignService = container.get(TYPES.CampaignService) as CampaignService
@@ -61,7 +58,7 @@ export const CampaignDetailPage = () => {
   })
 
   // Enable real-time updates for this campaign
-  useCampaignRealtime({
+  const { isActive: isRealtimeActive } = useCampaignRealtime({
     campaignId: id,
     enabled: Boolean(campaign),
   })
@@ -91,37 +88,40 @@ export const CampaignDetailPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <div className="container mx-auto px-4 max-w-7xl py-6 space-y-10">
-        <CampaignBanner
-          title={campaign.title}
-          coverImage={campaign.coverImage}
-          campaignId={campaign.campaignId}
-          statusBadge={{
-            label: !campaign.isExist ? t('Closed') : progress >= 100 ? t('Completed') : t('Active'),
-            className: !campaign.isExist
-              ? 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700'
-              : progress >= 100
-                ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
-                : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800',
-          }}
-          variant="compact"
-        />
+        <div className="flex items-center justify-between">
+          <CampaignBanner
+            title={campaign.title}
+            coverImage={campaign.coverImage}
+            campaignId={campaign.campaignId}
+            statusBadge={{
+              label: !campaign.isExist ? t('Closed') : progress >= 100 ? t('Completed') : t('Active'),
+              className: !campaign.isExist
+                ? 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700'
+                : progress >= 100
+                  ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800',
+            }}
+            variant="compact"
+          />
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-8 lg:items-start lg:justify-between ">
-          <div className="flex-1 space-y-6">
-            <CampaignInfo campaign={campaign} supporters={supporters} />
-            <CampaignStats goalEth={goalInEth} raisedEth={balanceInEth} votes={supporters.length} size="default" />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 lg:gap-8">
+            <div className="flex flex-col gap-6">
+              <CampaignInfo campaign={campaign} supporters={supporters} />
+              <CampaignStats goalEth={goalInEth} raisedEth={balanceInEth} votes={supporters.length} size="default" />
+              <CampaignContentTabs campaign={campaign} supporters={supporters} />
+            </div>
 
-          <div className="lg:w-80 w-full">
-            <CampaignDonate campaignId={campaign.campaignId} />
+            <div className="flex flex-col gap-6">
+              <CampaignDonate campaignId={campaign.campaignId} />
+            </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="space-y-10">
-          <CampaignContentTabs campaign={campaign} supporters={supporters} />
+        <div className="flex flex-col gap-6">
+          <RelatedCampaigns currentCampaignId={campaign.campaignId} />
 
-          {/* Comments Section - Below Description */}
           <CommentSection campaignId={campaign.campaignId} />
         </div>
       </div>
