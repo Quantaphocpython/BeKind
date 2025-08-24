@@ -1,7 +1,6 @@
 'use client'
 
 import { Icons } from '@/components/icons'
-import { Button } from '@/components/ui/button'
 import { container, TYPES } from '@/features/Common/container'
 import type { TransactionDto } from '@/server/dto/campaign.dto'
 import { useApiQuery } from '@/shared/hooks'
@@ -46,17 +45,6 @@ export const CampaignTransactions = ({ campaignId, className }: CampaignTransact
         label: t('Total Volume'),
         value: `${totalVolumeEth.toFixed(4)} ETH`,
       }}
-      actions={
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {}}
-          className="border-primary/20 text-primary hover:bg-primary/10"
-        >
-          <Icons.chevronDown className="h-4 w-4 mr-2" />
-          {t('All Donations')}
-        </Button>
-      }
       className={className}
     >
       {isLoading ? (

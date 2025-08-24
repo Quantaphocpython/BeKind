@@ -91,7 +91,7 @@ export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSect
         description={t('Campaign owner shares progress and proof of work')}
         metric={{
           label: t('Total Proofs'),
-          value: `${proofs.length} ${proofs.length !== 1 ? t('proofs') : t('proof')}`,
+          value: `${proofs?.length || 0} ${(proofs?.length || 0) === 1 ? t('proof') : t('proofs')}`,
         }}
         actions={
           isOwner && (
