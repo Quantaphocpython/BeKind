@@ -1,13 +1,10 @@
- 
- 
-
 import { ApiEndpointEnum, BASE_API } from '@/shared/constants'
 import { ManagerOptions, SocketOptions } from 'socket.io-client'
 import { BaseSocket } from './baseSocket'
 
 export class PublicSocket extends BaseSocket {
   constructor() {
-    super(`${BASE_API}public`)
+    super(BASE_API || '')
   }
 
   protected buildConfig(): Partial<ManagerOptions & SocketOptions> {

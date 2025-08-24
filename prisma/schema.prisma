@@ -48,6 +48,7 @@ model Proof {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   campaignId  BigInt  
   userId      String   @db.ObjectId
+  title       String
   content     String   // content
   createdAt   DateTime @default(now()) 
 

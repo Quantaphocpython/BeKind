@@ -31,7 +31,7 @@ export default function ContactForm() {
     },
   })
 
-  const onSubmit = async (data: ContactFormData) => {
+  const onSubmit = async () => {
     setIsSubmitting(true)
 
     try {

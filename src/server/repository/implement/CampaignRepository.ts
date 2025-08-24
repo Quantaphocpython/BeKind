@@ -1,7 +1,9 @@
 import prisma from '@/configs/prisma'
-import { Campaign, Comment, CreateCampaignRequest, Milestone, Withdrawal } from '@/features/Campaign/data/types'
+import { Campaign, Comment, CreateCampaignRequest, Milestone, Proof, Withdrawal } from '@/features/Campaign/data/types'
+import { CampaignListPaginatedResponseDto, CampaignListQueryDto } from '@/server/dto/campaign.dto'
 import { inject, injectable } from 'inversify'
 import { TYPES } from '../../container/types'
+import { campaignMapper } from '../../mapper/CampaignMapper'
 import { ICampaignRepository } from '../interface'
 import type { IUserRepository } from '../interface/UserRepository.interface'
 
@@ -13,7 +15,9 @@ export class CampaignRepository implements ICampaignRepository {
     const goalInWei = BigInt(Math.floor(parseFloat(data.goal) * 10 ** 18))
 
     const existingUser = await this.userRepository.getUserByAddress(ownerAddress)
-    const ownerId = existingUser ? existingUser.id : (await this.userRepository.createUser(ownerAddress)).id
+    const ownerId = existingUser
+      ? existingUser.id
+      : (await this.userRepository.createUser({ address: ownerAddress })).id
 
     return await prisma.campaign.upsert({
       where: { campaignId },
@@ -200,5 +204,130 @@ export class CampaignRepository implements ICampaignRepository {
       include: { user: true },
       orderBy: { createdAt: 'desc' },
     })
+  }
+
+  async createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof> {
+    return await prisma.proof.create({
+      data: {
+        campaignId: data.campaignId,
+        userId: data.userId,
+        title: data.title,
+        content: data.content,
+      },
+      include: { user: true },
+    })
+  }
+
+  async listProofs(campaignId: bigint): Promise<Proof[]> {
+    return await prisma.proof.findMany({
+      where: { campaignId: campaignId },
+      include: { user: true },
+      orderBy: { createdAt: 'desc' },
+    })
+  }
+
+  async getCampaignsPaginated(query: CampaignListQueryDto): Promise<CampaignListPaginatedResponseDto> {
+    const { page = 1, limit = 12, search = '', status = 'all', sortBy = 'createdAt', sortOrder = 'desc' } = query
+
+    const skip = (page - 1) * limit
+
+    // Build where conditions
+    const whereConditions: any = {}
+
+    // Status filter
+    if (status !== 'all') {
+      whereConditions.isExist = status === 'active'
+    }
+
+    // Search filter
+    if (search.trim()) {
+      whereConditions.OR = [
+        {
+          title: {
+            contains: search,
+            mode: 'insensitive' as const,
+          },
+        },
+        {
+          description: {
+            contains: search,
+            mode: 'insensitive' as const,
+          },
+        },
+        {
+          campaignId: {
+            equals: isNaN(Number(search)) ? undefined : BigInt(search),
+          },
+        },
+      ].filter((condition) => {
+        // Remove undefined conditions
+        if (condition.campaignId && condition.campaignId.equals === undefined) {
+          return false
+        }
+        return true
+      })
+    }
+
+    // Build orderBy
+    const orderBy: any = {}
+    switch (sortBy) {
+      case 'title':
+        orderBy.title = sortOrder
+        break
+      case 'goal':
+        orderBy.goal = sortOrder
+        break
+      case 'balance':
+        orderBy.balance = sortOrder
+        break
+      case 'voteCount':
+        orderBy.voteCount = sortOrder
+        break
+      case 'createdAt':
+      default:
+        orderBy.createdAt = sortOrder
+        break
+    }
+
+    // Get total count
+    const total = await prisma.campaign.count({
+      where: whereConditions,
+    })
+
+    // Get campaigns with pagination
+    const campaigns = await prisma.campaign.findMany({
+      where: whereConditions,
+      include: {
+        ownerUser: true,
+        proofs: true,
+        votes: true,
+      },
+      orderBy,
+      skip,
+      take: limit,
+    })
+
+    const totalPages = Math.ceil(total / limit)
+    const hasNext = page < totalPages
+    const hasPrev = page > 1
+
+    // Convert Prisma models to DTOs using mapper
+    const campaignDtos = campaigns.map((campaign) => campaignMapper.toCampaignDto(campaign))
+
+    return {
+      status: 200,
+      message: 'Campaigns retrieved successfully',
+      data: {
+        items: campaignDtos,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext,
+          hasPrev,
+        },
+      },
+    }
   }
 }

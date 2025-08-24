@@ -1,6 +1,7 @@
 'use client'
 
 import { getShortAddress } from '@/features/User/data/utils/avatar.utils'
+import { useTranslations } from '@/shared/hooks/useTranslations'
 import { toast } from 'sonner'
 
 interface SupporterAddressProps {
@@ -9,12 +10,13 @@ interface SupporterAddressProps {
 }
 
 export const SupporterAddress = ({ address, className }: SupporterAddressProps) => {
+  const t = useTranslations()
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(address)
-      toast.success('Address copied to clipboard')
-    } catch (err) {
-      toast.error('Failed to copy address')
+      toast.success(t('Address copied to clipboard'))
+    } catch {
+      toast.error(t('Failed to copy address'))
     }
   }
 
@@ -24,7 +26,7 @@ export const SupporterAddress = ({ address, className }: SupporterAddressProps) 
       <button
         onClick={handleCopy}
         className="text-xs text-muted-foreground hover:text-primary transition-colors"
-        title="Copy address"
+        title={t('Copy address')}
       >
         📋
       </button>

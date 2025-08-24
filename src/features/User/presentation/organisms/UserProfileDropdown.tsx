@@ -45,9 +45,9 @@ export const UserProfileDropdown: React.FC = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="flex items-center space-x-2 hover:bg-accent">
-          <UserAvatar address={user.address} size="sm" />
+          <UserAvatar address={user.address || address} size="sm" />
           <span className="hidden sm:inline-block text-sm font-medium">
-            {user.name || getShortAddress(user.address)}
+            {user.name || getShortAddress(user.address || address || '')}
           </span>
           <Icons.chevronDown className="h-3 w-3" />
         </Button>
@@ -57,7 +57,9 @@ export const UserProfileDropdown: React.FC = () => {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user.name || t('Anonymous User')}</p>
-            <p className="text-xs leading-none text-muted-foreground">{getShortAddress(user.address)}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {getShortAddress(user.address || address || '')}
+            </p>
           </div>
         </DropdownMenuLabel>
 

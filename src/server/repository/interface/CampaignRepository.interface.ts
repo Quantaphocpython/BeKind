@@ -1,10 +1,12 @@
-import { Campaign, Comment, CreateCampaignRequest, Milestone, Withdrawal } from '@/features/Campaign/data/types'
+import { Campaign, Comment, CreateCampaignRequest, Milestone, Proof, Withdrawal } from '@/features/Campaign/data/types'
+import { CampaignListPaginatedResponseDto, CampaignListQueryDto } from '@/server/dto/campaign.dto'
 
 export interface ICampaignRepository {
   createCampaign(data: CreateCampaignRequest, campaignId: bigint, ownerAddress: string): Promise<Campaign>
   getCampaignById(campaignId: bigint): Promise<Campaign | null>
   getCampaignsByOwner(ownerAddress: string): Promise<Campaign[]>
   getAllCampaigns(): Promise<Campaign[]>
+  getCampaignsPaginated(query: CampaignListQueryDto): Promise<CampaignListPaginatedResponseDto>
   getRelatedCampaigns(currentCampaignId: bigint, limit?: number): Promise<Campaign[]>
   updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign>
   closeCampaign(campaignId: bigint): Promise<Campaign>
@@ -26,4 +28,8 @@ export interface ICampaignRepository {
   // Comments
   createComment(data: { campaignId: bigint; userId: string; content: string; parentId?: string }): Promise<Comment>
   listComments(campaignId: bigint): Promise<Comment[]>
+
+  // Proofs
+  createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof>
+  listProofs(campaignId: bigint): Promise<Proof[]>
 }

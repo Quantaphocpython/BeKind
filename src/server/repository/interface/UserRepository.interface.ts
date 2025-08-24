@@ -1,9 +1,8 @@
 import { User } from '@/features/Campaign/data/types'
 
 export interface IUserRepository {
-  createUser(address: string, name?: string): Promise<User>
+  createUser(data: { address: string; name?: string; email?: string }): Promise<User>
   getUserByAddress(address: string): Promise<User | null>
-  updateUserTrustScore(address: string, trustScore: number): Promise<User>
-  updateUserName(address: string, name: string): Promise<User>
-  getAllUsers(): Promise<User[]>
+  getUserById(id: string): Promise<User | null>
+  updateUser(id: string, data: Partial<User>): Promise<User>
 }

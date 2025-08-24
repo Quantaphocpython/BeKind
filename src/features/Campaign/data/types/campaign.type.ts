@@ -99,6 +99,7 @@ export interface Proof {
   id: string
   campaignId: bigint
   userId: string
+  title: string
   content: string
   createdAt: Date
   campaign?: Campaign

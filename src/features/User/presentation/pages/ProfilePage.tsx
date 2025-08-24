@@ -23,7 +23,7 @@ export const ProfilePage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleSaveProfile = async (data: { name?: string }) => {
+  const handleSaveProfile = async () => {
     try {
       toast.success(t('Profile Updated'), {
         description: t('Your profile has been updated successfully'),

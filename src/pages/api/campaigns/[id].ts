@@ -120,10 +120,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         let amountWei = BigInt(0)
         try {
           if (amount) amountWei = ethers.parseEther(String(amount))
-        } catch (e) {
+        } catch {
           console.warn('Invalid amount provided to donated action:', amount)
         }
-        await campaignService.handleDonation(userAddress, amountWei)
+
+        const campaignId = BigInt(String(req.query.id))
+        const { transactionHash, blockNumber } = req.body || {}
+
+        await campaignService.handleDonation(userAddress, amountWei, campaignId, transactionHash, blockNumber)
         return res.status(200).json(HttpResponseUtil.success(null, 'Donation processed'))
       }
 

@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
-import { useApiMutation } from '@/shared/hooks'
+import { useApiMutation, useTranslations } from '@/shared/hooks'
+import { cn } from '@/shared/utils'
 import { Heart } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
@@ -15,18 +15,19 @@ import { useCampaignContractWrite } from '../../data/hooks'
 
 interface CampaignDonateProps {
   campaignId: string
+  className?: string
 }
 
-export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
-  const router = useRouter()
+export const CampaignDonate = ({ campaignId, className }: CampaignDonateProps) => {
+  const t = useTranslations()
   const { address, isConnected } = useAccount()
   const [amount, setAmount] = useState<string>('0.001')
 
-  const { execute, isLoading, isSuccess, error } = useCampaignContractWrite('donate')
+  const { execute, isLoading, isSuccess, error, hash } = useCampaignContractWrite('donate')
 
   const { mutateAsync: notifyDonation, isPending: isNotifyPending } = useApiMutation<
     null,
-    { userAddress: string; amount: string }
+    { userAddress: string; amount: string; transactionHash?: string; blockNumber?: number }
   >(
     (payload) => {
       const campaignService = container.get(TYPES.CampaignService) as CampaignService
@@ -37,12 +38,12 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
         ['campaign-supporters', String(campaignId)],
         ['campaign', String(campaignId)],
       ],
-      onSuccess: (data, variables) => {
-        toast.success('Thank you for your donation!')
+      onSuccess: () => {
+        toast.success(t('Thank you for your donation!'))
       },
-      onError: (err, variables) => {
-        console.error('notifyDonation error', err, variables)
-        toast.error('Donation recorded but post-processing failed')
+      onError: (err) => {
+        console.error('notifyDonation error', err)
+        toast.error(t('Donation recorded but post-processing failed'))
       },
     },
   )
@@ -50,42 +51,52 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
   useEffect(() => {
     if (error) {
       const message = error instanceof Error ? error.message : String(error)
-      toast.error('Donation failed', { description: message })
+      toast.error(t('Donation failed'), { description: message })
     }
-  }, [error])
+  }, [error, t])
 
   useEffect(() => {
     const notifyBackend = async () => {
       if (!isSuccess || !address) return
       try {
-        await notifyDonation({ userAddress: address, amount })
-      } catch (e) {
-        // error handled in onError
+        await notifyDonation({
+          userAddress: address,
+          amount,
+          transactionHash: hash,
+          blockNumber: undefined, // We don't have block number from wagmi, but can get it later
+        })
+      } catch {
+        console.error('notifyBackend error', error)
       }
     }
     notifyBackend()
-  }, [isSuccess, address, campaignId, amount, notifyDonation])
+  }, [isSuccess, address, campaignId, amount, hash, notifyDonation])
 
   const onDonate = () => {
     try {
       if (!isConnected || !address) {
-        toast.error('Please connect your wallet to donate')
+        toast.error(t('Please connect your wallet to donate'))
         return
       }
       if (!amount || Number(amount) <= 0) {
-        toast.error('Please enter a valid amount')
+        toast.error(t('Please enter a valid amount'))
         return
       }
-      toast.info('Confirm the donation in your wallet...')
+      toast.info(t('Confirm the donation in your wallet...'))
       execute({ campaignId: BigInt(campaignId), amount })
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e)
-      toast.error('Donation failed', { description: message })
+      toast.error(t('Donation failed'), { description: message })
     }
   }
 
   return (
-    <Card className="border-0 shadow-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 backdrop-blur-sm overflow-hidden relative group">
+    <Card
+      className={cn(
+        'border-0 shadow-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 backdrop-blur-sm overflow-hidden relative group',
+        className,
+      )}
+    >
       <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
 
@@ -94,8 +105,8 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mb-2">
             <Icons.heart className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="text-xl font-bold text-foreground font-serif">Support This Campaign</h3>
-          <p className="text-sm text-muted-foreground">Your donation makes a difference</p>
+          <h3 className="text-xl font-bold text-foreground font-serif">{t('Support This Campaign')}</h3>
+          <p className="text-sm text-muted-foreground">{t('Your donation makes a difference')}</p>
         </div>
 
         <div className="space-y-3">
@@ -117,7 +128,7 @@ export const CampaignDonate = ({ campaignId }: CampaignDonateProps) => {
           >
             {(isLoading || isNotifyPending) && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
             <Heart className="h-5 w-5 mr-3" />
-            {isLoading || isNotifyPending ? 'Donating...' : 'Donate Now'}
+            {isLoading || isNotifyPending ? t('Donating...') : t('Donate Now')}
           </Button>
         </div>
       </CardContent>

@@ -1,3 +1,5 @@
+import { PaginationResponse } from '@/shared/types/httpResponse.type'
+
 // Backend DTOs for Campaign
 export interface CampaignDto {
   id: string
@@ -31,6 +33,7 @@ export interface ProofDto {
   id: string
   campaignId: string
   userId: string
+  title: string
   content: string
   createdAt: string
   campaign?: CampaignDto
@@ -108,4 +111,25 @@ export interface CreateCampaignResponseDto {
 
 export interface CampaignListResponseDto {
   campaigns: CampaignDto[]
+}
+
+export interface CampaignListQueryDto {
+  page?: number
+  limit?: number
+  search?: string
+  status?: 'all' | 'active' | 'closed'
+  sortBy?: 'createdAt' | 'title' | 'goal' | 'balance' | 'voteCount'
+  sortOrder?: 'asc' | 'desc'
+}
+
+export type CampaignListPaginatedResponseDto = PaginationResponse<CampaignDto>
+
+export interface CreateProofRequestDto {
+  title: string
+  content: string
+  userAddress: string
+}
+
+export interface CreateProofResponseDto {
+  proof: ProofDto
 }
