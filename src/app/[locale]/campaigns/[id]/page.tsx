@@ -5,7 +5,6 @@ const CampaignDetailPage = dynamic(
   () => import('@/features/Campaign/presentation/pages/CampaignDetailPage').then((mod) => mod.CampaignDetailPage),
   {
     loading: () => <LoadingSpinner />,
-    ssr: true,
   },
 )
 

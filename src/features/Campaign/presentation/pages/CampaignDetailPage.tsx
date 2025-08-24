@@ -87,7 +87,7 @@ export const CampaignDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <div className="container mx-auto px-4 max-w-7xl py-6 space-y-10">
+      <div className="container mx-auto py-6">
         <div className="flex items-center justify-between">
           <CampaignBanner
             title={campaign.title}
@@ -105,14 +105,16 @@ export const CampaignDetailPage = () => {
           />
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8 lg:items-start lg:justify-between ">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 lg:gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 lg:items-start py-6">
+          <div className="flex-1 min-w-0">
             <div className="flex flex-col gap-6">
               <CampaignInfo campaign={campaign} supporters={supporters} />
               <CampaignStats goalEth={goalInEth} raisedEth={balanceInEth} votes={supporters.length} size="default" />
               <CampaignContentTabs campaign={campaign} supporters={supporters} />
             </div>
+          </div>
 
+          <div className="lg:w-80 flex-shrink-0">
             <div className="flex flex-col gap-6">
               <CampaignDonate campaignId={campaign.campaignId} />
             </div>

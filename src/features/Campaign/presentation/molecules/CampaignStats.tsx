@@ -20,7 +20,7 @@ export const CampaignStats = ({ goalEth, raisedEth, votes, size = 'default' }: C
   const progress = Math.min((raisedEth / goalEth) * 100, 100)
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3  gap-6">
       <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-muted/50 hover:-translate-y-1">
         <CardHeader className="pb-3">
           <CardTitle
