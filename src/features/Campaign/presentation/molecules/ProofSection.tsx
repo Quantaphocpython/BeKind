@@ -18,7 +18,7 @@ import { useTranslations } from '@/shared/hooks/useTranslations'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
-import { CampaignContentHeader } from './CampaignContentHeader'
+import { CampaignContentLayout } from './CampaignContentLayout'
 
 interface ProofSectionProps {
   campaignId: string
@@ -84,82 +84,86 @@ export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSect
   const proofs = proofsResponse || []
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      <CampaignContentHeader
-        icon={<Icons.page className="h-6 w-6" />}
+    <div className={className}>
+      <CampaignContentLayout
+        icon={<Icons.clipboardList className="h-6 w-6" />}
         title={t('Proofs & Updates')}
         description={t('Campaign owner shares progress and proof of work')}
         metric={{
           label: t('Total Proofs'),
           value: `${proofs.length} ${proofs.length !== 1 ? t('proofs') : t('proof')}`,
         }}
-        action={
-          isOwner
-            ? {
-                label: t('Add Proof'),
-                onClick: () => setIsCreateDialogOpen(true),
-                icon: <Icons.plus className="h-4 w-4" />,
-              }
-            : undefined
+        actions={
+          isOwner && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="border-primary/20 text-primary hover:bg-primary/10"
+            >
+              <Icons.plus className="h-4 w-4 mr-2" />
+              {t('Add Proof')}
+            </Button>
+          )
         }
-      />
-
-      {isLoading ? (
-        <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Card key={index} className="animate-pulse">
-              <CardHeader>
-                <div className="h-4 bg-muted rounded w-1/3"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="h-4 bg-muted rounded"></div>
-                  <div className="h-4 bg-muted rounded w-2/3"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : proofs.length > 0 ? (
-        <div className="space-y-4">
-          {proofs.map((proof: ProofDto) => (
-            <Card key={proof.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="size-8">
-                      <AvatarImage src={generateUserAvatarSync(proof.user?.address || proof.userId)} alt="User" />
-                      <AvatarFallback className="text-xs">
-                        {(proof.user?.name || 'U').slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-base">{proof.title}</CardTitle>
-                      <p className="text-xs text-muted-foreground">
-                        {proof.user?.name || getShortAddress(proof.user?.address || proof.userId)} •{' '}
-                        {new Date(proof.createdAt).toLocaleDateString()}
-                      </p>
+      >
+        {isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Card key={index} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-4 bg-muted rounded w-1/3"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-muted rounded"></div>
+                    <div className="h-4 bg-muted rounded w-2/3"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : proofs.length > 0 ? (
+          <div className="space-y-4">
+            {proofs.map((proof: ProofDto) => (
+              <Card key={proof.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="size-8">
+                        <AvatarImage src={generateUserAvatarSync(proof.user?.address || proof.userId)} alt="User" />
+                        <AvatarFallback className="text-xs">
+                          {(proof.user?.name || 'U').slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <CardTitle className="text-base">{proof.title}</CardTitle>
+                        <p className="text-xs text-muted-foreground">
+                          {proof.user?.name || getShortAddress(proof.user?.address || proof.userId)} •{' '}
+                          {new Date(proof.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ParsedContent htmlContent={proof.content} className="prose prose-sm max-w-none dark:prose-invert" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-muted-foreground">
-              {isOwner
-                ? t('No proofs yet. Create your first proof to show campaign progress.')
-                : t('No proofs available yet.')}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+                </CardHeader>
+                <CardContent>
+                  <ParsedContent htmlContent={proof.content} className="prose prose-sm max-w-none dark:prose-invert" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="text-center py-8">
+              <p className="text-muted-foreground">
+                {isOwner
+                  ? t('No proofs yet. Create your first proof to show campaign progress.')
+                  : t('No proofs available yet.')}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </CampaignContentLayout>
 
       {/* Create Proof Dialog */}
       {isOwner && (
