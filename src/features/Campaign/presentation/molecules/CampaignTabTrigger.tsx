@@ -26,7 +26,10 @@ export const CampaignTabTrigger: React.FC<CampaignTabTriggerProps> = ({
   return (
     <TabsTrigger
       value={value}
-      className={`flex flex-col items-center gap-2 px-4 py-3 text-xs font-medium rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border/50 transition-all duration-200 hover:bg-muted/50 ${className}`}
+      className={`flex flex-col items-center gap-2 px-4 py-3 text-xs font-medium rounded-lg bg-none! data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-none data-[state=active]:border-border/50 transition-all duration-200 hover:bg-none! cursor-pointer ${className}`}
+      style={{
+        backgroundColor: 'transparent',
+      }}
     >
       <div className="relative">
         {icon}
