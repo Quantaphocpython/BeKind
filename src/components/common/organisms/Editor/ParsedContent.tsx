@@ -17,7 +17,7 @@ const ParsedContent = ({ htmlContent, className, contentClassName }: ParsedFaqCo
     <div className={cn('reactjs-tiptap-editor', className)}>
       {/* <div className="richtext-relative "> */}
       <div
-        className={cn('tiptap ProseMirror parsed-content ', contentClassName)}
+        className={cn('tiptap parsed-content ', contentClassName)}
         dangerouslySetInnerHTML={{ __html: rawContent }}
       ></div>
       {/* </div> */}
