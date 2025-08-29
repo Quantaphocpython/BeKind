@@ -7,6 +7,8 @@ import { RelatedCampaigns } from './RelatedCampaigns'
 
 interface CampaignSidebarProps {
   campaign: CampaignDto
+  onSync?: () => void
+  isSyncing?: boolean
 }
 
 export const CampaignSidebar = ({ campaign }: CampaignSidebarProps) => {

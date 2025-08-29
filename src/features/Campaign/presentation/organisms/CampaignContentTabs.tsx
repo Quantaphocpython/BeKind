@@ -39,7 +39,7 @@ export const CampaignContentTabs = ({ campaign, supporters }: CampaignContentTab
       content: (
         <CampaignTransactions
           campaignId={campaign.campaignId}
-          campaignOwner={campaign.owner}
+          campaignOwner={campaign.ownerUser?.address || ''}
           campaignGoal={campaign.goal}
           campaignBalance={campaign.balance}
         />
@@ -50,7 +50,7 @@ export const CampaignContentTabs = ({ campaign, supporters }: CampaignContentTab
       icon: <Icons.clipboardList className="h-4 w-4" />,
       labelKey: 'Proofs',
       shortLabelKey: 'Proof',
-      content: <ProofSection campaignId={campaign.campaignId} campaignOwner={campaign.owner} />,
+      content: <ProofSection campaignId={campaign.campaignId} campaignOwner={campaign.ownerUser?.address || ''} />,
     },
   ]
 

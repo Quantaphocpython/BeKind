@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
-import { ScrollType, useAppScroll } from '@/shared/hooks/useAppScroll'
+import { useAppScroll } from '@/shared/hooks/useAppScroll'
 import { useTranslations } from '@/shared/hooks/useTranslations'
 import { cn } from '@/shared/utils'
 import { routeConfig } from '@/shared/utils/route'
@@ -28,11 +28,15 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
   // Calculate progress
   const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
   const balanceInEth = Number.parseFloat(formatEther(BigInt(campaign.balance)))
-  const progress = Math.min((balanceInEth / goalInEth) * 100, 100)
 
-  // Determine status
+  // If campaign is completed, use the goal as the final balance (raised = goal)
+  const effectiveBalanceInEth = campaign.isCompleted ? goalInEth : balanceInEth
+  const progress = Math.min((effectiveBalanceInEth / goalInEth) * 100, 100)
+
+  // Determine status - once completed, stay completed regardless of balance
   const getStatus = (): CampaignStatus => {
     if (!campaign.isExist) return CampaignStatus.CLOSED
+    if (campaign.isCompleted) return CampaignStatus.COMPLETED
     if (progress >= 100) return CampaignStatus.COMPLETED
     return CampaignStatus.ACTIVE
   }
@@ -62,8 +66,6 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
   const handleCardClick = () => {
     const url = routeConfig(RouteEnum.CampaignDetail, { id: campaign.campaignId })
     router.push(url)
-    // Scroll to top when navigating to detail page
-    scroll({ type: ScrollType.ToTop })
   }
 
   return (
@@ -140,7 +142,9 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
           </div>
           <div className="space-y-1">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('Raised')}</p>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{balanceInEth.toFixed(3)}</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {effectiveBalanceInEth.toFixed(3)}
+            </p>
             <p className="text-xs text-muted-foreground font-medium">ETH</p>
           </div>
         </div>

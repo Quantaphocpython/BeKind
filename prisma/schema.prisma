@@ -21,6 +21,10 @@ model Campaign {
   coverImage  String
   createdAt   DateTime @default(now()) 
   voteCount   Int      @default(0) 
+  isCompleted Boolean  @default(false) // Track if campaign has reached 100% goal
+  completedAt DateTime? // When campaign was completed
+  finalBalance BigInt? // Final balance when campaign was completed (immutable after completion)
+  currentWithdrawalPhase Int @default(0) // Track current withdrawal phase (0 = none, 1 = phase 1, 2 = phase 2)
 
   proofs      Proof[]  @relation("CampaignProofs")
   ownerUser   User?    @relation("UserCampaigns", fields: [owner], references: [id])

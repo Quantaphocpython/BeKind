@@ -35,6 +35,16 @@ export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSect
 
   const isOwner = address?.toLowerCase() === campaignOwner.toLowerCase()
 
+  // Debug log to check owner status
+  console.log('ProofSection Debug:', {
+    address,
+    campaignOwner,
+    isOwner,
+    addressLower: address?.toLowerCase(),
+    campaignOwnerLower: campaignOwner.toLowerCase(),
+    isOwnerUserAddress: campaignOwner?.startsWith('0x'),
+  })
+
   const {
     data: proofsResponse,
     isLoading,
@@ -94,7 +104,7 @@ export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSect
           value: `${proofs?.length || 0} ${(proofs?.length || 0) === 1 ? t('proof') : t('proofs')}`,
         }}
         actions={
-          isOwner && (
+          isOwner ? (
             <Button
               variant="outline"
               size="sm"
@@ -104,7 +114,7 @@ export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSect
               <Icons.plus className="h-4 w-4 mr-2" />
               {t('Add Proof')}
             </Button>
-          )
+          ) : undefined
         }
       >
         {isLoading ? (

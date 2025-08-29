@@ -73,6 +73,74 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
+      if (action === 'milestones') {
+        try {
+          const milestones = await campaignService.listMilestones(campaignId)
+          const milestoneDtos = milestones.map((m) => ({
+            id: m.id,
+            campaignId: m.campaignId.toString(),
+            index: m.index,
+            title: m.title,
+            description: m.description,
+            percentage: m.percentage,
+            isReleased: m.isReleased,
+            createdAt: m.createdAt.toISOString(),
+          }))
+          return res.status(200).json(HttpResponseUtil.success(milestoneDtos, 'Milestones retrieved successfully'))
+        } catch (e) {
+          console.error('milestones endpoint error:', e)
+          return res.status(500).json(HttpResponseUtil.internalServerError())
+        }
+      }
+
+      if (action === 'withdrawals') {
+        try {
+          const withdrawals = await campaignService.listWithdrawals(campaignId)
+          const withdrawalDtos = withdrawals.map((w) => ({
+            id: w.id,
+            campaignId: w.campaignId.toString(),
+            amount: w.amount.toString(),
+            milestoneIdx: w.milestoneIdx,
+            txHash: w.txHash,
+            createdAt: w.createdAt.toISOString(),
+          }))
+          return res.status(200).json(HttpResponseUtil.success(withdrawalDtos, 'Withdrawals retrieved successfully'))
+        } catch (e) {
+          console.error('withdrawals endpoint error:', e)
+          return res.status(500).json(HttpResponseUtil.internalServerError())
+        }
+      }
+
+      if (action === 'proofs') {
+        try {
+          const proofs = await campaignService.listProofs(campaignId)
+          const proofDtos = proofs.map((p) => ({
+            id: p.id,
+            campaignId: p.campaignId.toString(),
+            userId: p.userId,
+            title: p.title,
+            content: p.content,
+            createdAt: p.createdAt.toISOString(),
+          }))
+          return res.status(200).json(HttpResponseUtil.success(proofDtos, 'Proofs retrieved successfully'))
+        } catch (e) {
+          console.error('proofs endpoint error:', e)
+          return res.status(500).json(HttpResponseUtil.internalServerError())
+        }
+      }
+
+      if (action === 'sync') {
+        try {
+          // Sync campaign balance from blockchain and mark as completed if needed
+          const updatedCampaign = await campaignService.syncCampaignBalance(campaignId)
+          const campaignDto: CampaignDto = campaignMapper.toCampaignDto(updatedCampaign)
+          return res.status(200).json(HttpResponseUtil.success(campaignDto, 'Campaign synced successfully'))
+        } catch (e) {
+          console.error('sync endpoint error:', e)
+          return res.status(500).json(HttpResponseUtil.internalServerError())
+        }
+      }
+
       // Get campaign details
       const campaign = await campaignService.getCampaignById(campaignId)
 
@@ -189,6 +257,59 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const campaignId = BigInt(String(req.query.id))
         const withdrawals = await campaignService.listWithdrawals(campaignId)
         return res.status(200).json(HttpResponseUtil.success(withdrawals, 'Withdrawals retrieved'))
+      }
+
+      if (action === 'release-milestone') {
+        const campaignId = BigInt(String(req.query.id))
+        const { milestoneIndex } = req.body || {}
+
+        console.log('Release milestone API called:', { campaignId: String(campaignId), milestoneIndex })
+
+        if (!milestoneIndex || typeof milestoneIndex !== 'number') {
+          return res.status(400).json(HttpResponseUtil.badRequest('milestoneIndex is required'))
+        }
+
+        await campaignService.markMilestoneAsReleased(campaignId, milestoneIndex)
+        console.log('Milestone marked as released successfully')
+
+        return res.status(200).json(HttpResponseUtil.success(null, 'Milestone marked as released'))
+      }
+
+      if (action === 'force-create-milestones') {
+        const campaignId = BigInt(String(req.query.id))
+
+        console.log('Force creating milestones for campaign:', String(campaignId))
+
+        // Get campaign to check if completed
+        const campaign = await campaignService.getCampaignById(campaignId)
+        if (!campaign) {
+          return res.status(404).json(HttpResponseUtil.notFound('Campaign not found'))
+        }
+
+        if (!campaign.isCompleted) {
+          return res.status(400).json(HttpResponseUtil.badRequest('Campaign must be completed to create milestones'))
+        }
+
+        // Create default milestones
+        const defaultMilestones = [
+          {
+            index: 1,
+            title: 'Phase 1 - Initial Withdrawal',
+            description: 'First withdrawal (50% of goal)',
+            percentage: 50,
+          },
+          {
+            index: 2,
+            title: 'Phase 2 - Final Withdrawal',
+            description: 'Final withdrawal (50% of goal) after proof submission',
+            percentage: 50,
+          },
+        ]
+
+        await campaignService.upsertMilestones(campaignId, defaultMilestones)
+        console.log('Milestones force created successfully')
+
+        return res.status(200).json(HttpResponseUtil.success(null, 'Milestones created successfully'))
       }
 
       return res.status(400).json(HttpResponseUtil.badRequest('Invalid action'))

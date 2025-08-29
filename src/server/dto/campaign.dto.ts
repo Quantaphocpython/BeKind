@@ -13,6 +13,9 @@ export interface CampaignDto {
   coverImage: string
   createdAt: string
   voteCount: number
+  isCompleted: boolean
+  completedAt?: string
+  finalBalance?: string // Final balance when campaign was completed (immutable after completion)
   ownerUser?: UserDto | null
   proofs?: ProofDto[]
   votes?: VoteDto[]

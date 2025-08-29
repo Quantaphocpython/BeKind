@@ -19,6 +19,7 @@ interface CampaignDonateProps {
   campaignOwner: string
   campaignGoal: string
   campaignBalance: string
+  isCompleted?: boolean
   className?: string
 }
 
@@ -27,6 +28,7 @@ export const CampaignDonate = ({
   campaignOwner,
   campaignGoal,
   campaignBalance,
+  isCompleted,
   className,
 }: CampaignDonateProps) => {
   const t = useTranslations()
@@ -34,14 +36,25 @@ export const CampaignDonate = ({
   const [amount, setAmount] = useState<string>('0.001')
 
   const { execute, isLoading, isSuccess, error, hash } = useCampaignContractWrite('donate')
-  const { execute: withdrawContract, isLoading: isWithdrawing } = useCampaignContractWrite('withdraw')
+  const {
+    execute: withdrawContract,
+    isLoading: isWithdrawing,
+    isSuccess: isWithdrawSuccess,
+    hash: withdrawHash,
+  } = useCampaignContractWrite('withdraw')
 
   // Check if user is owner and campaign has reached goal
   const isOwner = address?.toLowerCase() === campaignOwner.toLowerCase()
   const goalInEth = Number.parseFloat(formatEther(BigInt(campaignGoal)))
   const balanceInEth = Number.parseFloat(formatEther(BigInt(campaignBalance)))
-  const progress = Math.min((balanceInEth / goalInEth) * 100, 100)
-  const canWithdraw = isOwner && progress >= 100
+  // If campaign completed, treat as 100% regardless of balance
+  const progress = isCompleted ? 100 : Math.min((balanceInEth / goalInEth) * 100, 100)
+  const hasReachedGoal = Boolean(isCompleted) || progress >= 100
+  const canWithdraw = isOwner && hasReachedGoal
+  // Once completed, no more donations allowed
+  const canDonate = !isCompleted && !hasReachedGoal
+  const halfGoalEth = goalInEth / 2
+  const withdrawCapEth = Math.min(halfGoalEth, balanceInEth)
 
   // Debug logs
   console.log('CampaignDonate Debug:', {
@@ -52,6 +65,8 @@ export const CampaignDonate = ({
     balanceInEth,
     progress,
     canWithdraw,
+    hasReachedGoal,
+    isCompleted,
   })
 
   const { mutateAsync: notifyDonation, isPending: isNotifyPending } = useApiMutation<
@@ -85,6 +100,13 @@ export const CampaignDonate = ({
   }, [error, t])
 
   useEffect(() => {
+    // When eligible to withdraw, preset amount to half of goal and lock input
+    if (canWithdraw) {
+      setAmount(withdrawCapEth.toFixed(4))
+    }
+  }, [canWithdraw, withdrawCapEth])
+
+  useEffect(() => {
     const notifyBackend = async () => {
       if (!isSuccess || !address) return
       try {
@@ -111,6 +133,10 @@ export const CampaignDonate = ({
         toast.error(t('Please enter a valid amount'))
         return
       }
+      if (isCompleted) {
+        toast.error(t('Campaign is already completed, no more donations allowed'))
+        return
+      }
       toast.info(t('Confirm the donation in your wallet...'))
       execute({ campaignId: BigInt(campaignId), amount })
     } catch (e) {
@@ -129,8 +155,8 @@ export const CampaignDonate = ({
         toast.error(t('Please enter a valid amount'))
         return
       }
-      if (Number(amount) > balanceInEth) {
-        toast.error(t('Withdrawal amount cannot exceed available balance'))
+      if (Number(amount) > withdrawCapEth) {
+        toast.error(t('Withdrawal amount cannot exceed milestone limit'))
         return
       }
       toast.info(t('Confirm the withdrawal in your wallet...'))
@@ -140,6 +166,18 @@ export const CampaignDonate = ({
       toast.error(t('Withdrawal failed'), { description: message })
     }
   }
+
+  // Notify success on withdrawal confirmation and refetch data
+  useEffect(() => {
+    if (!isWithdrawSuccess) return
+    toast.success(t('Withdrawal successful'))
+    // Suggest refetch via socket/queries if available
+    try {
+      const campaignService = container.get(TYPES.CampaignService) as CampaignService
+      // Fire-and-forget to record withdrawal in backend if needed
+      void campaignService.getCampaignById(String(campaignId))
+    } catch {}
+  }, [isWithdrawSuccess, t, campaignId])
 
   return (
     <Card
@@ -161,40 +199,55 @@ export const CampaignDonate = ({
             )}
           </div>
           <h3 className="text-xl font-bold text-foreground font-serif">
-            {canWithdraw ? t('Withdraw Funds') : t('Support This Campaign')}
+            {canWithdraw ? t('Withdraw Funds') : canDonate ? t('Support This Campaign') : t('Campaign Completed')}
           </h3>
           <p className="text-sm text-muted-foreground">
-            {canWithdraw ? t('Available Balance') : t('Your donation makes a difference')}
+            {canWithdraw
+              ? t('Available Balance')
+              : canDonate
+                ? t('Your donation makes a difference')
+                : t('No more donations accepted')}
           </p>
         </div>
 
         <div className="space-y-3">
           <input
             type="number"
-            step="0.01"
+            step="0.0001"
             min={0.01}
-            max={canWithdraw ? balanceInEth : undefined}
+            max={canWithdraw ? withdrawCapEth : undefined}
             className="w-full h-12 px-4 rounded-lg border bg-background"
-            placeholder={canWithdraw ? '0.001' : '0.01'}
+            placeholder={canWithdraw ? withdrawCapEth.toFixed(4) : canDonate ? '0.01' : '0.0000'}
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            disabled={isLoading || isNotifyPending || isWithdrawing}
+            onChange={(e) => {
+              if (canDonate) setAmount(e.target.value)
+            }}
+            disabled={canWithdraw || !canDonate || isLoading || isNotifyPending || isWithdrawing}
+            readOnly={canWithdraw || !canDonate}
           />
           <Button
             size="lg"
             className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 font-semibold text-base rounded-xl border-0 relative overflow-hidden group"
-            onClick={canWithdraw ? onWithdraw : onDonate}
+            onClick={canWithdraw ? onWithdraw : canDonate ? onDonate : undefined}
             disabled={isLoading || isNotifyPending || isWithdrawing}
           >
             {(isLoading || isNotifyPending || isWithdrawing) && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-            {canWithdraw ? <Icons.wallet className="h-5 w-5 mr-3" /> : <Heart className="h-5 w-5 mr-3" />}
+            {canWithdraw ? (
+              <Icons.wallet className="h-5 w-5 mr-3" />
+            ) : canDonate ? (
+              <Heart className="h-5 w-5 mr-3" />
+            ) : (
+              <Icons.checkCircle className="h-5 w-5 mr-3" />
+            )}
             {isLoading || isNotifyPending || isWithdrawing
               ? canWithdraw
                 ? t('Withdrawing...')
                 : t('Donating...')
               : canWithdraw
                 ? t('Withdraw')
-                : t('Donate Now')}
+                : canDonate
+                  ? t('Donate Now')
+                  : t('Completed')}
           </Button>
         </div>
       </CardContent>

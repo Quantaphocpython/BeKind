@@ -127,4 +127,14 @@ export class CampaignService {
     const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'withdraw' })
     return await this.httpClient.post(url, data)
   }
+
+  async markMilestoneAsReleased(id: string, milestoneIndex: number): Promise<HttpResponse<null>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'release-milestone' })
+    return await this.httpClient.post(url, { milestoneIndex })
+  }
+
+  async forceCreateMilestones(id: string): Promise<HttpResponse<null>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'force-create-milestones' })
+    return await this.httpClient.post(url, {})
+  }
 }

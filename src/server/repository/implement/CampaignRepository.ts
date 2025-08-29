@@ -106,6 +106,30 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign> {
+    // First check if campaign is already completed
+    const existingCampaign = await prisma.campaign.findUnique({
+      where: { campaignId },
+      select: { isCompleted: true, finalBalance: true },
+    })
+
+    if (existingCampaign?.isCompleted) {
+      // If completed, return the campaign with the final balance (immutable)
+      console.log(
+        `Campaign ${campaignId} is already completed, balance update ignored. Final balance: ${existingCampaign.finalBalance}`,
+      )
+      return (await prisma.campaign.findUnique({
+        where: { campaignId },
+        include: {
+          ownerUser: true,
+          proofs: true,
+          votes: true,
+          milestones: true,
+          withdrawals: true,
+          comments: { include: { user: true } },
+        },
+      })) as Campaign
+    }
+
     return await prisma.campaign.update({
       where: { campaignId },
       data: { balance },
@@ -113,6 +137,29 @@ export class CampaignRepository implements ICampaignRepository {
         ownerUser: true,
         proofs: true,
         votes: true,
+        milestones: true,
+        withdrawals: true,
+        comments: { include: { user: true } },
+      },
+    })
+  }
+
+  async markCampaignAsCompleted(campaignId: bigint, finalBalance: bigint): Promise<Campaign> {
+    return await prisma.campaign.update({
+      where: { campaignId },
+      data: {
+        isCompleted: true,
+        completedAt: new Date(),
+        finalBalance: finalBalance, // Set the immutable final balance
+        balance: finalBalance, // Also update current balance to match final balance
+      },
+      include: {
+        ownerUser: true,
+        proofs: true,
+        votes: true,
+        milestones: true,
+        withdrawals: true,
+        comments: { include: { user: true } },
       },
     })
   }
@@ -144,6 +191,8 @@ export class CampaignRepository implements ICampaignRepository {
     campaignId: bigint,
     milestones: { index: number; title: string; description?: string; percentage: number }[],
   ): Promise<void> {
+    console.log(`Upserting milestones for campaign ${campaignId}:`, milestones)
+
     // delete existing then recreate for simplicity
     await prisma.milestone.deleteMany({ where: { campaignId: campaignId } })
     if (!milestones?.length) return
@@ -156,10 +205,29 @@ export class CampaignRepository implements ICampaignRepository {
         percentage: m.percentage,
       })),
     })
+
+    console.log(`Milestones created successfully for campaign ${campaignId}`)
   }
 
   async listMilestones(campaignId: bigint): Promise<Milestone[]> {
-    return await prisma.milestone.findMany({ where: { campaignId: campaignId }, orderBy: { index: 'asc' } })
+    const milestones = await prisma.milestone.findMany({ where: { campaignId: campaignId }, orderBy: { index: 'asc' } })
+    console.log(`Listed milestones for campaign ${campaignId}:`, milestones)
+    return milestones
+  }
+
+  async releaseMilestone(campaignId: bigint, milestoneIndex: number): Promise<Milestone> {
+    return await prisma.milestone.update({
+      where: {
+        campaignId_index: {
+          campaignId: campaignId,
+          index: milestoneIndex,
+        },
+      },
+      data: {
+        isReleased: true,
+        releasedAt: new Date(),
+      },
+    })
   }
 
   async createWithdrawal(data: {
@@ -329,5 +397,12 @@ export class CampaignRepository implements ICampaignRepository {
         },
       },
     }
+  }
+
+  async updateWithdrawalPhase(campaignId: bigint, phase: number): Promise<void> {
+    await prisma.campaign.update({
+      where: { campaignId },
+      data: { currentWithdrawalPhase: phase },
+    })
   }
 }

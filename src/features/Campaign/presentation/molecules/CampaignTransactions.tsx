@@ -45,6 +45,9 @@ export const CampaignTransactions = ({
   const progress = Math.min((balanceInEth / goalInEth) * 100, 100)
   const canWithdraw = isOwner && progress >= 100
 
+  // If campaign is completed, use the goal as the final balance (raised = goal)
+  const effectiveBalanceInEth = progress >= 100 ? goalInEth : balanceInEth
+
   const {
     data: transactions = [],
     isLoading,
@@ -95,7 +98,7 @@ export const CampaignTransactions = ({
       return
     }
 
-    if (Number(withdrawAmount) > balanceInEth) {
+    if (Number(withdrawAmount) > effectiveBalanceInEth) {
       toast.error(t('Withdrawal amount cannot exceed available balance'))
       return
     }
@@ -187,7 +190,7 @@ export const CampaignTransactions = ({
               <div className="p-4 bg-muted/50 rounded-lg">
                 <div className="flex justify-between text-sm mb-2">
                   <span>{t('Available Balance')}:</span>
-                  <span className="font-semibold">{balanceInEth.toFixed(4)} ETH</span>
+                  <span className="font-semibold">{effectiveBalanceInEth.toFixed(4)} ETH</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>{t('Campaign Goal')}:</span>
@@ -202,7 +205,7 @@ export const CampaignTransactions = ({
                   type="number"
                   step="0.001"
                   min="0.001"
-                  max={balanceInEth}
+                  max={effectiveBalanceInEth}
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
                   placeholder="0.1"

@@ -10,7 +10,6 @@ import { container, TYPES } from '@/features/Common/container'
 import { CampaignListPaginatedResponseDto } from '@/server/dto/campaign.dto'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useApiQuery } from '@/shared/hooks'
-import { ScrollType, useAppScroll } from '@/shared/hooks/useAppScroll'
 import { useTranslations } from '@/shared/hooks/useTranslations'
 import { routeConfig } from '@/shared/utils/route'
 import { ChevronLeft, ChevronRight, Filter, Plus, Search } from 'lucide-react'
@@ -23,7 +22,6 @@ import { CampaignCardSkeleton } from '../molecules/CampaignCardSkeleton'
 export const CampaignList = () => {
   const t = useTranslations()
   const router = useRouter()
-  const { scroll } = useAppScroll()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -80,7 +78,6 @@ export const CampaignList = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    scroll({ type: ScrollType.ToTop })
   }
 
   return (

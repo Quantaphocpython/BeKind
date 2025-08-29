@@ -4,9 +4,10 @@ import type { CampaignDto } from '@/features/Campaign/data/dto'
 import type { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import type { VoteDto } from '@/server/dto/campaign.dto'
-import { useApiQuery, useTranslations } from '@/shared/hooks'
+import { useApiMutation, useApiQuery, useTranslations } from '@/shared/hooks'
+import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
 import { useCampaignContractRead, useCampaignRealtime } from '../../data/hooks'
@@ -17,6 +18,7 @@ import { CampaignInfo } from '../molecules/CampaignInfo'
 import { CampaignStats } from '../molecules/CampaignStats'
 import { CommentSection } from '../molecules/CommentSection'
 import { MilestoneManager } from '../molecules/MilestoneManager'
+import { MilestoneWithdrawalCard } from '../molecules/MilestoneWithdrawalCard'
 import { RelatedCampaigns } from '../molecules/RelatedCampaigns'
 import { CampaignContentTabs } from '../organisms/CampaignContentTabs'
 
@@ -58,22 +60,35 @@ export const CampaignDetailPage = () => {
     campaignId: campaign ? BigInt(String(campaign.campaignId)) : BigInt(0),
   })
 
+  const queryClient = useQueryClient()
+
   // Enable real-time updates for this campaign
   const { isActive: isRealtimeActive } = useCampaignRealtime({
     campaignId: id,
     enabled: Boolean(campaign),
   })
 
-  useEffect(() => {
-    if (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      toast.error(t('Error loading campaign'), { description: message })
-    }
-  }, [error, t])
+  // Sync campaign balance
+  const { mutateAsync: syncCampaign, isPending: isSyncing } = useApiMutation<CampaignDto, void>(
+    () =>
+      fetch(`/api/campaigns/${id}?action=sync`)
+        .then((res) => res.json())
+        .then((res) => res.data),
+    {
+      onSuccess: () => {
+        toast.success(t('Campaign synced successfully'))
+        // Refetch campaign data
+        queryClient.invalidateQueries({ queryKey: ['campaign', id] })
+      },
+      onError: (err: any) => {
+        console.error('syncCampaign error', err)
+        toast.error(t('Failed to sync campaign'))
+      },
+    },
+  )
 
-  if (isLoading || !campaign) return <CampaignDetailSkeleton />
-
-  const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
+  // Precompute values safely before any early return so hooks order stays stable
+  const goalInEth = campaign ? Number.parseFloat(formatEther(BigInt(campaign.goal))) : 0
   const balanceWei = (() => {
     try {
       if (typeof onchainBalance === 'bigint') return onchainBalance
@@ -84,7 +99,35 @@ export const CampaignDetailPage = () => {
     }
   })()
   const balanceInEth = Number.parseFloat(formatEther(balanceWei))
-  const progress = Math.min((balanceInEth / goalInEth) * 100, 100)
+
+  // If campaign is completed, use the goal as the final balance (raised = goal)
+  const effectiveBalanceInEth = campaign?.isCompleted ? goalInEth : balanceInEth
+  // Lock progress to 100% once completed
+  const progress = campaign?.isCompleted ? 100 : goalInEth > 0 ? Math.min((balanceInEth / goalInEth) * 100, 100) : 0
+
+  // Auto-sync: when on-chain balance >= goal and DB not completed yet
+  const didAutoSyncRef = useRef(false)
+  useEffect(() => {
+    if (!campaign) return
+    if (didAutoSyncRef.current) return
+    const meetsGoal = balanceInEth >= goalInEth && goalInEth > 0
+    if (meetsGoal && !campaign.isCompleted) {
+      didAutoSyncRef.current = true
+      // Use setTimeout to prevent immediate re-render
+      setTimeout(() => {
+        syncCampaign()
+      }, 1000)
+    }
+  }, [campaign, balanceInEth, goalInEth]) // Remove syncCampaign from dependencies to prevent infinite loop
+
+  useEffect(() => {
+    if (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      toast.error(t('Error loading campaign'), { description: message })
+    }
+  }, [error, t])
+
+  if (isLoading || !campaign) return <CampaignDetailSkeleton />
 
   // Debug logs
   console.log('CampaignDetailPage Debug:', {
@@ -108,10 +151,14 @@ export const CampaignDetailPage = () => {
             coverImage={campaign.coverImage}
             campaignId={campaign.campaignId}
             statusBadge={{
-              label: !campaign.isExist ? t('Closed') : progress >= 100 ? t('Completed') : t('Active'),
+              label: !campaign.isExist
+                ? t('Closed')
+                : campaign.isCompleted || progress >= 100
+                  ? t('Completed')
+                  : t('Active'),
               className: !campaign.isExist
                 ? 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700'
-                : progress >= 100
+                : campaign.isCompleted || progress >= 100
                   ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
                   : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800',
             }}
@@ -123,7 +170,12 @@ export const CampaignDetailPage = () => {
           <div className="flex-1 min-w-0">
             <div className="flex flex-col gap-6">
               <CampaignInfo campaign={campaign} supporters={supporters} />
-              <CampaignStats goalEth={goalInEth} raisedEth={balanceInEth} votes={supporters.length} size="default" />
+              <CampaignStats
+                goalEth={goalInEth}
+                raisedEth={effectiveBalanceInEth}
+                votes={supporters.length}
+                size="default"
+              />
               <CampaignContentTabs campaign={campaign} supporters={supporters} />
             </div>
           </div>
@@ -135,13 +187,21 @@ export const CampaignDetailPage = () => {
                 campaignOwner={campaign.ownerUser?.address || campaign.owner || ''}
                 campaignGoal={campaign.goal}
                 campaignBalance={String(balanceWei)}
+                isCompleted={campaign.isCompleted}
+              />
+              <MilestoneWithdrawalCard
+                campaignId={campaign.campaignId}
+                campaignOwner={campaign.ownerUser?.address || campaign.owner || ''}
+                campaignGoal={campaign.goal}
+                campaignBalance={String(balanceWei)}
+                isCompleted={campaign.isCompleted}
               />
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-6">
-          <MilestoneManager campaignId={campaign.campaignId} campaignOwner={campaign.owner} />
+          <MilestoneManager campaignId={campaign.campaignId} campaignOwner={campaign.ownerUser?.address || ''} />
           <RelatedCampaigns currentCampaignId={campaign.campaignId} />
           <CommentSection campaignId={campaign.campaignId} />
         </div>
