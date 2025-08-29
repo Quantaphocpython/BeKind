@@ -392,6 +392,15 @@ export class CampaignService implements ICampaignService {
     return await this.campaignRepository.listWithdrawals(campaignId)
   }
 
+  async createWithdrawal(data: {
+    campaignId: bigint
+    amount: bigint
+    milestoneIdx?: number
+    txHash?: string
+  }): Promise<Withdrawal> {
+    return await this.campaignRepository.createWithdrawal(data)
+  }
+
   async getCampaignTransactions(campaignId: bigint, limit: number = 50): Promise<TransactionDto[]> {
     try {
       // Check cache first

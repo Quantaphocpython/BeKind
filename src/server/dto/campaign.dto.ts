@@ -73,6 +73,30 @@ export interface WithdrawalDto {
   createdAt: string
 }
 
+export interface CreateWithdrawalRequestDto {
+  amount: string
+  milestoneIdx?: number
+  userAddress: string
+}
+
+export interface CreateWithdrawalResponseDto {
+  withdrawal: WithdrawalDto
+}
+
+export interface CreateMilestoneRequestDto {
+  milestones: {
+    index: number
+    title: string
+    description?: string
+    percentage: number
+  }[]
+  userAddress: string
+}
+
+export interface CreateMilestoneResponseDto {
+  milestones: MilestoneDto[]
+}
+
 export interface TransactionDto {
   id: string
   hash: string

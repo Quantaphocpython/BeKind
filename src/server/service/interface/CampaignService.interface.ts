@@ -41,6 +41,12 @@ export interface ICampaignService {
   createComment(data: { campaignId: bigint; userId: string; content: string; parentId?: string }): Promise<Comment>
   listComments(campaignId: bigint): Promise<Comment[]>
   listWithdrawals(campaignId: bigint): Promise<Withdrawal[]>
+  createWithdrawal(data: {
+    campaignId: bigint
+    amount: bigint
+    milestoneIdx?: number
+    txHash?: string
+  }): Promise<Withdrawal>
   getCampaignTransactions(campaignId: bigint, limit?: number): Promise<TransactionDto[]>
 
   // Proofs

@@ -73,6 +73,54 @@ export const CreateCampaignForm = () => {
 
   const description = useWatch({ control: form.control, name: 'description' })
 
+  // Replace local editor image URLs (blob:/data:) with uploaded Firebase URLs on submit
+  const uploadAndRewriteEditorImages = useCallback(async (htmlContent: string): Promise<string> => {
+    if (!htmlContent) return htmlContent
+
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(htmlContent, 'text/html')
+      const imgElements = Array.from(doc.querySelectorAll('img')) as HTMLImageElement[]
+
+      const uploadTasks: Array<Promise<void>> = []
+
+      imgElements.forEach((imgEl, index) => {
+        const src = imgEl.getAttribute('src') || ''
+        const isLocal = src.startsWith('blob:') || src.startsWith('data:')
+        if (!isLocal) return
+
+        const task = (async () => {
+          try {
+            const response = await fetch(src)
+            const blob = await response.blob()
+            const file = new File([blob], `editor_img_${Date.now()}_${index}.png`, { type: blob.type || 'image/png' })
+            const uploaded = await firebaseStorage.uploadFileWithDetails({
+              file,
+              path: 'images/editor',
+              fileName: file.name,
+            })
+            imgEl.setAttribute('src', uploaded.downloadURL)
+          } catch (err) {
+            // If upload fails, keep original src to avoid breaking content
+            console.error('Failed to upload editor image:', err)
+          }
+        })()
+
+        uploadTasks.push(task)
+      })
+
+      if (uploadTasks.length > 0) {
+        await Promise.all(uploadTasks)
+      }
+
+      // Serialize back to HTML string
+      return doc.body.innerHTML
+    } catch (error) {
+      console.error('uploadAndRewriteEditorImages error:', error)
+      return htmlContent
+    }
+  }, [])
+
   // Clear errors when wallet connects
   useEffect(() => {
     if (isConnected) {
@@ -93,6 +141,7 @@ export const CreateCampaignForm = () => {
       setFormState(FORM_STATE.SUCCESS)
       setFormData(null)
       setPredictedCampaignId(null)
+      setCoverFile(null)
       form.reset()
 
       toast.success(t('Success'), {
@@ -147,13 +196,17 @@ export const CreateCampaignForm = () => {
         return
       }
 
+      // Upload cover image on submit
       const uploaded = await firebaseStorage.uploadFileWithDetails({
         file: coverFile,
         path: 'images/campaigns',
         fileName: `cover_${Date.now()}`,
       })
 
-      const preparedData = { ...data, coverImage: uploaded.downloadURL }
+      // Upload editor images referenced by local URLs and rewrite content
+      const rewrittenDescription = await uploadAndRewriteEditorImages(data.description)
+
+      const preparedData = { ...data, coverImage: uploaded.downloadURL, description: rewrittenDescription }
       setFormState(FORM_STATE.CONTRACT_PENDING)
       setFormData(preparedData)
 

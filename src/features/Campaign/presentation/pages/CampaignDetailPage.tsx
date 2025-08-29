@@ -16,6 +16,7 @@ import { CampaignDetailSkeleton } from '../molecules/CampaignDetailSkeleton'
 import { CampaignInfo } from '../molecules/CampaignInfo'
 import { CampaignStats } from '../molecules/CampaignStats'
 import { CommentSection } from '../molecules/CommentSection'
+import { MilestoneManager } from '../molecules/MilestoneManager'
 import { RelatedCampaigns } from '../molecules/RelatedCampaigns'
 import { CampaignContentTabs } from '../organisms/CampaignContentTabs'
 
@@ -85,6 +86,19 @@ export const CampaignDetailPage = () => {
   const balanceInEth = Number.parseFloat(formatEther(balanceWei))
   const progress = Math.min((balanceInEth / goalInEth) * 100, 100)
 
+  // Debug logs
+  console.log('CampaignDetailPage Debug:', {
+    campaignId: campaign.campaignId,
+    ownerUser: campaign.ownerUser,
+    owner: campaign.owner,
+    goal: campaign.goal,
+    balance: campaign.balance,
+    balanceWei: String(balanceWei),
+    goalInEth,
+    balanceInEth,
+    progress,
+  })
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <div className="container mx-auto py-6">
@@ -116,14 +130,19 @@ export const CampaignDetailPage = () => {
 
           <div className="lg:w-80 flex-shrink-0">
             <div className="flex flex-col gap-6">
-              <CampaignDonate campaignId={campaign.campaignId} />
+              <CampaignDonate
+                campaignId={campaign.campaignId}
+                campaignOwner={campaign.ownerUser?.address || campaign.owner || ''}
+                campaignGoal={campaign.goal}
+                campaignBalance={String(balanceWei)}
+              />
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-6">
+          <MilestoneManager campaignId={campaign.campaignId} campaignOwner={campaign.owner} />
           <RelatedCampaigns currentCampaignId={campaign.campaignId} />
-
           <CommentSection campaignId={campaign.campaignId} />
         </div>
       </div>

@@ -36,7 +36,14 @@ export const CampaignContentTabs = ({ campaign, supporters }: CampaignContentTab
       icon: <Icons.activity className="h-4 w-4" />,
       labelKey: 'Transactions',
       shortLabelKey: 'Tx',
-      content: <CampaignTransactions campaignId={campaign.campaignId} />,
+      content: (
+        <CampaignTransactions
+          campaignId={campaign.campaignId}
+          campaignOwner={campaign.owner}
+          campaignGoal={campaign.goal}
+          campaignBalance={campaign.balance}
+        />
+      ),
     },
     {
       value: 'proofs',

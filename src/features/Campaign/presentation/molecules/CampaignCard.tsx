@@ -1,9 +1,8 @@
 'use client'
 
-import ParsedContent from '@/components/common/organisms/Editor/ParsedContent'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { ScrollType, useAppScroll } from '@/shared/hooks/useAppScroll'
@@ -121,13 +120,14 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
           >
             {campaign.title || `Campaign #${campaign.campaignId}`}
           </CardTitle>
-          <CardDescription className="text-muted-foreground leading-relaxed">
+          {/* Description hidden as requested */}
+          {/* <CardDescription className="text-muted-foreground leading-relaxed">
             <ParsedContent
               className="overflow-hidden"
               contentClassName="line-clamp-3 [overflow-wrap:anywhere] max-w-full text-sm"
               htmlContent={campaign.description}
             />
-          </CardDescription>
+          </CardDescription> */}
         </div>
       </CardHeader>
 
@@ -153,6 +153,7 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
                 {(campaign.ownerUser?.name || 'U').slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
+
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('Owner')}</p>
               <p className="font-semibold truncate text-sm">

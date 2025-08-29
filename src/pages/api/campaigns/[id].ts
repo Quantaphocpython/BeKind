@@ -2,7 +2,7 @@ import { container, TYPES } from '@/server/container'
 import { CampaignDto } from '@/server/dto/campaign.dto'
 import type { ICampaignService } from '@/server/service/interface/CampaignService.interface'
 import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
-import { ethers } from 'ethers'
+import { ethers, formatEther, parseEther } from 'ethers'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -129,6 +129,66 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         await campaignService.handleDonation(userAddress, amountWei, campaignId, transactionHash, blockNumber)
         return res.status(200).json(HttpResponseUtil.success(null, 'Donation processed'))
+      }
+
+      if (action === 'withdraw') {
+        if (!userAddress || typeof userAddress !== 'string') {
+          return res.status(400).json(HttpResponseUtil.badRequest('userAddress is required'))
+        }
+        if (!amount || typeof amount !== 'string') {
+          return res.status(400).json(HttpResponseUtil.badRequest('amount is required'))
+        }
+
+        const campaignId = BigInt(String(req.query.id))
+        const { milestoneIdx, txHash } = req.body || {}
+
+        // Verify ownership
+        const campaign = await campaignService.getCampaignById(campaignId)
+        if (!campaign || campaign.ownerUser?.address.toLowerCase() !== userAddress.toLowerCase()) {
+          return res.status(403).json({ error: 'Not authorized to withdraw from this campaign' })
+        }
+
+        // Check if campaign has reached goal
+        const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
+        const balanceInEth = Number.parseFloat(formatEther(BigInt(campaign.balance)))
+        if (balanceInEth < goalInEth) {
+          return res.status(400).json({ error: 'Campaign has not reached its goal yet' })
+        }
+
+        // Check if milestone requires proof
+        if (milestoneIdx !== undefined && milestoneIdx > 0) {
+          const milestones = await campaignService.listMilestones(campaignId)
+          const milestone = milestones.find((m: any) => m.index === milestoneIdx)
+          if (milestone && !milestone.isReleased) {
+            // Check if proof exists for this milestone
+            const proofs = await campaignService.listProofs(campaignId)
+            const hasProof = proofs.some(
+              (proof: any) =>
+                proof.title.toLowerCase().includes(`milestone ${milestoneIdx}`) ||
+                proof.content.toLowerCase().includes(`milestone ${milestoneIdx}`),
+            )
+            if (!hasProof) {
+              return res.status(400).json({
+                error: `Proof required for milestone ${milestoneIdx}. Please upload proof before withdrawing.`,
+              })
+            }
+          }
+        }
+
+        const withdrawal = await campaignService.createWithdrawal({
+          campaignId,
+          amount: parseEther(amount),
+          milestoneIdx: milestoneIdx,
+          txHash: txHash,
+        })
+
+        return res.status(200).json(HttpResponseUtil.success(withdrawal, 'Withdrawal created'))
+      }
+
+      if (action === 'withdrawals') {
+        const campaignId = BigInt(String(req.query.id))
+        const withdrawals = await campaignService.listWithdrawals(campaignId)
+        return res.status(200).json(HttpResponseUtil.success(withdrawals, 'Withdrawals retrieved'))
       }
 
       return res.status(400).json(HttpResponseUtil.badRequest('Invalid action'))
