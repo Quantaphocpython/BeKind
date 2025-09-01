@@ -144,11 +144,11 @@ export const CampaignDetailPage = () => {
         <div className="flex flex-col lg:flex-row gap-8 lg:items-start py-6">
           <div className="flex-1 min-w-0">
             <div className="flex flex-col gap-6">
-              <CampaignInfo campaign={campaign} supporters={supporters} />
+              <CampaignInfo campaign={campaign} />
               <CampaignStats
                 goalEth={goalInEth}
                 raisedEth={effectiveBalanceInEth}
-                votes={supporters.length}
+                votes={campaign.voteCount || 0}
                 size="default"
               />
               <CampaignContentTabs campaign={campaign} supporters={supporters} />

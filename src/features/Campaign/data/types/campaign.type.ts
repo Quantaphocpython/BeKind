@@ -94,6 +94,7 @@ export interface User {
   id: string
   address: string
   name?: string | null
+  email?: string | null
   trustScore: number
   createdAt: Date
 }

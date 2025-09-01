@@ -89,7 +89,7 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
             variant="secondary"
             className={cn('border font-medium px-3 py-1 text-xs backdrop-blur-md shadow-lg', getStatusColor(status))}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {t(status.charAt(0).toUpperCase() + status.slice(1))}
           </Badge>
           <div className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-xs font-mono border border-white/20">
             #{campaign.campaignId}
@@ -166,7 +166,7 @@ export const CampaignCard = ({ campaign }: CampaignCardProps) => {
 
           <div className="text-right">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('Votes')}</p>
-            <p className="font-bold text-lg">{campaign.votes?.length || 0}</p>
+            <p className="font-bold text-lg">{campaign.voteCount || 0}</p>
           </div>
         </div>
       </CardContent>

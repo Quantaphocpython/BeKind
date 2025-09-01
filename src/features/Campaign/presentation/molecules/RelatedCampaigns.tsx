@@ -9,7 +9,7 @@ import { CampaignService } from '@/features/Campaign/data/services/campaign.serv
 import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
-import { useApiQuery } from '@/shared/hooks'
+import { useApiQuery, useTranslations } from '@/shared/hooks'
 import { routeConfig } from '@/shared/utils/route'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -22,6 +22,7 @@ interface RelatedCampaignsProps {
 
 export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) => {
   const router = useRouter()
+  const t = useTranslations()
 
   // Get campaign service once and reuse with useMemo
   const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
@@ -41,7 +42,7 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
     return (
       <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl">Related Campaigns</CardTitle>
+          <CardTitle className="text-xl">{t('Related Campaigns')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -60,7 +61,7 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
     return (
       <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl">Related Campaigns</CardTitle>
+          <CardTitle className="text-xl">{t('Related Campaigns')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">No related campaigns found.</p>
@@ -78,7 +79,7 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
     <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
       <CardHeader className="pb-4 flex items-center gap-2">
         <Icons.shapes className="w-6 h-6 text-primary" />
-        <CardTitle className="text-xl ">Related Campaigns</CardTitle>
+        <CardTitle className="text-xl">{t('Related Campaigns')}</CardTitle>
       </CardHeader>
 
       <CardContent className="">
@@ -105,10 +106,11 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
             return (
               <div
                 key={campaign.id}
-                className="group cursor-pointer relative overflow-hidden rounded-2xl  transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1"
+                className="group cursor-pointer relative overflow-hidden rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 hover:scale-[1.02]"
                 onClick={() => handleCampaignClick(campaign.campaignId)}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent  opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 border border-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
 
                 <div className="relative p-6 bg-muted">
                   <div className="relative mb-5">
@@ -128,7 +130,7 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
                         <Badge
                           className={`text-xs px-3 py-1.5 font-semibold shadow-lg ${getStatusColor(status)} border-0`}
                         >
-                          {status}
+                          {t(status)}
                         </Badge>
                       </div>
                     </div>
@@ -163,14 +165,14 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
                     <div className="space-y-3 pt-2">
                       <div className="flex justify-between items-baseline">
                         <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                          {progress.toFixed(1)}% funded
+                          {progress.toFixed(1)}% {t('funded')}
                         </span>
                         <div className="text-right">
                           <div className="text-sm font-bold text-slate-900 dark:text-slate-100">
                             {balanceInEth.toFixed(2)} ETH
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400">
-                            of {goalInEth.toFixed(2)} ETH
+                            {t('of')} {goalInEth.toFixed(2)} ETH
                           </div>
                         </div>
                       </div>

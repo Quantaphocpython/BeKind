@@ -223,23 +223,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(400).json({ error: 'Campaign has not reached its goal yet' })
         }
 
-        // Check if milestone requires proof
-        if (milestoneIdx !== undefined && milestoneIdx > 0) {
+        // Check if milestone requires proof (only Phase 2 requires proof)
+        if (milestoneIdx !== undefined && milestoneIdx === 2) {
+          // Check if proof exists for Phase 2
+          const proofs = await campaignService.listProofs(campaignId)
+          const hasProof = proofs.length > 0 // Any proof is sufficient for Phase 2
+          if (!hasProof) {
+            return res.status(400).json({
+              error: `Proof required for milestone ${milestoneIdx}. Please upload proof before withdrawing.`,
+            })
+          }
+
+          // Check if Phase 1 has been completed first
           const milestones = await campaignService.listMilestones(campaignId)
-          const milestone = milestones.find((m: any) => m.index === milestoneIdx)
-          if (milestone && !milestone.isReleased) {
-            // Check if proof exists for this milestone
-            const proofs = await campaignService.listProofs(campaignId)
-            const hasProof = proofs.some(
-              (proof: any) =>
-                proof.title.toLowerCase().includes(`milestone ${milestoneIdx}`) ||
-                proof.content.toLowerCase().includes(`milestone ${milestoneIdx}`),
-            )
-            if (!hasProof) {
-              return res.status(400).json({
-                error: `Proof required for milestone ${milestoneIdx}. Please upload proof before withdrawing.`,
-              })
-            }
+          const phase1Milestone = milestones.find((m: any) => m.index === 1)
+          if (phase1Milestone && !phase1Milestone.isReleased) {
+            return res.status(400).json({
+              error: 'Phase 1 must be completed before Phase 2 withdrawal',
+            })
           }
         }
 
@@ -250,7 +251,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           txHash: txHash,
         })
 
-        return res.status(200).json(HttpResponseUtil.success(withdrawal, 'Withdrawal created'))
+        // Convert BigInt to string for JSON serialization
+        const withdrawalResponse = {
+          ...withdrawal,
+          amount: withdrawal.amount.toString(),
+          campaignId: withdrawal.campaignId.toString(),
+        }
+
+        return res.status(200).json(HttpResponseUtil.success(withdrawalResponse, 'Withdrawal created'))
       }
 
       if (action === 'withdrawals') {

@@ -131,32 +131,56 @@ export const CampaignDonate = ({ campaign, onchainBalance, className }: Campaign
           </p>
         </div>
 
-        <div className="space-y-3">
-          <input
-            type="number"
-            step="0.0001"
-            min={0.01}
-            max={undefined}
-            className="w-full h-12 px-4 rounded-lg border bg-background"
-            placeholder={canDonate ? '0.01' : '0.0000'}
-            value={amount}
-            onChange={(e) => {
-              if (canDonate) setAmount(e.target.value)
-            }}
-            disabled={!canDonate || isLoading || isNotifyPending}
-            readOnly={!canDonate}
-          />
-          <Button
-            size="lg"
-            className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 font-semibold text-base rounded-xl border-0 relative overflow-hidden group cursor-pointer"
-            onClick={canDonate ? onDonate : undefined}
-            disabled={isLoading || isNotifyPending}
-          >
-            {(isLoading || isNotifyPending) && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-            {canDonate ? <Heart className="h-5 w-5 mr-3" /> : <Icons.checkCircle className="h-5 w-5 mr-3" />}
-            {isLoading || isNotifyPending ? t('Donating...') : canDonate ? t('Donate Now') : t('Campaign Completed')}
-          </Button>
-        </div>
+        {canDonate ? (
+          <div className="space-y-3">
+            <input
+              type="number"
+              step="0.0001"
+              min={0.01}
+              max={undefined}
+              className="w-full h-12 px-4 rounded-lg border bg-background"
+              placeholder="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={isLoading || isNotifyPending}
+            />
+            <Button
+              size="lg"
+              className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 font-semibold text-base rounded-xl border-0 relative overflow-hidden group cursor-pointer"
+              onClick={onDonate}
+              disabled={isLoading || isNotifyPending}
+            >
+              {(isLoading || isNotifyPending) && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+              <Heart className="h-5 w-5 mr-3" />
+              {isLoading || isNotifyPending ? t('Donating...') : t('Donate Now')}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Completed Status Display */}
+            <div className="w-full h-16 px-4 rounded-xl border-2 border-green-500/30 bg-gradient-to-r from-green-500/10 via-green-400/5 to-green-500/10 backdrop-blur-sm flex items-center justify-center">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-green-500 flex items-center justify-center">
+                  <Icons.checkCircle className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-center">
+                  <p className="text-base font-bold text-green-600 dark:text-green-400">
+                    {t('Goal Reached Successfully')}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Celebration Animation */}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-2 ">
+                <Icons.sparkles className="h-4 w-4 animate-pulse text-muted-foreground rotate-12" />
+                <span className="text-sm text-muted-foreground italic">{t('Thank you for your support!')}</span>
+                <Icons.sparkles className="h-4 w-4 animate-pulse text-muted-foreground rotate-12" />
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

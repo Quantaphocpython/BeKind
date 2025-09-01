@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import type { CommentDto } from '@/server/dto/campaign.dto'
-import { useApiMutation, useApiQuery } from '@/shared/hooks'
+import { useApiMutation, useApiQuery, useTranslations } from '@/shared/hooks'
+import { formatRelativeTime } from '@/shared/utils/time'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
@@ -21,6 +22,10 @@ interface CommentSectionProps {
 
 export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const { address } = useAccount()
+  const t = useTranslations()
+
+  // Get current locale for date formatting
+  const locale = typeof window !== 'undefined' ? window.navigator.language.split('-')[0] : 'en'
   const [newComment, setNewComment] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
@@ -119,13 +124,13 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Icons.messageSquare className="h-5 w-5 text-primary" />
-            <CardTitle className="text-xl">Comments</CardTitle>
+            <CardTitle className="text-xl">{t('Comments')}</CardTitle>
             <span className="ml-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
               {comments.length}
             </span>
           </div>
           <span className="text-xs text-muted-foreground hidden sm:block">
-            Share feedback respectfully and stay on topic.
+            {t('Share feedback respectfully and stay on topic.')}
           </span>
         </div>
       </CardHeader>
@@ -139,20 +144,20 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
             </Avatar>
             <div className="flex-1 space-y-2">
               <Textarea
-                placeholder={address ? 'Write a thoughtful comment…' : 'Connect your wallet to comment'}
+                placeholder={address ? t('Write a thoughtful comment...') : t('Connect your wallet to comment')}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="min-h-[88px] resize-none"
                 disabled={!address || isSubmitting}
               />
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                {!address ? <span>Wallet not connected</span> : <span />}
+                {!address ? <span>{t('Wallet not connected')}</span> : <span />}
                 <Button
                   onClick={handleSubmitComment}
                   disabled={!address || !newComment.trim() || isSubmitting}
                   size="sm"
                 >
-                  {isSubmitting ? 'Posting…' : 'Post Comment'}
+                  {isSubmitting ? t('Posting...') : t('Post Comment')}
                 </Button>
               </div>
             </div>
@@ -164,8 +169,8 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
           {topLevelComments.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-12 rounded-lg border bg-card">
               <Icons.messageSquare className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">No comments yet.</p>
-              <p className="text-xs text-muted-foreground">Be the first to start the conversation.</p>
+              <p className="text-sm text-muted-foreground">{t('No comments yet.')}</p>
+              <p className="text-xs text-muted-foreground">{t('Be the first to start the conversation.')}</p>
             </div>
           ) : (
             topLevelComments.map((comment) => {
@@ -184,13 +189,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                           {comment.user?.name || getShortAddress(comment.userId)}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          {new Date(comment.createdAt).toLocaleString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {formatRelativeTime(new Date(comment.createdAt), locale)}
                         </span>
                         <button
                           onClick={async () => {
@@ -217,11 +216,11 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                           className="h-8 px-2 text-xs"
                         >
                           <Icons.messageSquare className="h-3 w-3 mr-1" />
-                          Reply
+                          {t('Reply')}
                         </Button>
                         {replies.length > 0 && (
                           <span className="text-xs text-muted-foreground">
-                            {replies.length} repl{replies.length > 1 ? 'ies' : 'y'}
+                            {replies.length} {t('replies')} {replies.length > 1 ? t('ies') : t('y')}
                           </span>
                         )}
                       </div>
@@ -236,7 +235,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                             </Avatar>
                             <div className="flex-1 space-y-2">
                               <Textarea
-                                placeholder="Write a reply…"
+                                placeholder={t('Write a reply...')}
                                 value={replyText}
                                 onChange={(e) => setReplyText(e.target.value)}
                                 className="min-h-[60px] resize-none text-sm"
@@ -249,7 +248,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                                   size="sm"
                                   variant="outline"
                                 >
-                                  {isSubmitting ? 'Posting…' : 'Reply'}
+                                  {isSubmitting ? t('Posting...') : t('Reply')}
                                 </Button>
                                 <Button
                                   onClick={() => {
@@ -259,7 +258,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                                   size="sm"
                                   variant="ghost"
                                 >
-                                  Cancel
+                                  {t('Cancel')}
                                 </Button>
                               </div>
                             </div>
@@ -282,13 +281,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                                     {reply.user?.name || getShortAddress(reply.userId)}
                                   </span>
                                   <span className="text-[11px] text-muted-foreground">
-                                    {new Date(reply.createdAt).toLocaleString('en-US', {
-                                      year: 'numeric',
-                                      month: 'short',
-                                      day: '2-digit',
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                    })}
+                                    {formatRelativeTime(new Date(reply.createdAt), locale)}
                                   </span>
                                 </div>
                                 <p className="text-sm text-foreground whitespace-pre-wrap break-words">
