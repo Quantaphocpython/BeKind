@@ -26,7 +26,7 @@ interface MilestoneWithdrawalCardProps {
 
 export const MilestoneWithdrawalCard = ({ campaign, onchainBalance, className }: MilestoneWithdrawalCardProps) => {
   const t = useTranslations()
-  const { address, isConnected } = useAccount()
+  const { address } = useAccount()
   const [selectedMilestone, setSelectedMilestone] = useState<MilestoneDto | null>(null)
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -35,7 +35,6 @@ export const MilestoneWithdrawalCard = ({ campaign, onchainBalance, className }:
   const hasTriedCreateMilestones = useRef(false)
 
   const isOwner = address?.toLowerCase() === (campaign.ownerUser?.address || campaign.owner || '').toLowerCase()
-  const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
   const balanceInEth = Number.parseFloat(formatEther(BigInt(onchainBalance)))
 
   // Use finalBalance if campaign is completed, otherwise use actual balance
@@ -47,7 +46,6 @@ export const MilestoneWithdrawalCard = ({ campaign, onchainBalance, className }:
     execute: withdrawContract,
     isLoading: isWithdrawing,
     isSuccess: isWithdrawSuccess,
-    hash: withdrawHash,
     error: withdrawError,
   } = useCampaignContractWrite('withdraw')
 

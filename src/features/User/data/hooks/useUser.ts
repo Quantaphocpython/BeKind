@@ -11,16 +11,7 @@ import { useUserStore } from '../state'
 
 export const useUser = (queryOptions?: any, mutationOptions?: any) => {
   const { address, isConnected } = useAccount()
-  const {
-    user: cachedUser,
-    setUser,
-    setLoading,
-    setError,
-    clearUser,
-    shouldRefetch,
-    setLastFetched,
-    invalidateCache,
-  } = useUserStore()
+  const { user: cachedUser, setUser, setLoading, setError, clearUser, shouldRefetch, invalidateCache } = useUserStore()
   const hasAttemptedCreate = useRef(false)
 
   // Query to get user by address

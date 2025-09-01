@@ -3,49 +3,22 @@
 import { Icons } from '@/components/icons'
 import { container, TYPES } from '@/features/Common/container'
 import type { TransactionDto } from '@/server/dto/campaign.dto'
-import { useApiMutation, useApiQuery } from '@/shared/hooks'
+import { useApiQuery } from '@/shared/hooks'
 import { useTranslations } from '@/shared/hooks/useTranslations'
-import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
-import { formatEther } from 'viem'
-import { useAccount } from 'wagmi'
-import { useCampaignContractWrite } from '../../data/hooks'
+import { useMemo } from 'react'
 import { CampaignService } from '../../data/services/campaign.service'
 import { TransactionCard } from '../atoms/TransactionCard'
 import { CampaignContentLayout } from './CampaignContentLayout'
 
 interface CampaignTransactionsProps {
   campaignId: string
-  campaignOwner: string
-  campaignGoal: string
-  campaignBalance: string
   className?: string
 }
 
-export const CampaignTransactions = ({
-  campaignId,
-  campaignOwner,
-  campaignGoal,
-  campaignBalance,
-  className,
-}: CampaignTransactionsProps) => {
+export const CampaignTransactions = ({ campaignId, className }: CampaignTransactionsProps) => {
   const t = useTranslations()
-  const { address } = useAccount()
-  const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false)
-  const [withdrawAmount, setWithdrawAmount] = useState('')
-  const [milestoneIdx, setMilestoneIdx] = useState<number>(0)
 
-  // Get campaign service once and reuse with useMemo
   const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
-
-  const isOwner = address?.toLowerCase() === campaignOwner.toLowerCase()
-  const goalInEth = Number.parseFloat(formatEther(BigInt(campaignGoal)))
-  const balanceInEth = Number.parseFloat(formatEther(BigInt(campaignBalance)))
-  const progress = Math.min((balanceInEth / goalInEth) * 100, 100)
-  const canWithdraw = isOwner && progress >= 100
-
-  // If campaign is completed, use the goal as the final balance (raised = goal)
-  const effectiveBalanceInEth = progress >= 100 ? goalInEth : balanceInEth
 
   const {
     data: transactions = [],
@@ -60,28 +33,8 @@ export const CampaignTransactions = ({
     },
   )
 
-  const { execute: withdrawContract, isLoading: isWithdrawing } = useCampaignContractWrite('withdraw')
-
-  const withdrawMutation = useApiMutation(
-    (data: { amount: string; milestoneIdx?: number; userAddress: string }) =>
-      campaignService.createWithdrawal(campaignId, data),
-    {
-      onSuccess: () => {
-        toast.success(t('Withdrawal successful'))
-        setIsWithdrawDialogOpen(false)
-        setWithdrawAmount('')
-        setMilestoneIdx(0)
-      },
-      onError: (error) => {
-        toast.error(t('Withdrawal failed'), { description: error.message })
-      },
-    },
-  )
-
   const totalVolume = transactions.reduce((sum, tx) => sum + Number.parseFloat(tx.value), 0)
   const totalVolumeEth = totalVolume / 1e18
-
-
 
   return (
     <>

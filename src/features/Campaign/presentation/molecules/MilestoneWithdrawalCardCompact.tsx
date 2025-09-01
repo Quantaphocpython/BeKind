@@ -14,22 +14,17 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
 import { useAccount } from 'wagmi'
-import { MilestoneDto } from '../../data/dto'
+import { CampaignDto, MilestoneDto } from '../../data/dto'
 import { useCampaignContractWrite } from '../../data/hooks'
 
 interface MilestoneWithdrawalCardCompactProps {
-  campaign: import('../../data/dto').CampaignDto
-  onchainBalance: string
+  campaign: CampaignDto
   className?: string
 }
 
-export const MilestoneWithdrawalCardCompact = ({
-  campaign,
-  onchainBalance,
-  className,
-}: MilestoneWithdrawalCardCompactProps) => {
+export const MilestoneWithdrawalCardCompact = ({ campaign, className }: MilestoneWithdrawalCardCompactProps) => {
   const t = useTranslations()
-  const { address, isConnected } = useAccount()
+  const { address } = useAccount()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [pendingMilestoneIdx, setPendingMilestoneIdx] = useState<number | null>(null)
@@ -37,7 +32,6 @@ export const MilestoneWithdrawalCardCompact = ({
 
   const isOwner = address?.toLowerCase() === (campaign.ownerUser?.address || campaign.owner || '').toLowerCase()
   const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
-  const balanceInEth = Number.parseFloat(formatEther(BigInt(onchainBalance)))
   const finalBalanceInEth = campaign.finalBalance
     ? Number.parseFloat(formatEther(BigInt(campaign.finalBalance)))
     : goalInEth
@@ -46,7 +40,6 @@ export const MilestoneWithdrawalCardCompact = ({
     execute: withdrawContract,
     isLoading: isWithdrawing,
     isSuccess: isWithdrawSuccess,
-    hash: withdrawHash,
     error: withdrawError,
   } = useCampaignContractWrite('withdraw')
 
@@ -56,7 +49,7 @@ export const MilestoneWithdrawalCardCompact = ({
   const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
 
   // Fetch milestones if completed
-  const { data: milestonesFromApi = [], refetch: refetchMilestones } = useApiQuery<MilestoneDto[]>(
+  const { refetch: refetchMilestones } = useApiQuery<MilestoneDto[]>(
     ['campaign-milestones', campaign.campaignId],
     () => campaignService.getCampaignMilestones(campaign.campaignId),
     {
@@ -74,36 +67,6 @@ export const MilestoneWithdrawalCardCompact = ({
       select: (res) => res.data,
     },
   )
-
-  // Ensure milestones is always an array
-  const safeMilestones = Array.isArray(milestonesFromApi) ? milestonesFromApi : []
-
-  // Create default milestones if none exist
-  const milestones =
-    safeMilestones.length > 0
-      ? safeMilestones
-      : ([
-          {
-            id: 'default-1',
-            campaignId: campaign.campaignId,
-            index: 1,
-            title: 'Phase 1 - Initial Withdrawal',
-            description: 'First withdrawal (50% of goal)',
-            percentage: 50,
-            isReleased: false,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: 'default-2',
-            campaignId: campaign.campaignId,
-            index: 2,
-            title: 'Phase 2 - Final Withdrawal',
-            description: 'Final withdrawal (50% of goal) after proof submission',
-            percentage: 50,
-            isReleased: false,
-            createdAt: new Date().toISOString(),
-          },
-        ] as MilestoneDto[])
 
   const withdrawMutation = useApiMutation(
     (data: { amount: string; milestoneIdx?: number; userAddress: string }) =>
@@ -197,8 +160,6 @@ export const MilestoneWithdrawalCardCompact = ({
     return null
   }
 
-  const phase1Milestone = milestones.find((m) => m.index === 1)
-  const phase2Milestone = milestones.find((m) => m.index === 2)
   const phase1Completed = campaign.currentWithdrawalPhase && campaign.currentWithdrawalPhase >= 1
   const hasProofs = proofs.length > 0
 

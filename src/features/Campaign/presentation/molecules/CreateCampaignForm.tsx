@@ -166,7 +166,7 @@ export const CreateCampaignForm = () => {
       setFormState(FORM_STATE.CONTRACT_SUCCESS)
       handleContractSuccess()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [isContractTransactionSuccess])
 
   const onSubmit = async (data: CreateCampaignFormData) => {

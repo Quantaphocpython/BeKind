@@ -12,7 +12,6 @@ interface CampaignSupportersProps {
 
 export const CampaignSupporters = ({ supporters }: CampaignSupportersProps) => {
   const t = useTranslations()
-  const totalEth = supporters.filter((s) => s.amount).reduce((sum, s) => sum + parseFloat(s.amount || '0'), 0)
 
   return (
     <CampaignContentLayout

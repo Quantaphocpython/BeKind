@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
 import { useAccount } from 'wagmi'
-import { useCampaignContractRead, useCampaignRealtime } from '../../data/hooks'
+import { useCampaignContractRead } from '../../data/hooks'
 import { CampaignDonate } from '../atoms/CampaignDonate'
 import { CampaignBanner } from '../molecules/CampaignBanner'
 import { CampaignDetailSkeleton } from '../molecules/CampaignDetailSkeleton'
@@ -57,24 +57,15 @@ export const CampaignDetailPage = () => {
 
   const queryClient = useQueryClient()
 
-  // Enable real-time updates for this campaign
-  const { isActive: isRealtimeActive } = useCampaignRealtime({
-    campaignId: id,
-    enabled: Boolean(campaign),
-  })
-
   // Sync campaign balance
-  const { mutateAsync: syncCampaign, isPending: isSyncing } = useApiMutation<CampaignDto, void>(
+  const { mutateAsync: syncCampaign } = useApiMutation<CampaignDto, void>(
     () => campaignService.syncCampaign(String(id)),
     {
       onSuccess: () => {
-        toast.success(t('Campaign synced successfully'))
-        // Refetch campaign data
         queryClient.invalidateQueries({ queryKey: ['campaign', id] })
       },
       onError: (err: any) => {
         console.error('syncCampaign error', err)
-        toast.error(t('Failed to sync campaign'))
       },
     },
   )
@@ -126,19 +117,6 @@ export const CampaignDetailPage = () => {
     return <CampaignDetailSkeleton />
   }
 
-  // Debug logs
-  console.log('CampaignDetailPage Debug:', {
-    campaignId: campaign.campaignId,
-    ownerUser: campaign.ownerUser,
-    owner: campaign.owner,
-    goal: campaign.goal,
-    balance: campaign.balance,
-    balanceWei: String(balanceWei),
-    goalInEth,
-    balanceInEth,
-    progress,
-  })
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <div className="container mx-auto py-6">
@@ -182,7 +160,7 @@ export const CampaignDetailPage = () => {
               <CampaignDonate campaign={campaign} onchainBalance={String(balanceWei)} />
               {isOwner && (
                 <>
-                  <MilestoneWithdrawalCardCompact campaign={campaign} onchainBalance={String(balanceWei)} />
+                  <MilestoneWithdrawalCardCompact campaign={campaign} />
                   <WithdrawalHistoryCard campaign={campaign} />
                 </>
               )}

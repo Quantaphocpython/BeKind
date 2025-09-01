@@ -9,7 +9,7 @@ import { useRef } from 'react'
 export const AutoScrollTopProvider = () => {
   const pathname = usePathname()
   const { scroll } = useAppScroll()
-  const { isNavigating, previousPath, navigationStartTime } = useNavigationState()
+  const { isNavigating, navigationStartTime } = useNavigationState()
   const prevPathnameRef = useRef<string | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 

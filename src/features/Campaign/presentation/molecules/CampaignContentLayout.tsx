@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { useTranslations } from '@/shared/hooks/useTranslations'
 import React from 'react'
 
 interface CampaignContentLayoutProps {
@@ -27,8 +26,6 @@ export const CampaignContentLayout: React.FC<CampaignContentLayoutProps> = ({
   children,
   className = '',
 }) => {
-  const t = useTranslations()
-
   return (
     <Card
       className={`border-0 shadow-2xl bg-gradient-to-br from-card via-card to-muted/20 min-h-[500px] overflow-hidden ${className}`}
