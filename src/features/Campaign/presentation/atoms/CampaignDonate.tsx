@@ -227,7 +227,7 @@ export const CampaignDonate = ({
           />
           <Button
             size="lg"
-            className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 font-semibold text-base rounded-xl border-0 relative overflow-hidden group"
+            className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 font-semibold text-base rounded-xl border-0 relative overflow-hidden group cursor-pointer"
             onClick={canWithdraw ? onWithdraw : canDonate ? onDonate : undefined}
             disabled={isLoading || isNotifyPending || isWithdrawing}
           >

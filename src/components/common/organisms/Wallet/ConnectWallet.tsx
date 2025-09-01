@@ -56,7 +56,7 @@ export default function ConnectWallet() {
             {(() => {
               if (!connected) {
                 return (
-                  <Button onClick={openConnectModal} type="button">
+                  <Button className="cursor-pointer" onClick={openConnectModal} type="button">
                     {t('Connect Wallet')}
                   </Button>
                 )
@@ -64,7 +64,7 @@ export default function ConnectWallet() {
 
               if (chain.unsupported) {
                 return (
-                  <Button onClick={openChainModal} type="button">
+                  <Button className="cursor-pointer" onClick={openChainModal} type="button">
                     {t('Wrong network')}
                   </Button>
                 )
