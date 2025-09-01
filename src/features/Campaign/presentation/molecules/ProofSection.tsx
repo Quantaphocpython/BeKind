@@ -105,10 +105,11 @@ export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSect
                 const url = routeConfig(RouteEnum.CampaignProofCreate, { id: campaignId })
                 router.push(url)
               }}
-              className="border-primary/20 text-primary hover:bg-primary/10"
+              className="group relative overflow-hidden border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10 text-primary hover:from-primary/10 hover:to-primary/15 hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/10 hover:-translate-y-0.5"
             >
-              <Icons.plus className="h-4 w-4 mr-2" />
-              {t('Add Proof')}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <Icons.plus className="h-4 w-4 mr-2 transition-transform duration-300 group-hover:rotate-90" />
+              <span className="relative z-10 font-medium">{t('Add Proof')}</span>
             </Button>
           ) : undefined
         }

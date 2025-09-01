@@ -356,15 +356,30 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
                 placeholder="0.1"
               />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <div className="flex justify-end gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsDialogOpen(false)}
+                className="border-muted-foreground/20 text-muted-foreground hover:bg-muted/50 hover:border-muted-foreground/30 transition-all duration-200"
+              >
                 {t('Cancel')}
               </Button>
               <Button
                 onClick={handleWithdraw}
                 disabled={isWithdrawing || withdrawMutation.isPending || !withdrawAmount}
+                className="group relative overflow-hidden bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-lg hover:shadow-xl hover:shadow-emerald/25 transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isWithdrawing || withdrawMutation.isPending ? t('Withdrawing...') : t('Withdraw')}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative z-10 font-medium">
+                  {isWithdrawing || withdrawMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      {t('Withdrawing...')}
+                    </div>
+                  ) : (
+                    t('Withdraw')
+                  )}
+                </span>
               </Button>
             </div>
           </div>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { container, TYPES } from '@/features/Common/container'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
-import { useApiMutation } from '@/shared/hooks'
+import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { routeConfig } from '@/shared/utils/route'
 import { useParams, useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -20,6 +20,7 @@ export const CreateProofPage = () => {
   const params = useParams<{ id?: string }>()
   const id = params?.id ?? ''
   const { address } = useAccount()
+  const t = useTranslations()
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -74,12 +75,30 @@ export const CreateProofPage = () => {
               <label className="text-sm font-medium mb-1 block">Content</label>
               <Editor value={content} onChange={setContent} className="min-h-[300px]" />
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => router.back()}>
-                Cancel
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => router.back()}
+                className="border-muted-foreground/20 text-muted-foreground hover:bg-muted/50 hover:border-muted-foreground/30 transition-all duration-200"
+              >
+                {t('Back')}
               </Button>
-              <Button onClick={onSubmit} disabled={createProofMutation.isPending}>
-                {createProofMutation.isPending ? 'Creating...' : 'Create Proof'}
+              <Button
+                onClick={onSubmit}
+                disabled={createProofMutation.isPending}
+                className="group relative overflow-hidden bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl hover:shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative z-10 font-medium">
+                  {createProofMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      {t('Creating...')}
+                    </div>
+                  ) : (
+                    t('Create Proof')
+                  )}
+                </span>
               </Button>
             </div>
           </CardContent>
