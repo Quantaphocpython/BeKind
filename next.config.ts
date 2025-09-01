@@ -38,6 +38,9 @@ const nextConfig: NextConfig = withNextIntl({
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ['socket.io'],
+  },
 })
 
 export default nextConfig
