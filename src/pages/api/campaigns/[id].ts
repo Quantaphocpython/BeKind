@@ -223,18 +223,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(400).json({ error: 'Campaign has not reached its goal yet' })
         }
 
-        // Check if milestone requires proof
-        if (milestoneIdx !== undefined && milestoneIdx > 0) {
+        // Check if milestone requires proof (only Phase 2 requires proof)
+        if (milestoneIdx !== undefined && milestoneIdx === 2) {
           const milestones = await campaignService.listMilestones(campaignId)
           const milestone = milestones.find((m: any) => m.index === milestoneIdx)
           if (milestone && !milestone.isReleased) {
-            // Check if proof exists for this milestone
+            // Check if proof exists for Phase 2
             const proofs = await campaignService.listProofs(campaignId)
-            const hasProof = proofs.some(
-              (proof: any) =>
-                proof.title.toLowerCase().includes(`milestone ${milestoneIdx}`) ||
-                proof.content.toLowerCase().includes(`milestone ${milestoneIdx}`),
-            )
+            const hasProof = proofs.length > 0 // Any proof is sufficient for Phase 2
             if (!hasProof) {
               return res.status(400).json({
                 error: `Proof required for milestone ${milestoneIdx}. Please upload proof before withdrawing.`,

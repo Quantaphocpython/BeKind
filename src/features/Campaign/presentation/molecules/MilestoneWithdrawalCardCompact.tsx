@@ -3,7 +3,7 @@
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
@@ -128,16 +128,33 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
   }, [isWithdrawSuccess, address])
 
   const handleWithdraw = async () => {
-    if (!address) return
+    if (!address) {
+      toast.error(t('Please connect your wallet to withdraw'))
+      return
+    }
+
+    if (!withdrawAmount || Number(withdrawAmount) <= 0) {
+      toast.error(t('Please enter a valid withdrawal amount'))
+      return
+    }
 
     // Determine which phase to withdraw based on current state
     let milestoneIdx: number
     if (!phase1Completed) {
-      milestoneIdx = 1 // Phase 1
+      milestoneIdx = 1 // Phase 1 - no proof required
     } else if (hasProofs) {
-      milestoneIdx = 2 // Phase 2
+      milestoneIdx = 2 // Phase 2 - proof required and available
     } else {
       toast.error(t('Proof Required'), { description: t('Please upload proof to withdraw Phase 2') })
+      return
+    }
+
+    // Validate withdrawal amount against available balance
+    const maxWithdrawAmount = milestoneIdx === 1 ? phase1Amount : phase2Amount
+    if (Number(withdrawAmount) > Number(maxWithdrawAmount)) {
+      toast.error(t('Invalid Amount'), {
+        description: t('Withdrawal amount exceeds available balance for this phase'),
+      })
       return
     }
 
@@ -256,6 +273,7 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t('Withdraw Funds')}</DialogTitle>
+            <DialogDescription>{t('Enter the amount you want to withdraw from this campaign')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="p-3 bg-muted/50 rounded-lg">
