@@ -24,7 +24,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@dicebear/collection": "^9.2.4",
