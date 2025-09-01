@@ -28,6 +28,7 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [pendingMilestoneIdx, setPendingMilestoneIdx] = useState<number | null>(null)
+  const [withdrawnMilestones, setWithdrawnMilestones] = useState<Set<number>>(new Set())
   const queryClient = useQueryClient()
 
   const isOwner = address?.toLowerCase() === (campaign.ownerUser?.address || campaign.owner || '').toLowerCase()
@@ -49,7 +50,7 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
   const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
 
   // Fetch milestones if completed
-  const { refetch: refetchMilestones } = useApiQuery<MilestoneDto[]>(
+  const { data: milestones = [], refetch: refetchMilestones } = useApiQuery<MilestoneDto[]>(
     ['campaign-milestones', campaign.campaignId],
     () => campaignService.getCampaignMilestones(campaign.campaignId),
     {
@@ -57,6 +58,19 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
       select: (res) => res.data,
     },
   )
+
+  // Sync withdrawnMilestones state with server data
+  useEffect(() => {
+    if (milestones.length > 0) {
+      const releasedMilestones = new Set<number>()
+      milestones.forEach((milestone) => {
+        if (milestone.isReleased) {
+          releasedMilestones.add(milestone.index)
+        }
+      })
+      setWithdrawnMilestones(releasedMilestones)
+    }
+  }, [milestones])
 
   // Fetch proofs to check if Phase 2 can be enabled
   const { data: proofs = [] } = useApiQuery<any[]>(
@@ -90,6 +104,15 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
           setIsDialogOpen(false)
           setWithdrawAmount('')
           setPendingMilestoneIdx(null)
+
+          // Mark milestone as withdrawn to prevent multiple withdrawals
+          if (variables.milestoneIdx) {
+            setWithdrawnMilestones((prev) => new Set([...prev, variables.milestoneIdx!]))
+          }
+
+          // Invalidate queries to refresh UI immediately
+          queryClient.invalidateQueries({ queryKey: ['campaign', campaign.campaignId] })
+          queryClient.invalidateQueries({ queryKey: ['campaign-withdrawals', campaign.campaignId] })
 
           await refetchMilestones()
         } catch (error) {
@@ -186,7 +209,7 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
   return (
     <>
       <Card
-        className={`border-0 shadow-2xl bg-gradient-to-br from-slate-900/50 via-slate-800/30 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 ${className}`}
+        className={`border-0 shadow-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 backdrop-blur-sm  ${className}`}
       >
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
@@ -194,8 +217,8 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
               <Icons.wallet className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-base">{t('Fund Withdrawal')}</h3>
-              <p className="text-xs text-slate-400">{t('Structured withdrawal system')}</p>
+              <h3 className="font-bold  text-base">{t('Fund Withdrawal')}</h3>
+              <p className="text-xs ">{t('Structured withdrawal system')}</p>
             </div>
           </div>
         </CardHeader>
@@ -211,14 +234,16 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${phase1Completed ? 'bg-green-500' : 'bg-blue-500'}`}></div>
-                <span className="text-sm font-semibold text-white">{t('Phase 1')}</span>
+                <span className="text-sm font-semibold ">{t('Phase 1')}</span>
               </div>
-              <span className="text-sm font-bold text-white bg-slate-800/50 px-2 py-1 rounded-lg">
+              <span className="text-sm font-bold bg-slate-800/80 text-white px-2 py-1 rounded-lg">
                 {phase1Amount} ETH
               </span>
             </div>
             <div className="flex items-center gap-2">
-              {phase1Completed ? (
+              {phase1Completed ||
+              withdrawnMilestones.has(1) ||
+              (milestones && milestones.find((m) => m.index === 1)?.isReleased) ? (
                 <div className="flex items-center gap-2 text-green-400">
                   <Icons.checkCircle className="h-4 w-4" />
                   <span className="text-sm font-medium">{t('Released')}</span>
@@ -231,7 +256,12 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
                     setWithdrawAmount(phase1Amount)
                     setIsDialogOpen(true)
                   }}
-                  disabled={isWithdrawing || pendingMilestoneIdx === 1}
+                  disabled={
+                    isWithdrawing ||
+                    pendingMilestoneIdx === 1 ||
+                    withdrawnMilestones.has(1) ||
+                    (milestones && milestones.find((m) => m.index === 1)?.isReleased)
+                  }
                 >
                   {isWithdrawing && pendingMilestoneIdx === 1 ? t('Withdrawing...') : t('Withdraw')}
                 </Button>
@@ -256,14 +286,19 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
                     phase1Completed && hasProofs ? 'bg-green-500' : phase1Completed ? 'bg-orange-500' : 'bg-gray-500'
                   }`}
                 ></div>
-                <span className="text-sm font-semibold text-white">{t('Phase 2')}</span>
+                <span className="text-sm font-semibold ">{t('Phase 2')}</span>
               </div>
-              <span className="text-sm font-bold text-white bg-slate-800/50 px-2 py-1 rounded-lg">
+              <span className="text-sm font-bold bg-slate-800/80 text-white px-2 py-1 rounded-lg">
                 {phase2Amount} ETH
               </span>
             </div>
             <div className="flex items-center gap-2">
-              {!phase1Completed ? (
+              {withdrawnMilestones.has(2) || (milestones && milestones.find((m) => m.index === 2)?.isReleased) ? (
+                <div className="flex items-center gap-2 text-green-400">
+                  <Icons.checkCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">{t('Released')}</span>
+                </div>
+              ) : !phase1Completed ? (
                 <div className="flex items-center gap-2 text-gray-400">
                   <Icons.lock className="h-4 w-4" />
                   <span className="text-sm font-medium">{t('Phase 1 Required')}</span>
@@ -281,7 +316,12 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
                     setWithdrawAmount(phase2Amount)
                     setIsDialogOpen(true)
                   }}
-                  disabled={isWithdrawing || pendingMilestoneIdx === 2}
+                  disabled={
+                    isWithdrawing ||
+                    pendingMilestoneIdx === 2 ||
+                    withdrawnMilestones.has(2) ||
+                    (milestones && milestones.find((m) => m.index === 2)?.isReleased)
+                  }
                 >
                   {isWithdrawing && pendingMilestoneIdx === 2 ? t('Withdrawing...') : t('Withdraw')}
                 </Button>

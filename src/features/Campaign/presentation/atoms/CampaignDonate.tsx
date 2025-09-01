@@ -158,24 +158,25 @@ export const CampaignDonate = ({ campaign, onchainBalance, className }: Campaign
         ) : (
           <div className="space-y-4">
             {/* Completed Status Display */}
-            <div className="w-full h-16 px-6 rounded-xl border-2 border-green-500/30 bg-gradient-to-r from-green-500/10 via-green-400/5 to-green-500/10 backdrop-blur-sm flex items-center justify-center">
+            <div className="w-full h-16 px-4 rounded-xl border-2 border-green-500/30 bg-gradient-to-r from-green-500/10 via-green-400/5 to-green-500/10 backdrop-blur-sm flex items-center justify-center">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                <div className="p-2 rounded-full bg-green-500 flex items-center justify-center">
                   <Icons.checkCircle className="h-5 w-5 text-white" />
                 </div>
                 <div className="text-center">
-                  <p className="text-lg font-bold text-green-600 dark:text-green-400">{t('Campaign Completed')}</p>
-                  <p className="text-sm text-green-500/80">{t('Goal Reached Successfully')}</p>
+                  <p className="text-base font-bold text-green-600 dark:text-green-400">
+                    {t('Goal Reached Successfully')}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Celebration Animation */}
             <div className="flex justify-center">
-              <div className="flex items-center gap-2 text-green-500/60">
-                <Icons.sparkles className="h-4 w-4 animate-pulse" />
-                <span className="text-sm font-medium">{t('Thank you for your support!')}</span>
-                <Icons.sparkles className="h-4 w-4 animate-pulse" />
+              <div className="flex items-center gap-2 ">
+                <Icons.sparkles className="h-4 w-4 animate-pulse text-muted-foreground rotate-12" />
+                <span className="text-sm text-muted-foreground italic">{t('Thank you for your support!')}</span>
+                <Icons.sparkles className="h-4 w-4 animate-pulse text-muted-foreground rotate-12" />
               </div>
             </div>
           </div>

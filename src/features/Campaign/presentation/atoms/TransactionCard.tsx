@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import type { TransactionDto } from '@/server/dto/campaign.dto'
 import { useTranslations } from '@/shared/hooks/useTranslations'
+import { useLocale } from 'next-intl'
 import { formatEther } from 'viem'
 
 interface TransactionCardProps {
@@ -15,6 +16,8 @@ interface TransactionCardProps {
 
 export const TransactionCard = ({ transaction, className }: TransactionCardProps) => {
   const t = useTranslations()
+  const locale = useLocale()
+
   const getStatusConfig = () => {
     switch (transaction.status) {
       case 'success':
@@ -124,7 +127,7 @@ export const TransactionCard = ({ transaction, className }: TransactionCardProps
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Icons.clock className="h-3 w-3" />
                 <span>
-                  {new Date(transaction.timestamp).toLocaleString('en-US', {
+                  {new Date(transaction.timestamp).toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US', {
                     month: 'short',
                     day: 'numeric',
                     hour: '2-digit',

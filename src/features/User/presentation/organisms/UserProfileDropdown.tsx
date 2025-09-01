@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { RouteEnum } from '@/shared/constants'
 import { useTranslations } from '@/shared/hooks'
+import { useChainModal } from '@rainbow-me/rainbowkit'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
@@ -27,6 +28,7 @@ export const UserProfileDropdown: React.FC = () => {
   const { disconnect } = useDisconnect()
   const { user, isLoading } = useUser()
   const router = useRouter()
+  const { openChainModal } = useChainModal()
 
   const handleProfileClick = () => {
     router.push(RouteEnum.Profile)
@@ -35,6 +37,12 @@ export const UserProfileDropdown: React.FC = () => {
   const handleDisconnect = () => {
     disconnect()
     router.push(RouteEnum.Home)
+  }
+
+  const handleChainClick = () => {
+    if (openChainModal) {
+      openChainModal()
+    }
   }
 
   if (!isConnected || !address || isLoading || !user) {
@@ -68,6 +76,11 @@ export const UserProfileDropdown: React.FC = () => {
         <DropdownMenuItem onClick={handleProfileClick}>
           <Icons.user className="mr-2 h-4 w-4" />
           <span>{t('Profile')}</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={handleChainClick}>
+          <Icons.link className="mr-2 h-4 w-4" />
+          <span>{t('Switch Network')}</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem>

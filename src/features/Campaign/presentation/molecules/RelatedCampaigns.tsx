@@ -130,7 +130,7 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
                         <Badge
                           className={`text-xs px-3 py-1.5 font-semibold shadow-lg ${getStatusColor(status)} border-0`}
                         >
-                          {status}
+                          {t(status)}
                         </Badge>
                       </div>
                     </div>
@@ -165,14 +165,14 @@ export const RelatedCampaigns = ({ currentCampaignId }: RelatedCampaignsProps) =
                     <div className="space-y-3 pt-2">
                       <div className="flex justify-between items-baseline">
                         <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                          {progress.toFixed(1)}% funded
+                          {progress.toFixed(1)}% {t('funded')}
                         </span>
                         <div className="text-right">
                           <div className="text-sm font-bold text-slate-900 dark:text-slate-100">
                             {balanceInEth.toFixed(2)} ETH
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400">
-                            of {goalInEth.toFixed(2)} ETH
+                            {t('of')} {goalInEth.toFixed(2)} ETH
                           </div>
                         </div>
                       </div>

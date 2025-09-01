@@ -77,20 +77,24 @@ export class CampaignService implements ICampaignService {
       // Create campaign in database
       const campaign = await this.campaignRepository.createCampaign(data, createdCampaignId, ownerAddress)
 
-      // Send email notification
+      // Send email notification (only if user has email)
       try {
-        await this.emailService.sendTemplateEmail({
-          to: ownerAddress, // You might want to get user's email from database
-          templateId: EmailTemplateEnum.CreateCampaignSuccess,
-          params: {
-            userName: campaign.ownerUser?.name || 'User',
-            campaignName: data.title || `Campaign #${createdCampaignId}`,
-            campaignGoal: data.goal,
-            campaignDescription: data.description,
-            campaignId: createdCampaignId.toString(),
-            createdAt: campaign.createdAt.toLocaleDateString(),
-          },
-        })
+        if (campaign.ownerUser?.email) {
+          await this.emailService.sendTemplateEmail({
+            to: campaign.ownerUser.email, // Use actual email from database
+            templateId: EmailTemplateEnum.CreateCampaignSuccess,
+            params: {
+              userName: campaign.ownerUser?.name || 'User',
+              campaignName: data.title || `Campaign #${createdCampaignId}`,
+              campaignGoal: data.goal,
+              campaignDescription: data.description,
+              campaignId: createdCampaignId.toString(),
+              createdAt: campaign.createdAt.toLocaleDateString(),
+            },
+          })
+        } else {
+          console.log('Skipping email notification: User has no email address')
+        }
       } catch (emailError) {
         console.error('Failed to send email notification:', emailError)
         // Don't fail the campaign creation if email fails
@@ -471,9 +475,9 @@ export class CampaignService implements ICampaignService {
       throw new Error('Milestone not found')
     }
 
-    // Check if milestone is already released
+    // Check if milestone is already released (prevent multiple withdrawals)
     if (milestone.isReleased) {
-      throw new Error('Milestone already released')
+      throw new Error(`Milestone ${milestone.index} has already been withdrawn`)
     }
 
     // For milestone 2, require proof submission

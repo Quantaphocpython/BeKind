@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useTranslations } from '@/shared/hooks'
+import { useLocale } from 'next-intl'
 import React from 'react'
 import { UserDto } from '../../data/dto'
 import { getShortAddress } from '../../data/utils'
@@ -19,6 +20,7 @@ interface UserProfileCardProps {
 
 export const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onEdit, className = '' }) => {
   const t = useTranslations()
+  const locale = useLocale()
 
   const getTrustScoreColor = (score: number) => {
     if (score >= 80) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
@@ -37,7 +39,7 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onEdit, 
   // Format date consistently to prevent hydration mismatch
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

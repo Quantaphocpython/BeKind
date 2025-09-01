@@ -38,12 +38,12 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
       return '0%'
     }
 
-    // Hardcode cho 4 tabs để test
-    if (tabs.length === 4) {
-      const positions = ['0%', '25%', '50%', '75%']
-      const position = positions[activeIndex]
-      return position
-    }
+    // // Hardcode cho 4 tabs để test
+    // if (tabs.length === 4) {
+    //   const positions = ['0%', '25%', '50%', '75%']
+    //   const position = positions[activeIndex]
+    //   return position
+    // }
 
     // Tính toán chính xác vị trí dựa trên index và số lượng tab
     const tabWidth = 100 / tabs.length
