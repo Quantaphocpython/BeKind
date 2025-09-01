@@ -14,12 +14,10 @@ export type NextApiResponseServerIO = NextApiResponse & {
 
 const SocketHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
   if (res.socket.server.io) {
-    ;('Socket is already running')
     res.end()
     return
   }
 
-  ;('Setting up socket')
   const io = new SocketIOServer(res.socket.server, {
     path: ApiEndpointEnum.PrivateSocket,
     addTrailingSlash: false,
@@ -30,11 +28,7 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
   socketEmitter.setSocketIO(io)
 
   io.on('connection', (socket) => {
-    ;('Client connected:', socket.id)
-
-    socket.on('disconnect', () => {
-      ;('Client disconnected:', socket.id)
-    })
+    socket.on('disconnect', () => {})
   })
 
   res.end()
