@@ -43,7 +43,7 @@ export const UserProfileDropdown: React.FC = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger className="cursor-pointer p-5" asChild>
         <Button variant="ghost" size="sm" className="flex items-center space-x-2 hover:bg-accent">
           <UserAvatar address={user.address || address} size="sm" />
           <span className="hidden sm:inline-block text-sm font-medium">

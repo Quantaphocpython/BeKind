@@ -49,18 +49,15 @@ export const CreateCampaignForm = () => {
     mode: 'onChange',
   })
 
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
+
   const { mutateAsync: createCampaignAPI, isPending: isAPIPending } = useApiMutation<
     CreateCampaignResponseDto,
     CreateCampaignRequestDto
-  >(
-    (data) => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.createCampaign(data)
-    },
-    {
-      invalidateQueries: [['campaigns']],
-    },
-  )
+  >((data) => campaignService.createCampaign(data), {
+    invalidateQueries: [['campaigns']],
+  })
 
   const {
     execute: createCampaignContract,

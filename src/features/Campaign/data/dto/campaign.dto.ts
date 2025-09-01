@@ -14,6 +14,7 @@ export interface CampaignDto {
   isCompleted: boolean
   completedAt?: string
   finalBalance?: string // Final balance when campaign was completed (immutable after completion)
+  currentWithdrawalPhase?: number
   ownerUser?: UserDto | null
   proofs?: ProofDto[]
   votes?: VoteDto[]

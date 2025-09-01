@@ -8,4 +8,5 @@ export enum RouteEnum {
   CreateCampaign = '/campaigns/create',
   Campaigns = '/campaigns',
   CampaignDetail = '/campaigns/{id}',
+  CampaignProofCreate = '/campaigns/{id}/proofs/new',
 }

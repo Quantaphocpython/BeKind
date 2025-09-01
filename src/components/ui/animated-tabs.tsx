@@ -34,23 +34,20 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
   // Tính toán vị trí indicator dựa trên số lượng tab
   const getIndicatorPosition = (activeValue: string) => {
     const activeIndex = tabs.findIndex((tab) => tab.value === activeValue)
-    if (activeIndex === -1) return '0%'
-
-    // Debug: log để kiểm tra
-    console.log('Active tab:', activeValue, 'Index:', activeIndex, 'Total tabs:', tabs.length)
+    if (activeIndex === -1) {
+      return '0%'
+    }
 
     // Hardcode cho 4 tabs để test
     if (tabs.length === 4) {
       const positions = ['0%', '25%', '50%', '75%']
       const position = positions[activeIndex]
-      console.log('Hardcoded position:', position)
       return position
     }
 
     // Tính toán chính xác vị trí dựa trên index và số lượng tab
     const tabWidth = 100 / tabs.length
     const position = activeIndex * tabWidth
-    console.log('Calculated position:', position + '%')
 
     return `${position}%`
   }

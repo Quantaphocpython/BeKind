@@ -340,19 +340,13 @@ export class CampaignService implements ICampaignService {
     // Check if campaign is already completed - if so, don't update balance
     const existingCampaign = await this.campaignRepository.getCampaignById(campaignId)
     if (existingCampaign?.isCompleted) {
-      console.log(`Campaign ${campaignId} is already completed, balance update ignored`)
+      ;`Campaign ${campaignId} is already completed, balance update ignored`
       return existingCampaign
     }
 
     const campaign = await this.campaignRepository.updateCampaignBalance(campaignId, balance)
 
-    // Check if campaign has reached 100% goal and mark as completed
-    console.log(
-      `Checking campaign completion: ${campaignId}, balance: ${balance}, goal: ${campaign.goal}, isCompleted: ${campaign.isCompleted}`,
-    )
     if (!campaign.isCompleted && balance >= campaign.goal) {
-      console.log(`Campaign ${campaignId} reached goal, marking as completed and creating milestones`)
-
       // When marking as completed, set the final balance to the goal amount
       // This ensures the raised amount equals the goal when completed
       const finalBalance = campaign.goal
@@ -375,7 +369,6 @@ export class CampaignService implements ICampaignService {
       ]
 
       await this.campaignRepository.upsertMilestones(campaignId, defaultMilestones)
-      console.log(`Milestones created for campaign ${campaignId}`)
     }
 
     return campaign
@@ -505,6 +498,25 @@ export class CampaignService implements ICampaignService {
 
     // Update campaign's current withdrawal phase
     await this.campaignRepository.updateWithdrawalPhase(data.campaignId, milestone.index)
+
+    // Emit sockets for realtime UI updates
+    try {
+      socketEmitter.emitToAll(SocketEventEnum.WITHDRAWAL_CREATED, {
+        campaignId: data.campaignId.toString(),
+        amount: ethers.formatEther(data.amount),
+        milestoneIdx: data.milestoneIdx,
+        txHash: data.txHash,
+        createdAt: new Date().toISOString(),
+      })
+
+      socketEmitter.emitToAll(SocketEventEnum.MILESTONE_RELEASED, {
+        campaignId: data.campaignId.toString(),
+        milestoneIndex: milestone.index,
+        releasedAt: new Date().toISOString(),
+      })
+    } catch (e) {
+      console.error('Socket emit error (withdrawal/milestone):', e)
+    }
 
     return withdrawal
   }

@@ -14,7 +14,7 @@ import { useTranslations } from '@/shared/hooks/useTranslations'
 import { routeConfig } from '@/shared/utils/route'
 import { ChevronLeft, ChevronRight, Filter, Plus, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { CampaignCard } from '../molecules/CampaignCard'
 import { CampaignCardSkeleton } from '../molecules/CampaignCardSkeleton'
@@ -42,23 +42,24 @@ export const CampaignList = () => {
     setCurrentPage(1)
   }, [statusFilter])
 
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
+
   const {
     data: campaignsResponse,
     isLoading,
     error,
   } = useApiQuery<CampaignListPaginatedResponseDto>(
     ['campaigns', 'paginated', currentPage.toString(), debouncedSearchTerm, statusFilter],
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.getCampaignsPaginated({
+    () =>
+      campaignService.getCampaignsPaginated({
         page: currentPage,
         limit: 12,
         search: debouncedSearchTerm,
         status: statusFilter as 'all' | 'active' | 'closed',
         sortBy: 'createdAt',
         sortOrder: 'desc',
-      })
-    },
+      }),
   )
 
   useEffect(() => {

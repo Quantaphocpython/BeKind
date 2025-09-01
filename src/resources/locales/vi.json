@@ -419,5 +419,11 @@
   "Milestone already released": "Cột mốc đã được rút",
   "Proof submission required before Phase 2 withdrawal": "Cần nộp bằng chứng trước khi rút Đợt 2",
   "Phase": "Đợt",
-  "Max Amount": "Số tiền tối đa"
+  "Max Amount": "Số tiền tối đa",
+  "Amount is fixed to this milestone share": "Số tiền được cố định theo phần chia của milestone này",
+  "Please upload proof to withdraw Phase 2": "Vui lòng tải lên bằng chứng để rút tiền Giai đoạn 2",
+  "Failed to create milestones": "Tạo giai đoạn thất bại",
+  "Milestones created successfully": "Tạo giai đoạn thành công",
+  "Campaign synced successfully": "Đồng bộ campaign thành công",
+  "Failed to sync campaign": "Không thể đồng bộ campaign"
 }

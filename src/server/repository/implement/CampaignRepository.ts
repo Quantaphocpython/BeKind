@@ -113,10 +113,6 @@ export class CampaignRepository implements ICampaignRepository {
     })
 
     if (existingCampaign?.isCompleted) {
-      // If completed, return the campaign with the final balance (immutable)
-      console.log(
-        `Campaign ${campaignId} is already completed, balance update ignored. Final balance: ${existingCampaign.finalBalance}`,
-      )
       return (await prisma.campaign.findUnique({
         where: { campaignId },
         include: {
@@ -191,27 +187,29 @@ export class CampaignRepository implements ICampaignRepository {
     campaignId: bigint,
     milestones: { index: number; title: string; description?: string; percentage: number }[],
   ): Promise<void> {
-    console.log(`Upserting milestones for campaign ${campaignId}:`, milestones)
-
-    // delete existing then recreate for simplicity
-    await prisma.milestone.deleteMany({ where: { campaignId: campaignId } })
     if (!milestones?.length) return
-    await prisma.milestone.createMany({
-      data: milestones.map((m) => ({
-        campaignId: campaignId,
-        index: m.index,
-        title: m.title,
-        description: m.description ?? null,
-        percentage: m.percentage,
-      })),
-    })
 
-    console.log(`Milestones created successfully for campaign ${campaignId}`)
+    // Use transaction to avoid race conditions
+    await prisma.$transaction(async (tx) => {
+      // First, delete existing milestones
+      await tx.milestone.deleteMany({ where: { campaignId: campaignId } })
+
+      // Then create new ones
+      await tx.milestone.createMany({
+        data: milestones.map((m) => ({
+          campaignId: campaignId,
+          index: m.index,
+          title: m.title,
+          description: m.description ?? null,
+          percentage: m.percentage,
+          isReleased: false,
+        })),
+      })
+    })
   }
 
   async listMilestones(campaignId: bigint): Promise<Milestone[]> {
     const milestones = await prisma.milestone.findMany({ where: { campaignId: campaignId }, orderBy: { index: 'asc' } })
-    console.log(`Listed milestones for campaign ${campaignId}:`, milestones)
     return milestones
   }
 

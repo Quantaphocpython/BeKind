@@ -7,9 +7,10 @@ import type { VoteDto } from '@/server/dto/campaign.dto'
 import { useApiMutation, useApiQuery, useTranslations } from '@/shared/hooks'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
+import { useAccount } from 'wagmi'
 import { useCampaignContractRead, useCampaignRealtime } from '../../data/hooks'
 import { CampaignDonate } from '../atoms/CampaignDonate'
 import { CampaignBanner } from '../molecules/CampaignBanner'
@@ -17,38 +18,32 @@ import { CampaignDetailSkeleton } from '../molecules/CampaignDetailSkeleton'
 import { CampaignInfo } from '../molecules/CampaignInfo'
 import { CampaignStats } from '../molecules/CampaignStats'
 import { CommentSection } from '../molecules/CommentSection'
-import { MilestoneManager } from '../molecules/MilestoneManager'
-import { MilestoneWithdrawalCard } from '../molecules/MilestoneWithdrawalCard'
+import { MilestoneWithdrawalCardCompact } from '../molecules/MilestoneWithdrawalCardCompact'
 import { RelatedCampaigns } from '../molecules/RelatedCampaigns'
+import { WithdrawalHistoryCard } from '../molecules/WithdrawalHistoryCard'
 import { CampaignContentTabs } from '../organisms/CampaignContentTabs'
 
 export const CampaignDetailPage = () => {
   const t = useTranslations()
+  const { address } = useAccount()
   const params = useParams<{ id?: string }>()
   const id = params?.id ?? ''
+
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
 
   const {
     data: campaign,
     isLoading,
     error,
-  } = useApiQuery<CampaignDto>(
-    ['campaign', id],
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.getCampaignById(String(id))
-    },
-    {
-      enabled: Boolean(id),
-      select: (res) => res.data,
-    },
-  )
+  } = useApiQuery<CampaignDto>(['campaign', id], () => campaignService.getCampaignById(String(id)), {
+    enabled: Boolean(id),
+    select: (res) => res.data,
+  })
 
   const { data: supporters = [] } = useApiQuery<VoteDto[]>(
     ['campaign-supporters', id],
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.getSupporters(String(id))
-    },
+    () => campaignService.getSupporters(String(id)),
     {
       enabled: Boolean(id),
       select: (res) => res.data,
@@ -70,10 +65,7 @@ export const CampaignDetailPage = () => {
 
   // Sync campaign balance
   const { mutateAsync: syncCampaign, isPending: isSyncing } = useApiMutation<CampaignDto, void>(
-    () =>
-      fetch(`/api/campaigns/${id}?action=sync`)
-        .then((res) => res.json())
-        .then((res) => res.data),
+    () => campaignService.syncCampaign(String(id)),
     {
       onSuccess: () => {
         toast.success(t('Campaign synced successfully'))
@@ -105,6 +97,9 @@ export const CampaignDetailPage = () => {
   // Lock progress to 100% once completed
   const progress = campaign?.isCompleted ? 100 : goalInEth > 0 ? Math.min((balanceInEth / goalInEth) * 100, 100) : 0
 
+  // Check if current user is the campaign owner
+  const isOwner = address?.toLowerCase() === (campaign?.ownerUser?.address || campaign?.owner || '').toLowerCase()
+
   // Auto-sync: when on-chain balance >= goal and DB not completed yet
   const didAutoSyncRef = useRef(false)
   useEffect(() => {
@@ -127,7 +122,9 @@ export const CampaignDetailPage = () => {
     }
   }, [error, t])
 
-  if (isLoading || !campaign) return <CampaignDetailSkeleton />
+  if (isLoading || !campaign) {
+    return <CampaignDetailSkeleton />
+  }
 
   // Debug logs
   console.log('CampaignDetailPage Debug:', {
@@ -182,26 +179,18 @@ export const CampaignDetailPage = () => {
 
           <div className="lg:w-80 flex-shrink-0">
             <div className="flex flex-col gap-6">
-              <CampaignDonate
-                campaignId={campaign.campaignId}
-                campaignOwner={campaign.ownerUser?.address || campaign.owner || ''}
-                campaignGoal={campaign.goal}
-                campaignBalance={String(balanceWei)}
-                isCompleted={campaign.isCompleted}
-              />
-              <MilestoneWithdrawalCard
-                campaignId={campaign.campaignId}
-                campaignOwner={campaign.ownerUser?.address || campaign.owner || ''}
-                campaignGoal={campaign.goal}
-                campaignBalance={String(balanceWei)}
-                isCompleted={campaign.isCompleted}
-              />
+              <CampaignDonate campaign={campaign} onchainBalance={String(balanceWei)} />
+              {isOwner && (
+                <>
+                  <MilestoneWithdrawalCardCompact campaign={campaign} onchainBalance={String(balanceWei)} />
+                  <WithdrawalHistoryCard campaign={campaign} />
+                </>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-6">
-          <MilestoneManager campaignId={campaign.campaignId} campaignOwner={campaign.ownerUser?.address || ''} />
           <RelatedCampaigns currentCampaignId={campaign.campaignId} />
           <CommentSection campaignId={campaign.campaignId} />
         </div>

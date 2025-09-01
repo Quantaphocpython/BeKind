@@ -13,9 +13,12 @@ import { ProofDto } from '@/features/Campaign/data/dto/proof.dto'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
+import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useApiMutation, useApiQuery } from '@/shared/hooks'
 import { useTranslations } from '@/shared/hooks/useTranslations'
-import { useState } from 'react'
+import { routeConfig } from '@/shared/utils/route'
+import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import { CampaignContentLayout } from './CampaignContentLayout'
@@ -29,36 +32,26 @@ interface ProofSectionProps {
 export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSectionProps) => {
   const t = useTranslations()
   const { address } = useAccount()
+  const router = useRouter()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
 
   const isOwner = address?.toLowerCase() === campaignOwner.toLowerCase()
 
-  // Debug log to check owner status
-  console.log('ProofSection Debug:', {
-    address,
-    campaignOwner,
-    isOwner,
-    addressLower: address?.toLowerCase(),
-    campaignOwnerLower: campaignOwner.toLowerCase(),
-    isOwnerUserAddress: campaignOwner?.startsWith('0x'),
-  })
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
 
   const {
     data: proofsResponse,
     isLoading,
     refetch,
-  } = useApiQuery<ProofDto[]>(['campaign-proofs', campaignId], () => {
-    const campaignService = container.get(TYPES.CampaignService) as CampaignService
-    return campaignService.getCampaignProofs(campaignId)
+  } = useApiQuery<ProofDto[]>(['campaign-proofs', campaignId], () => campaignService.getCampaignProofs(campaignId), {
+    select: (res) => res.data,
   })
 
   const createProofMutation = useApiMutation(
-    (data: { title: string; content: string; userAddress: string }) => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.createProof(campaignId, data)
-    },
+    (data: { title: string; content: string; userAddress: string }) => campaignService.createProof(campaignId, data),
     {
       onSuccess: () => {
         toast.success(t('Proof created successfully'))
@@ -108,7 +101,10 @@ export const ProofSection = ({ campaignId, campaignOwner, className }: ProofSect
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsCreateDialogOpen(true)}
+              onClick={() => {
+                const url = routeConfig(RouteEnum.CampaignProofCreate, { id: campaignId })
+                router.push(url)
+              }}
               className="border-primary/20 text-primary hover:bg-primary/10"
             >
               <Icons.plus className="h-4 w-4 mr-2" />

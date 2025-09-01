@@ -263,22 +263,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const campaignId = BigInt(String(req.query.id))
         const { milestoneIndex } = req.body || {}
 
-        console.log('Release milestone API called:', { campaignId: String(campaignId), milestoneIndex })
-
         if (!milestoneIndex || typeof milestoneIndex !== 'number') {
           return res.status(400).json(HttpResponseUtil.badRequest('milestoneIndex is required'))
         }
 
         await campaignService.markMilestoneAsReleased(campaignId, milestoneIndex)
-        console.log('Milestone marked as released successfully')
 
         return res.status(200).json(HttpResponseUtil.success(null, 'Milestone marked as released'))
       }
 
       if (action === 'force-create-milestones') {
         const campaignId = BigInt(String(req.query.id))
-
-        console.log('Force creating milestones for campaign:', String(campaignId))
 
         // Get campaign to check if completed
         const campaign = await campaignService.getCampaignById(campaignId)
@@ -307,7 +302,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ]
 
         await campaignService.upsertMilestones(campaignId, defaultMilestones)
-        console.log('Milestones force created successfully')
 
         return res.status(200).json(HttpResponseUtil.success(null, 'Milestones created successfully'))
       }

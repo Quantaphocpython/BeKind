@@ -20,6 +20,7 @@ class CampaignMapper {
       isCompleted: campaign.isCompleted,
       completedAt: campaign.completedAt ? campaign.completedAt.toISOString() : undefined,
       finalBalance: campaign.finalBalance ? campaign.finalBalance.toString() : undefined,
+      currentWithdrawalPhase: campaign.currentWithdrawalPhase,
       ownerUser: campaign.ownerUser ? userMapper.toUserDto(campaign.ownerUser) : null,
       proofs: campaign.proofs ? campaign.proofs.map((proof) => this.toProofDto(proof)) : [],
       votes: campaign.votes ? campaign.votes.map((vote) => this.toVoteDto(vote)) : [],

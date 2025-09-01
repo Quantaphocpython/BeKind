@@ -11,7 +11,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const campaignId = BigInt(id as string)
       const proofs = await campaignService.listProofs(campaignId)
-      return res.status(200).json(HttpResponseUtil.success({ proofs }))
+      // Map BigInt fields to string via mapper to avoid BigInt serialization errors
+      const campaignMapper = container.get(TYPES.CampaignMapper) as any
+      const proofDtos = proofs.map((p: any) => campaignMapper.toProofDto(p))
+      return res.status(200).json(HttpResponseUtil.success(proofDtos, 'Proofs retrieved successfully'))
     } catch (error) {
       console.error('Error fetching proofs:', error)
       return res.status(500).json(HttpResponseUtil.error('Failed to fetch proofs'))
@@ -52,7 +55,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         content,
       })
 
-      return res.status(201).json(HttpResponseUtil.success({ proof }, 'Proof created successfully'))
+      // Map to DTO to remove BigInt fields
+      const campaignMapper = container.get(TYPES.CampaignMapper) as any
+      const proofDto = campaignMapper.toProofDto(proof)
+
+      return res.status(201).json(HttpResponseUtil.success({ proof: proofDto }, 'Proof created successfully'))
     } catch (error) {
       console.error('Error creating proof:', error)
       return res.status(500).json(HttpResponseUtil.error('Failed to create proof'))

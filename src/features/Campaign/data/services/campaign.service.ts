@@ -137,4 +137,9 @@ export class CampaignService {
     const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'force-create-milestones' })
     return await this.httpClient.post(url, {})
   }
+
+  async syncCampaign(id: string): Promise<HttpResponse<CampaignDto>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'sync' })
+    return await this.httpClient.get(url)
+  }
 }

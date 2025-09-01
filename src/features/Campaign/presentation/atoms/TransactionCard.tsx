@@ -75,7 +75,7 @@ export const TransactionCard = ({ transaction, className }: TransactionCardProps
       className={`group relative overflow-hidden rounded-lg border bg-gradient-to-br from-card via-card to-muted/20 hover:from-card/80 hover:to-muted/30 transition-all duration-300 hover:shadow-md cursor-pointer ${className || ''}`}
       onClick={() => {
         // TODO: Open modal with transaction details
-        console.log('Open transaction modal:', transaction.id)
+        ;('Open transaction modal:', transaction.id)
       }}
     >
       {/* Gradient border effect */}

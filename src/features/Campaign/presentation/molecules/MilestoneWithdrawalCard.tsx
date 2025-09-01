@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation, useApiQuery, useTranslations } from '@/shared/hooks'
-import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { formatEther } from 'viem'
 import { useAccount } from 'wagmi'
@@ -18,94 +19,103 @@ import { MilestoneDto, WithdrawalDto } from '../../data/dto'
 import { useCampaignContractWrite } from '../../data/hooks'
 
 interface MilestoneWithdrawalCardProps {
-  campaignId: string
-  campaignOwner: string
-  campaignGoal: string
-  campaignBalance: string
-  isCompleted: boolean
+  campaign: import('../../data/dto').CampaignDto
+  onchainBalance: string
   className?: string
 }
 
-export const MilestoneWithdrawalCard = ({
-  campaignId,
-  campaignOwner,
-  campaignGoal,
-  campaignBalance,
-  isCompleted,
-  className,
-}: MilestoneWithdrawalCardProps) => {
+export const MilestoneWithdrawalCard = ({ campaign, onchainBalance, className }: MilestoneWithdrawalCardProps) => {
   const t = useTranslations()
   const { address, isConnected } = useAccount()
   const [selectedMilestone, setSelectedMilestone] = useState<MilestoneDto | null>(null)
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [pendingMilestoneIdx, setPendingMilestoneIdx] = useState<number | null>(null)
+  const queryClient = useQueryClient()
+  const hasTriedCreateMilestones = useRef(false)
 
-  const isOwner = address?.toLowerCase() === campaignOwner.toLowerCase()
-  const goalInEth = Number.parseFloat(formatEther(BigInt(campaignGoal)))
-  const balanceInEth = Number.parseFloat(formatEther(BigInt(campaignBalance)))
+  const isOwner = address?.toLowerCase() === (campaign.ownerUser?.address || campaign.owner || '').toLowerCase()
+  const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
+  const balanceInEth = Number.parseFloat(formatEther(BigInt(onchainBalance)))
 
-  // Use actual balance (total donated amount) for milestone calculations
-  // This ensures milestones are based on the real amount raised, not just the goal
-  const effectiveBalanceInEth = balanceInEth
+  // Use finalBalance if campaign is completed, otherwise use actual balance
+  // This ensures milestones are based on the final amount when campaign was completed
+  const finalBalanceInEth = campaign.finalBalance ? Number.parseFloat(formatEther(BigInt(campaign.finalBalance))) : 0
+  const effectiveBalanceInEth = campaign.isCompleted && finalBalanceInEth > 0 ? finalBalanceInEth : balanceInEth
 
-  const { execute: withdrawContract, isLoading: isWithdrawing } = useCampaignContractWrite('withdraw')
+  const {
+    execute: withdrawContract,
+    isLoading: isWithdrawing,
+    isSuccess: isWithdrawSuccess,
+    hash: withdrawHash,
+    error: withdrawError,
+  } = useCampaignContractWrite('withdraw')
+
+  // Keep params to notify backend only after on-chain success
+  const lastWithdrawParamsRef = useRef<{ amount: string; milestoneIdx: number } | null>(null)
+
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
 
   // Fetch milestones if completed; otherwise we'll show synthetic milestones (50/50)
   const { data: milestonesFromApi = [], refetch: refetchMilestones } = useApiQuery<MilestoneDto[]>(
-    ['campaign-milestones', campaignId],
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.getCampaignMilestones(campaignId)
-    },
+    ['campaign-milestones', campaign.campaignId],
+    () => campaignService.getCampaignMilestones(campaign.campaignId),
     {
-      enabled: Boolean(campaignId) && isCompleted,
+      enabled: Boolean(campaign.campaignId) && campaign.isCompleted,
       select: (res) => res.data,
     },
   )
 
   // Force create milestones if campaign is completed but no milestones exist
   const forceCreateMilestonesMutation = useApiMutation(
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.forceCreateMilestones(campaignId)
-    },
+    () => campaignService.forceCreateMilestones(campaign.campaignId),
     {
       onSuccess: () => {
         refetchMilestones()
+        toast.success(t('Milestones created successfully'))
+      },
+      onError: (error: any) => {
+        console.error('Failed to create milestones:', error)
+        // Only show error toast if it's not a constraint error (already exists)
+        if (!error?.message?.includes('Unique constraint failed')) {
+          toast.error(t('Failed to create milestones'), {
+            description: error?.message || 'Unknown error occurred',
+          })
+        }
       },
     },
   )
 
   // Manually mark milestone as released
   const markMilestoneReleasedMutation = useApiMutation(
-    async (milestoneIndex: number) => {
-      const response = await fetch(`/api/campaigns/${campaignId}?action=release-milestone`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ milestoneIndex }),
-      })
-      const data = await response.json()
-      return data
-    },
+    async (milestoneIndex: number) => campaignService.markMilestoneAsReleased(campaign.campaignId, milestoneIndex),
     {
-      onSuccess: () => {
-        refetchMilestones()
+      onSuccess: async (_, milestoneIndex) => {
+        // Optimistic cache update
+        queryClient.setQueryData(['campaign-milestones', campaign.campaignId], (prev: any) => {
+          const data = prev?.data ?? prev
+          if (!Array.isArray(data)) return prev
+          const updated = data.map((m: MilestoneDto) =>
+            m.index === milestoneIndex ? { ...m, isReleased: true, releasedAt: new Date().toISOString() } : m,
+          )
+          return prev?.data ? { ...prev, data: updated } : updated
+        })
+        await refetchMilestones()
         toast.success(t('Milestone marked as released'))
       },
     },
   )
 
   // Build milestones list: use API when completed; otherwise default two phases 50/50
-  const milestones: Array<MilestoneDto> = isCompleted
+  const milestones: Array<MilestoneDto> = campaign.isCompleted
     ? Array.isArray(milestonesFromApi)
       ? milestonesFromApi
       : []
     : ([
         {
           id: 'phase-1',
-          campaignId: String(campaignId),
+          campaignId: String(campaign.campaignId),
           index: 1,
           title: 'Phase 1 - Initial Withdrawal',
           description: 'Withdraw 50% of goal once campaign is completed',
@@ -115,7 +125,7 @@ export const MilestoneWithdrawalCard = ({
         },
         {
           id: 'phase-2',
-          campaignId: String(campaignId),
+          campaignId: String(campaign.campaignId),
           index: 2,
           title: 'Phase 2 - Final Withdrawal',
           description: 'Withdraw remaining 50% after at least one proof is uploaded',
@@ -127,78 +137,63 @@ export const MilestoneWithdrawalCard = ({
 
   // Auto-create milestones if campaign is completed but no milestones exist
   useEffect(() => {
-    if (isCompleted && Array.isArray(milestonesFromApi) && milestonesFromApi.length === 0) {
-      console.log('Campaign completed but no milestones found, creating them...')
-      console.log('Debug: isCompleted =', isCompleted, 'milestonesFromApi length =', milestonesFromApi.length)
+    if (
+      campaign.isCompleted &&
+      Array.isArray(milestonesFromApi) &&
+      milestonesFromApi.length === 0 &&
+      !hasTriedCreateMilestones.current &&
+      !forceCreateMilestonesMutation.isPending
+    ) {
+      hasTriedCreateMilestones.current = true
       forceCreateMilestonesMutation.mutate({})
     }
-  }, [isCompleted, milestonesFromApi, forceCreateMilestonesMutation])
+  }, [campaign.isCompleted, milestonesFromApi?.length, forceCreateMilestonesMutation.isPending])
 
   // Ensure milestones is always an array
   const safeMilestones = Array.isArray(milestones) ? milestones : []
 
-  // Debug log to check milestones and balance
-  console.log('MilestoneWithdrawalCard Debug:', {
-    isCompleted,
-    goalInEth,
-    balanceInEth,
-    effectiveBalanceInEth,
-    milestonesFromApi,
-    milestones,
-    safeMilestones,
-    isArray: Array.isArray(milestones),
-    length: safeMilestones?.length,
-    hasReachedGoal: balanceInEth >= goalInEth,
-    progress: (balanceInEth / goalInEth) * 100,
-    campaignGoal: campaignGoal,
-    campaignBalance: campaignBalance,
-    rawGoal: formatEther(BigInt(campaignGoal)),
-    rawBalance: formatEther(BigInt(campaignBalance)),
-  })
+  // Reset ref when campaign changes
+  useEffect(() => {
+    hasTriedCreateMilestones.current = false
+  }, [campaign.campaignId])
 
   // Fetch proofs for milestone 2 validation
   const { data: proofs = [] } = useApiQuery<any[]>(
-    ['campaign-proofs', campaignId],
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.getCampaignProofs(campaignId)
-    },
+    ['campaign-proofs', campaign.campaignId],
+    () => campaignService.getCampaignProofs(campaign.campaignId),
     {
-      enabled: Boolean(campaignId) && isCompleted,
+      enabled: Boolean(campaign.campaignId) && campaign.isCompleted,
       select: (res) => res.data,
     },
   )
 
   // Fetch withdrawals
   const { data: withdrawals = [] } = useApiQuery<WithdrawalDto[]>(
-    ['campaign-withdrawals', campaignId],
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.getCampaignWithdrawals(campaignId)
-    },
+    ['campaign-withdrawals', campaign.campaignId],
+    () => campaignService.getCampaignWithdrawals(campaign.campaignId),
     {
-      enabled: Boolean(campaignId) && isCompleted,
+      enabled: Boolean(campaign.campaignId) && campaign.isCompleted,
       select: (res) => res.data,
     },
   )
 
   const withdrawMutation = useApiMutation(
-    (data: { amount: string; milestoneIdx?: number; userAddress: string }) => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.createWithdrawal(campaignId, data)
-    },
+    (data: { amount: string; milestoneIdx?: number; userAddress: string }) =>
+      campaignService.createWithdrawal(campaign.campaignId, data),
     {
       onSuccess: async (_, variables) => {
         try {
-          // Mark milestone as released after successful withdrawal
+          // Optimistically mark as released
           if (variables.milestoneIdx) {
-            // Call API endpoint to mark milestone as released
-            await fetch(`/api/campaigns/${campaignId}?action=release-milestone`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ milestoneIndex: variables.milestoneIdx }),
+            queryClient.setQueryData(['campaign-milestones', campaign.campaignId], (prev: any) => {
+              const data = prev?.data ?? prev
+              if (!Array.isArray(data)) return prev
+              const updated = data.map((m: MilestoneDto) =>
+                m.index === variables.milestoneIdx
+                  ? { ...m, isReleased: true, releasedAt: new Date().toISOString() }
+                  : m,
+              )
+              return prev?.data ? { ...prev, data: updated } : updated
             })
           }
 
@@ -206,15 +201,12 @@ export const MilestoneWithdrawalCard = ({
           setIsDialogOpen(false)
           setWithdrawAmount('')
           setSelectedMilestone(null)
+          setPendingMilestoneIdx(null)
 
           // Refetch milestones to update UI
           await refetchMilestones()
 
-          // Debug log after refetch
-          console.log('After withdrawal - Milestone status:', {
-            milestoneIdx: variables.milestoneIdx,
-            refetchCalled: true,
-          })
+          // Keep state clean; no verbose logs
         } catch (error) {
           console.error('Failed to mark milestone as released:', error)
           // Still show success for withdrawal, but log the milestone update error
@@ -222,12 +214,13 @@ export const MilestoneWithdrawalCard = ({
       },
       onError: (error) => {
         toast.error(t('Withdrawal failed'), { description: error.message })
+        setPendingMilestoneIdx(null)
       },
     },
   )
 
   const handleMilestoneClick = (milestone: MilestoneDto) => {
-    if (!isCompleted) {
+    if (!campaign.isCompleted) {
       toast.error(t('Withdrawals are available after the campaign is completed'))
       return
     }
@@ -253,36 +246,48 @@ export const MilestoneWithdrawalCard = ({
     setIsDialogOpen(true)
   }
 
-  // Debug log after all variables are declared
-  console.log('MilestoneWithdrawalCard Variables Debug:', {
-    proofs: proofs.length,
-    withdrawals: withdrawals.length,
-    withdrawalsData: withdrawals,
-    phase1Milestone: safeMilestones.find((m) => m.index === 1),
-    phase1Completed: safeMilestones.find((m) => m.index === 1)?.isReleased || false,
-  })
-
   const handleWithdraw = async () => {
     if (!address || !selectedMilestone) return
 
     try {
-      // Execute contract withdrawal
-      await withdrawContract({
-        campaignId: BigInt(campaignId),
-        amount: withdrawAmount,
-      })
+      setPendingMilestoneIdx(selectedMilestone.index)
 
-      // Notify backend
-      await withdrawMutation.mutateAsync({
+      // Execute contract withdrawal
+      lastWithdrawParamsRef.current = { amount: withdrawAmount, milestoneIdx: selectedMilestone.index }
+      toast.info(t('Confirm the withdrawal in your wallet...'))
+      withdrawContract({
+        campaignId: BigInt(campaign.campaignId),
         amount: withdrawAmount,
-        milestoneIdx: selectedMilestone.index,
-        userAddress: address,
       })
     } catch (error) {
       console.error('Withdrawal error:', error)
       toast.error(t('Withdrawal failed'))
+      setPendingMilestoneIdx(null)
     }
   }
+
+  // Surface write errors from wagmi
+  useEffect(() => {
+    if (withdrawError) {
+      const message = withdrawError instanceof Error ? withdrawError.message : String(withdrawError)
+      toast.error(t('Withdrawal failed'), { description: message })
+      setPendingMilestoneIdx(null)
+    }
+  }, [withdrawError, t])
+
+  // After tx confirmed, notify backend to record and update phase
+  useEffect(() => {
+    const notifyBackend = async () => {
+      if (!isWithdrawSuccess || !address || !lastWithdrawParamsRef.current) return
+      try {
+        const { amount, milestoneIdx } = lastWithdrawParamsRef.current
+        await withdrawMutation.mutateAsync({ amount, milestoneIdx, userAddress: address })
+      } finally {
+        lastWithdrawParamsRef.current = null
+      }
+    }
+    void notifyBackend()
+  }, [isWithdrawSuccess, address])
 
   return (
     <>
@@ -301,7 +306,7 @@ export const MilestoneWithdrawalCard = ({
               <h3 className="text-xl font-bold text-foreground font-serif mb-1">{t('Fund Withdrawal')}</h3>
               <p className="text-sm text-muted-foreground">{t('Structured withdrawal system for campaign funds')}</p>
             </div>
-            {!isCompleted && (
+            {!campaign.isCompleted && (
               <div className="bg-muted/50 rounded-lg p-3">
                 <p className="text-xs text-muted-foreground">
                   <span className="font-medium">{t('Withdrawal Rules')}:</span>{' '}
@@ -317,16 +322,20 @@ export const MilestoneWithdrawalCard = ({
         <CardContent className="px-6 space-y-4 relative z-10">
           <div className="space-y-3">
             {safeMilestones.map((milestone) => {
-              const isReleased = milestone.isReleased
               const hasProofs = proofs.length > 0
 
+              // Use currentWithdrawalPhase to determine if milestone is released
+              const isReleasedByPhase =
+                campaign?.currentWithdrawalPhase && campaign.currentWithdrawalPhase >= milestone.index
+              const isReleased = isReleasedByPhase || milestone.isReleased
+
               // Check if Phase 1 is completed for Phase 2
-              const phase1Milestone = safeMilestones.find((m) => m.index === 1)
-              const phase1Completed = phase1Milestone?.isReleased || false
+              const phase1Completed =
+                (campaign?.currentWithdrawalPhase && campaign.currentWithdrawalPhase >= 1) || false
 
               // Phase 2 can only be withdrawn if Phase 1 is completed AND there are proofs
               const canWithdraw =
-                isCompleted &&
+                campaign.isCompleted &&
                 !isReleased &&
                 (milestone.index === 1 || (milestone.index === 2 && hasProofs && phase1Completed))
 
@@ -421,6 +430,16 @@ export const MilestoneWithdrawalCard = ({
                         <Button
                           size="sm"
                           className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0 shadow-md hover:shadow-lg"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedMilestone(milestone)
+                            const maxAmount = (effectiveBalanceInEth * milestone.percentage) / 100
+                            setWithdrawAmount(maxAmount.toFixed(4))
+                            setIsDialogOpen(true)
+                          }}
+                          disabled={
+                            pendingMilestoneIdx === milestone.index || isWithdrawing || withdrawMutation.isPending
+                          }
                         >
                           <Icons.wallet className="w-4 h-4 mr-2" />
                           {t('Withdraw')}
@@ -540,12 +559,12 @@ export const MilestoneWithdrawalCard = ({
                 value={withdrawAmount}
                 onChange={(e) => {
                   // Lock amount when completed to enforce fixed milestone amount
-                  if (!selectedMilestone || !isCompleted) setWithdrawAmount(e.target.value)
+                  if (!selectedMilestone || !campaign.isCompleted) setWithdrawAmount(e.target.value)
                 }}
-                readOnly={Boolean(selectedMilestone) && isCompleted}
+                readOnly={Boolean(selectedMilestone) && campaign.isCompleted}
                 placeholder="0.1"
               />
-              {Boolean(selectedMilestone) && isCompleted && (
+              {Boolean(selectedMilestone) && campaign.isCompleted && (
                 <p className="text-xs text-muted-foreground mt-1">{t('Amount is fixed to this milestone share')}</p>
               )}
             </div>

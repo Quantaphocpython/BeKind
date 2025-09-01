@@ -419,5 +419,11 @@
   "Milestone already released": "Milestone already released",
   "Proof submission required before Phase 2 withdrawal": "Proof submission required before Phase 2 withdrawal",
   "Phase": "Phase",
-  "Max Amount": "Max Amount"
+  "Max Amount": "Max Amount",
+  "Amount is fixed to this milestone share": "Amount is fixed to this milestone share",
+  "Please upload proof to withdraw Phase 2": "Please upload proof to withdraw Phase 2",
+  "Failed to create milestones": "Failed to create milestones",
+  "Milestones created successfully": "Milestones created successfully",
+  "Campaign synced successfully": "Campaign synced successfully",
+  "Failed to sync campaign": "Failed to sync campaign"
 }
