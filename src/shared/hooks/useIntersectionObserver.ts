@@ -84,10 +84,10 @@ export function useIntersectionObserver({
       observer.disconnect()
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [
     ref,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     JSON.stringify(threshold),
     root,
     rootMargin,

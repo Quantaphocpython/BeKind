@@ -340,7 +340,6 @@ export class CampaignService implements ICampaignService {
     // Check if campaign is already completed - if so, don't update balance
     const existingCampaign = await this.campaignRepository.getCampaignById(campaignId)
     if (existingCampaign?.isCompleted) {
-      ;`Campaign ${campaignId} is already completed, balance update ignored`
       return existingCampaign
     }
 

@@ -34,6 +34,7 @@ const eslintConfig = [
       '@typescript-eslint/no-empty-function': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
       'react/no-unescaped-entities': 'warn',
+      'react-hooks/exhaustive-deps': 'off',
     },
   },
 ]

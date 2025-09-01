@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
-import { useAppScroll } from '@/shared/hooks/useAppScroll'
 import { useTranslations } from '@/shared/hooks/useTranslations'
 import { cn } from '@/shared/utils'
 import { routeConfig } from '@/shared/utils/route'
@@ -22,7 +21,6 @@ interface CampaignCardProps {
 export const CampaignCard = ({ campaign }: CampaignCardProps) => {
   const t = useTranslations()
   const router = useRouter()
-  const { scroll } = useAppScroll()
   const DEFAULT_COVER_IMAGE = '/images/hero-section.jpg'
 
   // Calculate progress
