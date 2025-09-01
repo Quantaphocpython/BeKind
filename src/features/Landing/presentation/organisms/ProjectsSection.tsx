@@ -83,7 +83,9 @@ export default function ProjectsSection() {
                     <span className="text-sm text-muted-foreground">
                       {t('Days Left')}: {project.daysLeft}
                     </span>
-                    <Button size="sm">{t('Donate Now')}</Button>
+                    <Button size="sm" className="cursor-pointer">
+                      {t('Donate Now')}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

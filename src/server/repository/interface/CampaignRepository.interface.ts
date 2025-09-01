@@ -9,6 +9,7 @@ export interface ICampaignRepository {
   getCampaignsPaginated(query: CampaignListQueryDto): Promise<CampaignListPaginatedResponseDto>
   getRelatedCampaigns(currentCampaignId: bigint, limit?: number): Promise<Campaign[]>
   updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign>
+  markCampaignAsCompleted(campaignId: bigint, finalBalance: bigint): Promise<Campaign>
   closeCampaign(campaignId: bigint): Promise<Campaign>
   incrementVoteCount(campaignId: bigint): Promise<void>
   // Milestones
@@ -17,6 +18,7 @@ export interface ICampaignRepository {
     milestones: { index: number; title: string; description?: string; percentage: number }[],
   ): Promise<void>
   listMilestones(campaignId: bigint): Promise<Milestone[]>
+  releaseMilestone(campaignId: bigint, milestoneIndex: number): Promise<Milestone>
   // Withdrawals
   createWithdrawal(data: {
     campaignId: bigint
@@ -32,4 +34,7 @@ export interface ICampaignRepository {
   // Proofs
   createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof>
   listProofs(campaignId: bigint): Promise<Proof[]>
+
+  // Withdrawal phase tracking
+  updateWithdrawalPhase(campaignId: bigint, phase: number): Promise<void>
 }

@@ -11,7 +11,9 @@ import { HttpResponse } from '@/shared/types/httpResponse.type'
 import { routeConfig } from '@/shared/utils/route'
 import { inject, injectable } from 'inversify'
 import { CampaignDto, CampaignListResponseDto, CreateCampaignRequestDto, CreateCampaignResponseDto } from '../dto'
+import { CreateMilestoneResponseDto, MilestoneDto } from '../dto/milestone.dto'
 import { CreateProofResponseDto, ProofDto } from '../dto/proof.dto'
+import { CreateWithdrawalResponseDto, WithdrawalDto } from '../dto/withdrawal.dto'
 
 @injectable()
 export class CampaignService {
@@ -95,5 +97,49 @@ export class CampaignService {
   ): Promise<HttpResponse<CreateProofResponseDto>> {
     const url = routeConfig(ApiEndpointEnum.CampaignProofs, { id })
     return await this.httpClient.post(url, data)
+  }
+
+  async getCampaignMilestones(id: string): Promise<HttpResponse<MilestoneDto[]>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'milestones' })
+    return await this.httpClient.get(url)
+  }
+
+  async createMilestones(
+    id: string,
+    data: {
+      milestones: { index: number; title: string; description?: string; percentage: number }[]
+      userAddress: string
+    },
+  ): Promise<HttpResponse<CreateMilestoneResponseDto>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'milestones' })
+    return await this.httpClient.post(url, data)
+  }
+
+  async getCampaignWithdrawals(id: string): Promise<HttpResponse<WithdrawalDto[]>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'withdrawals' })
+    return await this.httpClient.get(url)
+  }
+
+  async createWithdrawal(
+    id: string,
+    data: { amount: string; milestoneIdx?: number; userAddress: string },
+  ): Promise<HttpResponse<CreateWithdrawalResponseDto>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'withdraw' })
+    return await this.httpClient.post(url, data)
+  }
+
+  async markMilestoneAsReleased(id: string, milestoneIndex: number): Promise<HttpResponse<null>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'release-milestone' })
+    return await this.httpClient.post(url, { milestoneIndex })
+  }
+
+  async forceCreateMilestones(id: string): Promise<HttpResponse<null>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'force-create-milestones' })
+    return await this.httpClient.post(url, {})
+  }
+
+  async syncCampaign(id: string): Promise<HttpResponse<CampaignDto>> {
+    const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'sync' })
+    return await this.httpClient.get(url)
   }
 }

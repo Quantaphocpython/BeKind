@@ -44,6 +44,10 @@ export interface Campaign {
   coverImage: string
   createdAt: Date
   voteCount: number
+  isCompleted: boolean
+  completedAt?: Date | null
+  finalBalance?: bigint | null // Final balance when campaign was completed (immutable after completion)
+  currentWithdrawalPhase?: number
   ownerUser?: User | null
   proofs?: Proof[]
   votes?: Vote[]

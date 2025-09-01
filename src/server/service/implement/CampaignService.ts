@@ -276,6 +276,18 @@ export class CampaignService implements ICampaignService {
     transactionHash?: string,
     blockNumber?: number,
   ): Promise<boolean> {
+    // Check if campaign exists and is not completed
+    if (campaignId) {
+      const campaign = await this.campaignRepository.getCampaignById(campaignId)
+      if (!campaign) {
+        console.error(`Campaign ${campaignId} not found`)
+        return false
+      }
+      if (campaign.isCompleted) {
+        console.error(`Campaign ${campaignId} is already completed, no more donations allowed`)
+        return false
+      }
+    }
     // Ensure user exists
     const existingUser = await this.userService.getUserByAddress(userAddress)
     if (!existingUser) {
@@ -305,9 +317,13 @@ export class CampaignService implements ICampaignService {
           timestamp: new Date().toISOString(),
         })
 
-        // Also emit balance update
+        // Update campaign balance in database and emit balance update
         const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
         const newBalance = await contract.getBalance(campaignId)
+
+        // Update database balance (this will also mark as completed if goal reached)
+        await this.updateCampaignBalance(campaignId, newBalance)
+
         socketEmitter.emitToAll(SocketEventEnum.BALANCE_UPDATE, {
           campaignId: campaignId.toString(),
           newBalance: ethers.formatEther(newBalance),
@@ -321,7 +337,41 @@ export class CampaignService implements ICampaignService {
   }
 
   async updateCampaignBalance(campaignId: bigint, balance: bigint): Promise<Campaign> {
-    return await this.campaignRepository.updateCampaignBalance(campaignId, balance)
+    // Check if campaign is already completed - if so, don't update balance
+    const existingCampaign = await this.campaignRepository.getCampaignById(campaignId)
+    if (existingCampaign?.isCompleted) {
+      ;`Campaign ${campaignId} is already completed, balance update ignored`
+      return existingCampaign
+    }
+
+    const campaign = await this.campaignRepository.updateCampaignBalance(campaignId, balance)
+
+    if (!campaign.isCompleted && balance >= campaign.goal) {
+      // When marking as completed, set the final balance to the goal amount
+      // This ensures the raised amount equals the goal when completed
+      const finalBalance = campaign.goal
+      await this.campaignRepository.markCampaignAsCompleted(campaignId, finalBalance)
+
+      // Auto-create default milestones for 2-phase withdrawal
+      const defaultMilestones = [
+        {
+          index: 1,
+          title: 'Phase 1 - Initial Withdrawal',
+          description: 'First withdrawal (50% of goal)',
+          percentage: 50,
+        },
+        {
+          index: 2,
+          title: 'Phase 2 - Final Withdrawal',
+          description: 'Final withdrawal (50% of goal) after proof submission',
+          percentage: 50,
+        },
+      ]
+
+      await this.campaignRepository.upsertMilestones(campaignId, defaultMilestones)
+    }
+
+    return campaign
   }
 
   async closeCampaign(campaignId: bigint, ownerAddress: string): Promise<Campaign> {
@@ -348,7 +398,8 @@ export class CampaignService implements ICampaignService {
   async syncCampaignBalance(campaignId: bigint): Promise<Campaign> {
     const contract = new ethers.Contract(this.contractAddress, abi, this.provider)
     const balance = await contract.getBalance(campaignId)
-    return await this.campaignRepository.updateCampaignBalance(campaignId, balance)
+    // Use service method so we also mark completed and create milestones when goal reached
+    return await this.updateCampaignBalance(campaignId, balance)
   }
 
   async upsertMilestones(
@@ -390,6 +441,84 @@ export class CampaignService implements ICampaignService {
 
   async listWithdrawals(campaignId: bigint): Promise<Withdrawal[]> {
     return await this.campaignRepository.listWithdrawals(campaignId)
+  }
+
+  async createWithdrawal(data: {
+    campaignId: bigint
+    amount: bigint
+    milestoneIdx?: number
+    txHash?: string
+  }): Promise<Withdrawal> {
+    // Validate withdrawal eligibility
+    const campaign = await this.campaignRepository.getCampaignById(data.campaignId)
+    if (!campaign) {
+      throw new Error('Campaign not found')
+    }
+
+    if (!campaign.isCompleted) {
+      throw new Error('Campaign must be completed (100% goal reached) before withdrawal')
+    }
+
+    // Get milestones to check withdrawal rules
+    const milestones = await this.campaignRepository.listMilestones(data.campaignId)
+    const milestone = milestones.find((m) => m.index === (data.milestoneIdx || 1))
+
+    if (!milestone) {
+      throw new Error('Milestone not found')
+    }
+
+    // Check if milestone is already released
+    if (milestone.isReleased) {
+      throw new Error('Milestone already released')
+    }
+
+    // For milestone 2, require proof submission
+    if (milestone.index === 2) {
+      const proofs = await this.campaignRepository.listProofs(data.campaignId)
+      if (proofs.length === 0) {
+        throw new Error('Proof submission required before Phase 2 withdrawal')
+      }
+
+      // Check if Phase 1 has been completed first
+      const phase1Milestone = milestones.find((m) => m.index === 1)
+      if (phase1Milestone && !phase1Milestone.isReleased) {
+        throw new Error('Phase 1 must be completed before Phase 2 withdrawal')
+      }
+    }
+
+    // Calculate maximum withdrawal amount for this milestone
+    const maxAmount = (campaign.goal * BigInt(milestone.percentage)) / BigInt(100)
+    if (data.amount > maxAmount) {
+      throw new Error(`Withdrawal amount exceeds milestone limit (${milestone.percentage}% of goal)`)
+    }
+
+    // Create withdrawal and mark milestone as released
+    const withdrawal = await this.campaignRepository.createWithdrawal(data)
+    await this.campaignRepository.releaseMilestone(data.campaignId, milestone.index)
+
+    // Update campaign's current withdrawal phase
+    await this.campaignRepository.updateWithdrawalPhase(data.campaignId, milestone.index)
+
+    // Emit sockets for realtime UI updates
+    try {
+      socketEmitter.emitToAll(SocketEventEnum.WITHDRAWAL_CREATED, {
+        campaignId: data.campaignId.toString(),
+        amount: ethers.formatEther(data.amount),
+        milestoneIdx: data.milestoneIdx,
+        txHash: data.txHash,
+        createdAt: new Date().toISOString(),
+      })
+
+      socketEmitter.emitToAll(SocketEventEnum.MILESTONE_RELEASED, {
+        campaignId: data.campaignId.toString(),
+        milestoneIndex: milestone.index,
+        releasedAt: new Date().toISOString(),
+      })
+    } catch (e) {
+      console.error('Socket emit error (withdrawal/milestone):', e)
+    }
+
+    return withdrawal
   }
 
   async getCampaignTransactions(campaignId: bigint, limit: number = 50): Promise<TransactionDto[]> {
@@ -497,5 +626,9 @@ export class CampaignService implements ICampaignService {
 
   async getUserByAddress(address: string): Promise<User | null> {
     return await this.userService.getUserByAddress(address)
+  }
+
+  async markMilestoneAsReleased(campaignId: bigint, milestoneIndex: number): Promise<void> {
+    await this.campaignRepository.releaseMilestone(campaignId, milestoneIndex)
   }
 }

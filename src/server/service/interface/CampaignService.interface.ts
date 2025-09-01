@@ -41,10 +41,22 @@ export interface ICampaignService {
   createComment(data: { campaignId: bigint; userId: string; content: string; parentId?: string }): Promise<Comment>
   listComments(campaignId: bigint): Promise<Comment[]>
   listWithdrawals(campaignId: bigint): Promise<Withdrawal[]>
+  createWithdrawal(data: {
+    campaignId: bigint
+    amount: bigint
+    milestoneIdx?: number
+    txHash?: string
+  }): Promise<Withdrawal>
   getCampaignTransactions(campaignId: bigint, limit?: number): Promise<TransactionDto[]>
+
+  // Helper methods
+  syncCampaignBalance(campaignId: bigint): Promise<Campaign>
 
   // Proofs
   createProof(data: { campaignId: bigint; userId: string; title: string; content: string }): Promise<Proof>
   listProofs(campaignId: bigint): Promise<Proof[]>
   getUserByAddress(address: string): Promise<User | null>
+
+  // Milestone management
+  markMilestoneAsReleased(campaignId: bigint, milestoneIndex: number): Promise<void>
 }

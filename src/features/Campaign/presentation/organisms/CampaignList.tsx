@@ -10,12 +10,11 @@ import { container, TYPES } from '@/features/Common/container'
 import { CampaignListPaginatedResponseDto } from '@/server/dto/campaign.dto'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useApiQuery } from '@/shared/hooks'
-import { ScrollType, useAppScroll } from '@/shared/hooks/useAppScroll'
 import { useTranslations } from '@/shared/hooks/useTranslations'
 import { routeConfig } from '@/shared/utils/route'
 import { ChevronLeft, ChevronRight, Filter, Plus, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { CampaignCard } from '../molecules/CampaignCard'
 import { CampaignCardSkeleton } from '../molecules/CampaignCardSkeleton'
@@ -23,7 +22,6 @@ import { CampaignCardSkeleton } from '../molecules/CampaignCardSkeleton'
 export const CampaignList = () => {
   const t = useTranslations()
   const router = useRouter()
-  const { scroll } = useAppScroll()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -44,23 +42,24 @@ export const CampaignList = () => {
     setCurrentPage(1)
   }, [statusFilter])
 
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
+
   const {
     data: campaignsResponse,
     isLoading,
     error,
   } = useApiQuery<CampaignListPaginatedResponseDto>(
     ['campaigns', 'paginated', currentPage.toString(), debouncedSearchTerm, statusFilter],
-    () => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.getCampaignsPaginated({
+    () =>
+      campaignService.getCampaignsPaginated({
         page: currentPage,
         limit: 12,
         search: debouncedSearchTerm,
         status: statusFilter as 'all' | 'active' | 'closed',
         sortBy: 'createdAt',
         sortOrder: 'desc',
-      })
-    },
+      }),
   )
 
   useEffect(() => {
@@ -80,7 +79,6 @@ export const CampaignList = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    scroll({ type: ScrollType.ToTop })
   }
 
   return (

@@ -9,7 +9,7 @@ import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import type { CommentDto } from '@/server/dto/campaign.dto'
 import { useApiMutation, useApiQuery } from '@/shared/hooks'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import { CampaignService } from '../../data/services/campaign.service'
@@ -26,7 +26,8 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const [replyText, setReplyText] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const campaignService = container.get<CampaignService>(TYPES.CampaignService)
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get<CampaignService>(TYPES.CampaignService), [])
 
   // Fetch comments
   const { data: comments = [], isLoading } = useApiQuery<CommentDto[]>(

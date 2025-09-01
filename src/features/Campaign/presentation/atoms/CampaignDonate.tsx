@@ -3,50 +3,60 @@
 import { Icons } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import type { CampaignDto } from '@/features/Campaign/data/dto'
 import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
 import { container, TYPES } from '@/features/Common/container'
 import { useApiMutation, useTranslations } from '@/shared/hooks'
 import { cn } from '@/shared/utils'
+import { formatEther } from 'ethers'
 import { Heart } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import { useCampaignContractWrite } from '../../data/hooks'
 
 interface CampaignDonateProps {
-  campaignId: string
+  campaign: CampaignDto
+  onchainBalance: string
   className?: string
 }
 
-export const CampaignDonate = ({ campaignId, className }: CampaignDonateProps) => {
+export const CampaignDonate = ({ campaign, onchainBalance, className }: CampaignDonateProps) => {
   const t = useTranslations()
   const { address, isConnected } = useAccount()
   const [amount, setAmount] = useState<string>('0.001')
 
   const { execute, isLoading, isSuccess, error, hash } = useCampaignContractWrite('donate')
 
+  const goalInEth = Number.parseFloat(formatEther(BigInt(campaign.goal)))
+  const balanceInEth = Number.parseFloat(formatEther(BigInt(onchainBalance)))
+  // If campaign completed, treat as 100% regardless of balance
+  const progress = campaign.isCompleted ? 100 : Math.min((balanceInEth / goalInEth) * 100, 100)
+  const hasReachedGoal = Boolean(campaign.isCompleted) || progress >= 100
+  // Once completed, no more donations allowed
+  const canDonate = !campaign.isCompleted && !hasReachedGoal
+
+  // Debug logs removed
+
+  // Get campaign service once and reuse with useMemo
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
+
   const { mutateAsync: notifyDonation, isPending: isNotifyPending } = useApiMutation<
     null,
     { userAddress: string; amount: string; transactionHash?: string; blockNumber?: number }
-  >(
-    (payload) => {
-      const campaignService = container.get(TYPES.CampaignService) as CampaignService
-      return campaignService.notifyDonation(String(campaignId), payload)
+  >((payload) => campaignService.notifyDonation(String(campaign.campaignId), payload), {
+    invalidateQueries: [
+      ['campaign-supporters', String(campaign.campaignId)],
+      ['campaign', String(campaign.campaignId)],
+    ],
+    onSuccess: () => {
+      toast.success(t('Thank you for your donation!'))
     },
-    {
-      invalidateQueries: [
-        ['campaign-supporters', String(campaignId)],
-        ['campaign', String(campaignId)],
-      ],
-      onSuccess: () => {
-        toast.success(t('Thank you for your donation!'))
-      },
-      onError: (err) => {
-        console.error('notifyDonation error', err)
-        toast.error(t('Donation recorded but post-processing failed'))
-      },
+    onError: (err) => {
+      console.error('notifyDonation error', err)
+      toast.error(t('Donation recorded but post-processing failed'))
     },
-  )
+  })
 
   useEffect(() => {
     if (error) {
@@ -70,7 +80,7 @@ export const CampaignDonate = ({ campaignId, className }: CampaignDonateProps) =
       }
     }
     notifyBackend()
-  }, [isSuccess, address, campaignId, amount, hash, notifyDonation])
+  }, [isSuccess, address, campaign.campaignId, amount, hash, notifyDonation])
 
   const onDonate = () => {
     try {
@@ -82,8 +92,12 @@ export const CampaignDonate = ({ campaignId, className }: CampaignDonateProps) =
         toast.error(t('Please enter a valid amount'))
         return
       }
+      if (campaign.isCompleted) {
+        toast.error(t('Campaign is already completed, no more donations allowed'))
+        return
+      }
       toast.info(t('Confirm the donation in your wallet...'))
-      execute({ campaignId: BigInt(campaignId), amount })
+      execute({ campaignId: BigInt(campaign.campaignId), amount })
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e)
       toast.error(t('Donation failed'), { description: message })
@@ -103,32 +117,44 @@ export const CampaignDonate = ({ campaignId, className }: CampaignDonateProps) =
       <CardContent className="px-6 text-center space-y-6 relative z-10">
         <div className="space-y-2">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mb-2">
-            <Icons.heart className="h-8 w-8 text-primary" />
+            {canDonate ? (
+              <Icons.heart className="h-8 w-8 text-primary" />
+            ) : (
+              <Icons.checkCircle className="h-8 w-8 text-green-500" />
+            )}
           </div>
-          <h3 className="text-xl font-bold text-foreground font-serif">{t('Support This Campaign')}</h3>
-          <p className="text-sm text-muted-foreground">{t('Your donation makes a difference')}</p>
+          <h3 className="text-xl font-bold text-foreground font-serif">
+            {canDonate ? t('Support This Campaign') : t('Campaign Completed')}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {canDonate ? t('Your donation makes a difference') : t('No more donations accepted')}
+          </p>
         </div>
 
         <div className="space-y-3">
           <input
             type="number"
-            step="0.01"
+            step="0.0001"
             min={0.01}
+            max={undefined}
             className="w-full h-12 px-4 rounded-lg border bg-background"
-            placeholder="0.01"
+            placeholder={canDonate ? '0.01' : '0.0000'}
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            disabled={isLoading || isNotifyPending}
+            onChange={(e) => {
+              if (canDonate) setAmount(e.target.value)
+            }}
+            disabled={!canDonate || isLoading || isNotifyPending}
+            readOnly={!canDonate}
           />
           <Button
             size="lg"
-            className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 font-semibold text-base rounded-xl border-0 relative overflow-hidden group"
-            onClick={onDonate}
+            className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 font-semibold text-base rounded-xl border-0 relative overflow-hidden group cursor-pointer"
+            onClick={canDonate ? onDonate : undefined}
             disabled={isLoading || isNotifyPending}
           >
             {(isLoading || isNotifyPending) && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
-            <Heart className="h-5 w-5 mr-3" />
-            {isLoading || isNotifyPending ? t('Donating...') : t('Donate Now')}
+            {canDonate ? <Heart className="h-5 w-5 mr-3" /> : <Icons.checkCircle className="h-5 w-5 mr-3" />}
+            {isLoading || isNotifyPending ? t('Donating...') : canDonate ? t('Donate Now') : t('Campaign Completed')}
           </Button>
         </div>
       </CardContent>

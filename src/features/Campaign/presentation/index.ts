@@ -21,6 +21,8 @@ export * from './molecules/CampaignSidebar'
 export * from './molecules/CampaignSupporters'
 export * from './molecules/CampaignTransactions'
 export * from './molecules/CreateCampaignForm'
+export * from './molecules/MilestoneWithdrawalCard'
+export * from './molecules/MilestoneWithdrawalCardCompact'
 export * from './molecules/SupporterCard'
 
 // Organisms

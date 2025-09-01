@@ -53,14 +53,41 @@ export const useCampaignRealtime = ({ campaignId, enabled = true }: UseCampaignR
       }
     }
 
+    // Handle withdrawal created
+    const handleWithdrawalCreated = (data: {
+      campaignId: string
+      amount: string
+      milestoneIdx?: number
+      txHash?: string
+      createdAt: string
+    }) => {
+      if (data.campaignId === campaignId) {
+        queryClient.invalidateQueries({ queryKey: ['campaign-withdrawals', campaignId] })
+        queryClient.invalidateQueries({ queryKey: ['campaign', campaignId] })
+      }
+    }
+
+    // Handle milestone released (phase completion)
+    const handleMilestoneReleased = (data: { campaignId: string; milestoneIndex: number; releasedAt: string }) => {
+      if (data.campaignId === campaignId) {
+        queryClient.invalidateQueries({ queryKey: ['campaign-milestones', campaignId] })
+      }
+    }
+
     // Register event listeners
     publicSocket.on(SocketEventEnum.NEW_DONATION, handleNewDonation)
     publicSocket.on(SocketEventEnum.BALANCE_UPDATE, handleBalanceUpdate)
+    publicSocket.on(SocketEventEnum.WITHDRAWAL_CREATED, handleWithdrawalCreated)
+    publicSocket.on(SocketEventEnum.MILESTONE_RELEASED, handleMilestoneReleased)
 
     // Store handlers for cleanup
     eventHandlers.current = {
       [SocketEventEnum.NEW_DONATION]: () => publicSocket.off(SocketEventEnum.NEW_DONATION, handleNewDonation),
       [SocketEventEnum.BALANCE_UPDATE]: () => publicSocket.off(SocketEventEnum.BALANCE_UPDATE, handleBalanceUpdate),
+      [SocketEventEnum.WITHDRAWAL_CREATED]: () =>
+        publicSocket.off(SocketEventEnum.WITHDRAWAL_CREATED, handleWithdrawalCreated),
+      [SocketEventEnum.MILESTONE_RELEASED]: () =>
+        publicSocket.off(SocketEventEnum.MILESTONE_RELEASED, handleMilestoneReleased),
     }
 
     // Cleanup function

@@ -13,6 +13,10 @@ export interface CampaignDto {
   coverImage: string
   createdAt: string
   voteCount: number
+  isCompleted: boolean
+  completedAt?: string
+  finalBalance?: string // Final balance when campaign was completed (immutable after completion)
+  currentWithdrawalPhase?: number
   ownerUser?: UserDto | null
   proofs?: ProofDto[]
   votes?: VoteDto[]
@@ -71,6 +75,30 @@ export interface WithdrawalDto {
   milestoneIdx?: number
   txHash?: string
   createdAt: string
+}
+
+export interface CreateWithdrawalRequestDto {
+  amount: string
+  milestoneIdx?: number
+  userAddress: string
+}
+
+export interface CreateWithdrawalResponseDto {
+  withdrawal: WithdrawalDto
+}
+
+export interface CreateMilestoneRequestDto {
+  milestones: {
+    index: number
+    title: string
+    description?: string
+    percentage: number
+  }[]
+  userAddress: string
+}
+
+export interface CreateMilestoneResponseDto {
+  milestones: MilestoneDto[]
 }
 
 export interface TransactionDto {
