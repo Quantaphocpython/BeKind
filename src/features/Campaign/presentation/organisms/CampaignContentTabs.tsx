@@ -28,7 +28,7 @@ export const CampaignContentTabs = ({ campaign, supporters }: CampaignContentTab
       icon: <Icons.users className="h-4 w-4" />,
       labelKey: 'Supporters',
       shortLabelKey: 'Sup',
-      badgeCount: supporters.length,
+      badgeCount: campaign.voteCount || 0,
       content: <CampaignSupporters supporters={supporters} />,
     },
     {

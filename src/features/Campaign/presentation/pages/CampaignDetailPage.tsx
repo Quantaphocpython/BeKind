@@ -148,7 +148,7 @@ export const CampaignDetailPage = () => {
               <CampaignStats
                 goalEth={goalInEth}
                 raisedEth={effectiveBalanceInEth}
-                votes={supporters.length}
+                votes={campaign.voteCount || 0}
                 size="default"
               />
               <CampaignContentTabs campaign={campaign} supporters={supporters} />

@@ -81,6 +81,7 @@
     "ethers": "^6.15.0",
     "firebase": "^12.1.0",
     "framer-motion": "^12.23.5",
+    "fs": "0.0.1-security",
     "gsap": "^3.13.0",
     "husky": "^9.1.7",
     "input-otp": "^1.4.2",

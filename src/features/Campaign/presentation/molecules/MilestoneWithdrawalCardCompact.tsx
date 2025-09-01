@@ -185,34 +185,48 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
 
   return (
     <>
-      <Card className={`border-0 shadow-lg bg-gradient-to-br from-card to-muted/20 ${className}`}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Icons.wallet className="h-4 w-4 text-primary" />
-            <h3 className="font-semibold text-sm">{t('Fund Withdrawal')}</h3>
+      <Card
+        className={`border-0 shadow-2xl bg-gradient-to-br from-slate-900/50 via-slate-800/30 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 ${className}`}
+      >
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30">
+              <Icons.wallet className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-base">{t('Fund Withdrawal')}</h3>
+              <p className="text-xs text-slate-400">{t('Structured withdrawal system')}</p>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {/* Phase 1 */}
           <div
-            className={`p-3 rounded-lg border ${
-              phase1Completed ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
+            className={`p-4 rounded-xl border transition-all duration-300 ${
+              phase1Completed
+                ? 'bg-gradient-to-r from-green-500/10 to-green-400/5 border-green-500/30 shadow-lg shadow-green-500/10'
+                : 'bg-gradient-to-r from-blue-500/10 to-blue-400/5 border-blue-500/30 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20'
             }`}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium">{t('Phase 1')}</span>
-              <span className="text-xs font-bold">{phase1Amount} ETH</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${phase1Completed ? 'bg-green-500' : 'bg-blue-500'}`}></div>
+                <span className="text-sm font-semibold text-white">{t('Phase 1')}</span>
+              </div>
+              <span className="text-sm font-bold text-white bg-slate-800/50 px-2 py-1 rounded-lg">
+                {phase1Amount} ETH
+              </span>
             </div>
             <div className="flex items-center gap-2">
               {phase1Completed ? (
-                <div className="flex items-center gap-1 text-green-600">
-                  <Icons.checkCircle className="h-3 w-3" />
-                  <span className="text-xs">{t('Released')}</span>
+                <div className="flex items-center gap-2 text-green-400">
+                  <Icons.checkCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">{t('Released')}</span>
                 </div>
               ) : (
                 <Button
                   size="sm"
-                  className="h-6 px-2 text-xs"
+                  className="h-8 px-4 text-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg transition-all duration-300"
                   onClick={() => {
                     setWithdrawAmount(phase1Amount)
                     setIsDialogOpen(true)
@@ -227,33 +241,42 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
 
           {/* Phase 2 */}
           <div
-            className={`p-3 rounded-lg border ${
+            className={`p-4 rounded-xl border transition-all duration-300 ${
               phase1Completed && hasProofs
-                ? 'bg-green-50 border-green-200'
+                ? 'bg-gradient-to-r from-green-500/10 to-green-400/5 border-green-500/30 shadow-lg shadow-green-500/10 hover:shadow-green-500/20'
                 : phase1Completed
-                  ? 'bg-orange-50 border-orange-200'
-                  : 'bg-gray-50 border-gray-200'
+                  ? 'bg-gradient-to-r from-orange-500/10 to-orange-400/5 border-orange-500/30 shadow-lg shadow-orange-500/10'
+                  : 'bg-gradient-to-r from-gray-500/10 to-gray-400/5 border-gray-500/30 shadow-lg shadow-gray-500/10'
             }`}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium">{t('Phase 2')}</span>
-              <span className="text-xs font-bold">{phase2Amount} ETH</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    phase1Completed && hasProofs ? 'bg-green-500' : phase1Completed ? 'bg-orange-500' : 'bg-gray-500'
+                  }`}
+                ></div>
+                <span className="text-sm font-semibold text-white">{t('Phase 2')}</span>
+              </div>
+              <span className="text-sm font-bold text-white bg-slate-800/50 px-2 py-1 rounded-lg">
+                {phase2Amount} ETH
+              </span>
             </div>
             <div className="flex items-center gap-2">
               {!phase1Completed ? (
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Icons.lock className="h-3 w-3" />
-                  <span className="text-xs">{t('Phase 1 Required')}</span>
+                <div className="flex items-center gap-2 text-gray-400">
+                  <Icons.lock className="h-4 w-4" />
+                  <span className="text-sm font-medium">{t('Phase 1 Required')}</span>
                 </div>
               ) : !hasProofs ? (
-                <div className="flex items-center gap-1 text-orange-500">
-                  <Icons.page className="h-3 w-3" />
-                  <span className="text-xs">{t('Proof Required')}</span>
+                <div className="flex items-center gap-2 text-orange-400">
+                  <Icons.page className="h-4 w-4" />
+                  <span className="text-sm font-medium">{t('Proof Required')}</span>
                 </div>
               ) : (
                 <Button
                   size="sm"
-                  className="h-6 px-2 text-xs"
+                  className="h-8 px-4 text-sm bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white border-0 shadow-lg transition-all duration-300"
                   onClick={() => {
                     setWithdrawAmount(phase2Amount)
                     setIsDialogOpen(true)

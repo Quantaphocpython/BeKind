@@ -16,7 +16,7 @@ class CampaignMapper {
       description: campaign.description,
       coverImage: campaign.coverImage,
       createdAt: campaign.createdAt.toISOString(),
-      voteCount: campaign.voteCount,
+      voteCount: campaign.votes ? campaign.votes.length : campaign.voteCount,
       isCompleted: campaign.isCompleted,
       completedAt: campaign.completedAt ? campaign.completedAt.toISOString() : undefined,
       finalBalance: campaign.finalBalance ? campaign.finalBalance.toString() : undefined,

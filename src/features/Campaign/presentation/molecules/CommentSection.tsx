@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { container, TYPES } from '@/features/Common/container'
 import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import type { CommentDto } from '@/server/dto/campaign.dto'
-import { useApiMutation, useApiQuery } from '@/shared/hooks'
+import { useApiMutation, useApiQuery, useTranslations } from '@/shared/hooks'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
@@ -21,6 +21,7 @@ interface CommentSectionProps {
 
 export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const { address } = useAccount()
+  const t = useTranslations()
   const [newComment, setNewComment] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
@@ -119,7 +120,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Icons.messageSquare className="h-5 w-5 text-primary" />
-            <CardTitle className="text-xl">Comments</CardTitle>
+            <CardTitle className="text-xl">{t('Comments')}</CardTitle>
             <span className="ml-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
               {comments.length}
             </span>
@@ -139,7 +140,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
             </Avatar>
             <div className="flex-1 space-y-2">
               <Textarea
-                placeholder={address ? 'Write a thoughtful comment…' : 'Connect your wallet to comment'}
+                placeholder={address ? t('Write a thoughtful comment...') : t('Connect your wallet to comment')}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="min-h-[88px] resize-none"
@@ -152,7 +153,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                   disabled={!address || !newComment.trim() || isSubmitting}
                   size="sm"
                 >
-                  {isSubmitting ? 'Posting…' : 'Post Comment'}
+                  {isSubmitting ? t('Posting...') : t('Post Comment')}
                 </Button>
               </div>
             </div>
@@ -164,8 +165,8 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
           {topLevelComments.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-12 rounded-lg border bg-card">
               <Icons.messageSquare className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">No comments yet.</p>
-              <p className="text-xs text-muted-foreground">Be the first to start the conversation.</p>
+              <p className="text-sm text-muted-foreground">{t('No comments yet.')}</p>
+              <p className="text-xs text-muted-foreground">{t('Be the first to start the conversation.')}</p>
             </div>
           ) : (
             topLevelComments.map((comment) => {

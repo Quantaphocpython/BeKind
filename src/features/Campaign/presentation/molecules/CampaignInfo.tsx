@@ -25,7 +25,7 @@ export const CampaignInfo = ({ campaign, supporters }: CampaignInfoProps) => {
       {/* Owner + supporters + ID */}
       <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
         <CampaignOwnerInfo owner={campaign.owner} ownerUser={campaign.ownerUser} />
-        <CampaignSupporterCount count={supporters.length} />
+        <CampaignSupporterCount count={campaign.voteCount || 0} />
         <CampaignIdBadge campaignId={campaign.campaignId} />
       </div>
     </div>

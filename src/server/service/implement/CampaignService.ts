@@ -301,6 +301,11 @@ export class CampaignService implements ICampaignService {
       await this.userService.updateUser(existingUser.id, { trustScore: current + increment })
     }
 
+    // Increment vote count for the campaign
+    if (campaignId) {
+      await this.incrementVoteCount(campaignId)
+    }
+
     // Clear caches since new donation was made
     this.supportersCache.clear()
     this.transactionsCache.clear()
