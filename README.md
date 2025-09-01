@@ -10,8 +10,6 @@
 - [Cài Đặt](#cài-đặt)
 - [Cấu Trúc Dự Án](#cấu-trúc-dự-án)
 - [Sử Dụng](#sử-dụng)
-- [Đóng Góp](#đóng-góp)
-- [Giấy Phép](#giấy-phép)
 
 ## Giới Thiệu
 
@@ -215,32 +213,3 @@ bekind/
 2. **Tạo Branch**: Tạo nhánh cho tính năng mới
 3. **Phát Triển**: Viết code và test
 4. **Pull Request**: Gửi yêu cầu merge
-
-## Đóng Góp
-
-Chúng tôi rất hoan nghênh mọi đóng góp! Vui lòng:
-
-1. **Fork** dự án
-2. Tạo **Feature Branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit** thay đổi (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** lên branch (`git push origin feature/AmazingFeature`)
-5. Mở **Pull Request**
-
-### Quy Tắc Đóng Góp
-
-- Tuân thủ coding standards
-- Viết test cho tính năng mới
-- Cập nhật documentation
-- Đảm bảo không có breaking changes
-
-## Giấy Phép
-
-Dự án này được phân phối dưới giấy phép MIT. Xem file `LICENSE` để biết thêm chi tiết.
-
-## 🙏 Cảm Ơn
-
-Cảm ơn tất cả những người đã đóng góp cho dự án này. Mỗi dòng code, mỗi ý tưởng đều giúp chúng ta xây dựng một thế giới tốt đẹp hơn.
-
----
-
-**Made with ❤️ for a better world**
