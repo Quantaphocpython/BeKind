@@ -31,8 +31,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      // For now, we'll return an empty array since getAllUsers is not implemented
-      // You can implement this method if needed
+      const { address } = req.query
+      if (address && typeof address === 'string') {
+        const user = await userService.getUserByAddress(address)
+        if (!user) {
+          // Return success with null to let client decide to create
+          return res.status(200).json(HttpResponseUtil.success(null, 'User not found'))
+        }
+        return res.status(200).json(HttpResponseUtil.success(user))
+      }
+      // Optionally implement get all users later
       return res.status(200).json(HttpResponseUtil.success({ users: [] }))
     } catch (error) {
       console.error('Error fetching users:', error)

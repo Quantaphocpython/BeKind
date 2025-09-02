@@ -159,14 +159,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     try {
       const { action } = req.query
-      const { milestones, comment, userId, parentId, userAddress, amount } = req.body || {}
+      const { milestones, content, userId, parentId, userAddress, amount } = req.body || {}
 
       if (action === 'milestones') {
         await campaignService.upsertMilestones(BigInt(String(req.query.id)), milestones || [])
         return res.status(200).json(HttpResponseUtil.success(null, 'Milestones updated'))
       }
       if (action === 'comment') {
-        if (!comment || typeof comment !== 'string') {
+        if (!content || typeof content !== 'string') {
           return res.status(400).json(HttpResponseUtil.badRequest('Comment content is required'))
         }
         if (!userId || typeof userId !== 'string') {
@@ -176,7 +176,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const created = await campaignService.createComment({
           campaignId: BigInt(String(req.query.id)),
           userId,
-          content: comment,
+          content: content,
           parentId: parentId || undefined,
         })
         return res.status(200).json(HttpResponseUtil.success(created, 'Comment created'))

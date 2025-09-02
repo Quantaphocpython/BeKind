@@ -19,6 +19,7 @@ const profileSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be less than 50 characters')
     .optional(),
+  email: z.string().email('Invalid email format').optional().or(z.literal('')),
 })
 
 type ProfileFormData = z.infer<typeof profileSchema>
@@ -44,6 +45,7 @@ export const UserProfileForm: React.FC<UserProfileFormProps> = ({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user.name || '',
+      email: (user as any).email || '',
     },
   })
 
@@ -86,6 +88,32 @@ export const UserProfileForm: React.FC<UserProfileFormProps> = ({
                   <FormMessage />
                   <p className="text-xs text-muted-foreground">
                     {t('This name will be displayed to other users. Leave empty to remain anonymous.')}
+                  </p>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-semibold flex items-center space-x-2">
+                    <Icons.mail className="h-4 w-4" />
+                    <span>{t('Email Address')}</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder={t('Enter your email address')}
+                      disabled={isLoading}
+                      className="transition-colors"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-muted-foreground">
+                    {t('Email is used for notifications and account recovery. OTP verification required for changes.')}
                   </p>
                 </FormItem>
               )}
