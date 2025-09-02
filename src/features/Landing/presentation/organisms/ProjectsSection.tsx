@@ -1,47 +1,32 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { useTranslations } from '@/shared/hooks'
-import Image from 'next/image'
-
-const projects = [
-  {
-    id: 1,
-    title: 'Emergency Relief',
-    description: 'Providing immediate assistance to communities affected by natural disasters.',
-    goal: 50000,
-    raised: 35000,
-    daysLeft: 15,
-    image: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80',
-  },
-  {
-    id: 2,
-    title: 'Education Support',
-    description: 'Building schools and providing educational resources for underprivileged children.',
-    goal: 75000,
-    raised: 52000,
-    daysLeft: 30,
-    image: 'https://images.unsplash.com/photo-1523240794102-9ebdcc4a44d1?auto=format&fit=crop&q=80',
-  },
-  {
-    id: 3,
-    title: 'Healthcare Access',
-    description: 'Improving healthcare infrastructure and providing medical supplies.',
-    goal: 100000,
-    raised: 78000,
-    daysLeft: 45,
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&q=80',
-  },
-]
+import type { CampaignDto } from '@/features/Campaign/data/dto'
+import { CampaignService } from '@/features/Campaign/data/services/campaign.service'
+import { CampaignCard } from '@/features/Campaign/presentation/molecules/CampaignCard'
+import { container, TYPES } from '@/features/Common/container'
+import type { CampaignListPaginatedResponseDto } from '@/server/dto/campaign.dto'
+import { useApiQuery, useTranslations } from '@/shared/hooks'
+import { useMemo } from 'react'
 
 export default function ProjectsSection() {
   const t = useTranslations()
+  const campaignService = useMemo(() => container.get(TYPES.CampaignService) as CampaignService, [])
+
+  const { data: campaignsResponse } = useApiQuery<CampaignListPaginatedResponseDto>(['landing-projects'], () =>
+    campaignService.getCampaignsPaginated({
+      page: 1,
+      limit: 3,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    }),
+  )
+
+  const campaigns: CampaignDto[] = campaignsResponse?.data?.items || []
 
   return (
-    <section className="py-20">
-      <div className="container mx-auto px-4">
+    <section className="py-20 relative">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,theme(colors.primary/5)_0%,transparent_35%,transparent_65%,theme(colors.primary/5)_100%)]" />
+      <div className="container mx-auto px-4 relative">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">{t('Featured Projects')}</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -50,53 +35,9 @@ export default function ProjectsSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => {
-            const progress = (project.raised / project.goal) * 100
-            return (
-              <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 bg-muted relative">
-                  <Image
-                    width={100}
-                    height={100}
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">{t(project.title)}</CardTitle>
-                  <p className="text-muted-foreground">{project.description}</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>{t('Project Goal')}</span>
-                      <span className="font-semibold">${project.goal.toLocaleString()}</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                    <div className="flex justify-between text-sm">
-                      <span>{t('Raised')}</span>
-                      <span className="font-semibold">${project.raised.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      {t('Days Left')}: {project.daysLeft}
-                    </span>
-                    <Button size="sm" className="cursor-pointer">
-                      {t('Donate Now')}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            {t('View All Projects')}
-          </Button>
+          {campaigns.map((campaign) => (
+            <CampaignCard key={campaign.id} campaign={campaign} />
+          ))}
         </div>
       </div>
     </section>
