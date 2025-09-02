@@ -5,6 +5,7 @@
 ## Mục Lục
 
 - [Giới Thiệu](#giới-thiệu)
+- [Trải Nghiệm Nhanh](#trải-nghiệm-nhanh)
 - [Tính Năng Chính](#tính-năng-chính)
 - [Công Nghệ Sử Dụng](#công-nghệ-sử-dụng)
 - [Cài Đặt](#cài-đặt)
@@ -19,6 +20,17 @@ BeKind là một ứng dụng web hiện đại được thiết kế để kế
 - **Bảo Mật Tối Đa**: Bảo vệ thông tin người dùng với mã hóa cấp độ quân sự
 - **Truy Xuất Thời Gian Thực**: Theo dõi tác động của từng khoản quyên góp
 - **Không Có Phí Ẩn**: Chi phí rõ ràng, minh bạch
+
+## Trải Nghiệm Nhanh
+
+- Link triển khai (demo online): [gobekind.vercel.app](https://gobekind.vercel.app/)
+- Hướng dẫn nhanh:
+  1. Mở liên kết trên trình duyệt của bạn.
+  2. Nhấn "Kết nối ví" để đăng nhập trải nghiệm Web3 (có thể dùng ví thử nghiệm).
+  3. Khám phá trang chủ, danh sách chiến dịch, và chi tiết từng chiến dịch.
+  4. Có thể tạo chiến dịch mới, theo dõi tiến độ quyên góp và bằng chứng cập nhật.
+
+Lưu ý: Đây là bản demo phục vụ mục đích trải nghiệm. Một số dữ liệu có thể là dữ liệu thử nghiệm.
 
 ## Tính Năng Chính
 
