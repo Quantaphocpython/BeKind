@@ -502,5 +502,19 @@
   "Ready to Make a Difference?": "Ready to Make a Difference?",
   "Why Choose BeKind?": "Why Choose BeKind?",
   "Why Choose Our Platform?": "Why Choose Our Platform?",
-  "Back": "Back"
+  "Back": "Back",
+  "Frequently Asked Questions": "Frequently Asked Questions",
+  "Answers to common questions about using BeKind": "Answers to common questions about using BeKind",
+  "What is BeKind?": "What is BeKind?",
+  "BeKind is a blockchain-powered charity platform enabling transparent, traceable donations and milestone-based withdrawals.": "BeKind is a blockchain-powered charity platform enabling transparent, traceable donations and milestone-based withdrawals.",
+  "How do donations work?": "How do donations work?",
+  "Donors send funds directly to campaign smart contracts. All transactions are recorded on-chain and reflected in real time.": "Donors send funds directly to campaign smart contracts. All transactions are recorded on-chain and reflected in real time.",
+  "Is BeKind secure?": "Is BeKind secure?",
+  "Yes. We use audited smart contracts and never custody user funds. Withdrawals follow milestone rules with proof where required.": "Yes. We use audited smart contracts and never custody user funds. Withdrawals follow milestone rules with proof where required.",
+  "How do I create a campaign?": "How do I create a campaign?",
+  "Connect your wallet, go to Create Campaign, fill out details, and deploy. The platform handles on-chain IDs and tracking.": "Connect your wallet, go to Create Campaign, fill out details, and deploy. The platform handles on-chain IDs and tracking.",
+  "Are there any fees?": "Are there any fees?",
+  "Network gas fees apply. Platform fees may be minimal to support operations and are shown before confirmation.": "Network gas fees apply. Platform fees may be minimal to support operations and are shown before confirmation.",
+  "How can I get support?": "How can I get support?",
+  "Use the Contact page or open a support ticket. We aim to respond within 24 hours.": "Use the Contact page or open a support ticket. We aim to respond within 24 hours."
 }

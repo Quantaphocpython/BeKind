@@ -7,6 +7,9 @@ export enum ApiEndpointEnum {
   CampaignComments = '/api/campaigns/{id}/comments',
   CampaignProofs = '/api/campaigns/{id}/proofs',
   Users = '/api/users',
+  SendOtp = '/api/users/send-otp',
+  VerifyOtp = '/api/users/verify-otp',
+  UpdateUserEmail = '/api/users/update-email',
 }
 
 export const BASE_API = process.env.NEXT_PUBLIC_APP_API

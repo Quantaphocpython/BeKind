@@ -333,32 +333,31 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
 
       {/* Withdrawal Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent
+          className="max-w-md overflow-hidden border border-primary/20 shadow-2xl backdrop-blur-md
+          bg-gradient-to-b from-background/95 to-background/80 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95
+          data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
+          <div className="absolute -inset-0.5 rounded-2xl opacity-20 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/40 via-primary/10 to-transparent pointer-events-none" />
           <DialogHeader>
-            <DialogTitle>{t('Withdraw Funds')}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary/15 text-primary">
+                <Icons.banknote className="h-4 w-4" />
+              </span>
+              {t('Withdraw Funds')}
+            </DialogTitle>
             <DialogDescription>{t('Enter the amount you want to withdraw from this campaign')}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="p-3 bg-muted/50 rounded-lg">
-              <div className="text-sm text-muted-foreground mb-1">{t('Available Balance')}</div>
-              <div className="text-lg font-bold">{finalBalanceInEth.toFixed(4)} ETH</div>
-            </div>
-            <div>
+          <div className="space-y-5 relative">
+            <div className="space-y-2">
               <Label htmlFor="withdrawAmount">{t('Withdrawal Amount (ETH)')}</Label>
-              <Input
-                id="withdrawAmount"
-                type="number"
-                step="0.0001"
-                min="0.0001"
-                max={finalBalanceInEth}
-                value={withdrawAmount}
-                onChange={(e) => setWithdrawAmount(e.target.value)}
-                placeholder="0.1"
-              />
+              <Input id="withdrawAmount" type="number" value={withdrawAmount} readOnly className="bg-background/60" />
             </div>
+
             <div className="flex justify-end gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setIsDialogOpen(false)}
                 className="border-muted-foreground/20 text-muted-foreground hover:bg-muted/50 hover:border-muted-foreground/30 transition-all duration-200"
               >
