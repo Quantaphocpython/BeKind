@@ -38,7 +38,7 @@ model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   address     String   @unique // address on-chain
   name        String? 
-  email       String?  @unique
+  email       String?
   trustScore  Float    @default(0.0) 
   createdAt   DateTime @default(now()) 
 
