@@ -5,7 +5,7 @@
 ## Mục Lục
 
 - [Giới Thiệu](#giới-thiệu)
-- [Trải Nghiệm Nhanh](#trải-nghiệm-nhanh)
+- [Demo](#demo)
 - [Tính Năng Chính](#tính-năng-chính)
 - [Công Nghệ Sử Dụng](#công-nghệ-sử-dụng)
 - [Cài Đặt](#cài-đặt)
@@ -21,7 +21,7 @@ BeKind là một ứng dụng web hiện đại được thiết kế để kế
 - **Truy Xuất Thời Gian Thực**: Theo dõi tác động của từng khoản quyên góp
 - **Không Có Phí Ẩn**: Chi phí rõ ràng, minh bạch
 
-## Trải Nghiệm Nhanh
+## Demo
 
 - Link triển khai (demo online): [gobekind.vercel.app](https://gobekind.vercel.app/)
 - Hướng dẫn nhanh:
