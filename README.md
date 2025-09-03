@@ -42,38 +42,26 @@ Lưu ý: Đây là bản demo phục vụ mục đích trải nghiệm. Một s�
 
 ## Tính Năng Chính
 
-### Trang Chủ
-
-- **Hero Section**: Giới thiệu tổng quan về nền tảng
-- **Thống Kê**: Hiển thị số liệu về tác động của cộng đồng
-- **Dự Án Nổi Bật**: Các chiến dịch từ thiện đang diễn ra
-- **Tính Năng**: Mô tả các tính năng chính của nền tảng
-- **Đánh Giá**: Phản hồi từ người dùng và đối tác
-
-### Quản Lý Chiến Dịch
-
-- **Tạo Chiến Dịch**: Hệ thống tạo chiến dịch từ thiện dễ dàng
-- **Rich Text Editor**: Trình soạn thảo văn bản đa năng với hỗ trợ hình ảnh
-- **Quản Lý Nội Dung**: Chỉnh sửa và cập nhật thông tin chiến dịch
-- **Theo Dõi Tiến Độ**: Hiển thị tiến độ quyên góp theo thời gian thực
-
-### Hệ Thống Người Dùng
-
-- **Đăng Ký/Đăng Nhập**: Hỗ trợ ví điện tử và tài khoản truyền thống
-- **Hồ Sơ Người Dùng**: Quản lý thông tin cá nhân và lịch sử quyên góp
-- **Ví Điện Tử**: Tích hợp với các ví blockchain phổ biến
-
-### Quyên Góp & Thanh Toán
-
-- **Đa Dạng Phương Thức**: Hỗ trợ nhiều loại tiền điện tử và tiền pháp định
-- **Thanh Toán An Toàn**: Bảo mật thông tin thanh toán
-- **Xác Minh Giao Dịch**: Mọi giao dịch đều được xác minh trên blockchain
-
-### Minh Bạch & Báo Cáo
-
-- **Báo Cáo Thời Gian Thực**: Cập nhật tình trạng chiến dịch
-- **Bằng Chứng Sử Dụng**: Hình ảnh và tài liệu về việc sử dụng quỹ
-- **Lịch Sử Giao Dịch**: Truy xuất đầy đủ lịch sử quyên góp
+| Nhóm Tính Năng             | Tính Năng              | Mô Tả                                               |
+| -------------------------- | ---------------------- | --------------------------------------------------- |
+| **Trang Chủ**              | Hero Section           | Giới thiệu tổng quan về nền tảng                    |
+|                            | Thống Kê               | Hiển thị số liệu về tác động của cộng đồng          |
+|                            | Dự Án Nổi Bật          | Các chiến dịch từ thiện đang diễn ra                |
+|                            | Tính Năng              | Mô tả các tính năng chính của nền tảng              |
+|                            | Đánh Giá               | Phản hồi từ người dùng và đối tác                   |
+| **Quản Lý Chiến Dịch**     | Tạo Chiến Dịch         | Hệ thống tạo chiến dịch từ thiện dễ dàng            |
+|                            | Rich Text Editor       | Trình soạn thảo văn bản đa năng với hỗ trợ hình ảnh |
+|                            | Quản Lý Nội Dung       | Chỉnh sửa và cập nhật thông tin chiến dịch          |
+|                            | Theo Dõi Tiến Độ       | Hiển thị tiến độ quyên góp theo thời gian thực      |
+| **Hệ Thống Người Dùng**    | Đăng Ký/Đăng Nhập      | Hỗ trợ ví điện tử và tài khoản truyền thống         |
+|                            | Hồ Sơ Người Dùng       | Quản lý thông tin cá nhân và lịch sử quyên góp      |
+|                            | Ví Điện Tử             | Tích hợp với các ví blockchain phổ biến             |
+| **Quyên Góp & Thanh Toán** | Đa Dạng Phương Thức    | Hỗ trợ nhiều loại tiền điện tử và tiền pháp định    |
+|                            | Thanh Toán An Toàn     | Bảo mật thông tin thanh toán                        |
+|                            | Xác Minh Giao Dịch     | Mọi giao dịch đều được xác minh trên blockchain     |
+| **Minh Bạch & Báo Cáo**    | Báo Cáo Thời Gian Thực | Cập nhật tình trạng chiến dịch                      |
+|                            | Bằng Chứng Sử Dụng     | Hình ảnh và tài liệu về việc sử dụng quỹ            |
+|                            | Lịch Sử Giao Dịch      | Truy xuất đầy đủ lịch sử quyên góp                  |
 
 ## Công Nghệ Sử Dụng
 
@@ -312,13 +300,6 @@ bekind/
 2. **Quản Lý**: Cập nhật thông tin và tiến độ chiến dịch
 3. **Báo Cáo**: Cung cấp bằng chứng sử dụng quỹ
 4. **Tương Tác**: Trả lời câu hỏi từ người quyên góp
-
-### Cho Nhà Phát Triển
-
-1. **Fork Repository**: Tạo bản sao của dự án
-2. **Tạo Branch**: Tạo nhánh cho tính năng mới
-3. **Phát Triển**: Viết code và test
-4. **Pull Request**: Gửi yêu cầu merge
 
 ## Tài Liệu Khác
 
