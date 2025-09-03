@@ -4,6 +4,32 @@ import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  /**
+   * @openapi
+   * /api/users:
+   *   get:
+   *     summary: Get user by address
+   *     parameters:
+   *       - in: query
+   *         name: address
+   *         schema: { type: string }
+   *     responses:
+   *       200: { description: User fetched }
+   *   post:
+   *     summary: Create user
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [address]
+   *             properties:
+   *               address: { type: string }
+   *               name: { type: string }
+   *     responses:
+   *       201: { description: User created }
+   */
   const userService = container.get<UserService>(TYPES.UserService)
 
   if (req.method === 'POST') {

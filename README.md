@@ -1,4 +1,4 @@
-# BeKind - Nền Tảng Từ Thiện Blockchain
+# <img src="./public/images/logo.png" alt="BeKind" width="28" height="28" style="vertical-align:middle;" /> BeKind - Nền Tảng Từ Thiện Blockchain
 
 > Một nền tảng từ thiện hiện đại được xây dựng trên công nghệ blockchain, đảm bảo tính minh bạch, bảo mật và khả năng truy xuất cho mọi khoản quyên góp.
 
@@ -12,6 +12,7 @@
 
 - [Giới Thiệu](#giới-thiệu)
 - [Demo](#demo)
+- [API Docs](#api-docs)
 - [Tính Năng Chính](#tính-năng-chính)
 - [Công Nghệ Sử Dụng](#công-nghệ-sử-dụng)
 - [Cài Đặt](#cài-đặt)
@@ -39,6 +40,15 @@ BeKind là một ứng dụng web hiện đại được thiết kế để kế
   4. Có thể tạo chiến dịch mới, theo dõi tiến độ quyên góp và bằng chứng cập nhật.
 
 Lưu ý: Đây là bản demo phục vụ mục đích trải nghiệm. Một số dữ liệu có thể là dữ liệu thử nghiệm.
+
+## API Docs
+
+- UI: `http://localhost:3000/api-docs`
+- JSON: `http://localhost:3000/api/openapi.json`
+
+Ghi chú:
+
+- Tài liệu được tạo động từ các khối JSDoc `@openapi` trong `src/pages/api/**`.
 
 ## Tính Năng Chính
 
@@ -305,4 +315,4 @@ bekind/
 
 - **[RULE_OF_CODE.md](./RULE_OF_CODE.md)** - Quy tắc code và tiêu chuẩn phát triển chi tiết
 - **[GUIDE.md](./GUIDE.md)** - Hướng dẫn phát triển và kiến trúc code
-- **[ODING_STANDARDS.md](./CODING_STANDARDS.md)** - Tiêu chuẩn đặt tên và quy ước code
+- **[CODING_STANDARDS.md](./CODING_STANDARDS.md)** - Tiêu chuẩn đặt tên và quy ước code

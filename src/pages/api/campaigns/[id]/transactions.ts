@@ -4,6 +4,22 @@ import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  /**
+   * @openapi
+   * /api/campaigns/{id}/transactions:
+   *   get:
+   *     summary: List on-chain transactions for a campaign
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *       - in: query
+   *         name: limit
+   *         schema: { type: integer, default: 50 }
+   *     responses:
+   *       200: { description: Transactions retrieved }
+   */
   if (req.method !== 'GET') {
     return res.status(405).json(HttpResponseUtil.error('Method not allowed', 405))
   }

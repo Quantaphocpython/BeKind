@@ -3,6 +3,25 @@ import type { IUserService } from '@/server/service/interface/UserService.interf
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  /**
+   * @openapi
+   * /api/users/verify-otp:
+   *   post:
+   *     summary: Verify OTP for user's email
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [email, otp, userAddress]
+   *             properties:
+   *               email: { type: string }
+   *               otp: { type: string }
+   *               userAddress: { type: string }
+   *     responses:
+   *       200: { description: OTP verified }
+   */
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
   }
