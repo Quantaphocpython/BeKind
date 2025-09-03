@@ -133,28 +133,35 @@ DATABASE_URL="mongodb://localhost:27017/bekind"
 
 # Email Service (Brevo)
 BREVO_API_KEY="your-brevo-api-key"
-BREVO_SENDER_EMAIL="noreply@yourdomain.com"
+BREVO_SENDER_EMAIL="your-sender-email"
 
-# Web3 Configuration
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID="your-walletconnect-project-id"
+# Web3 & Blockchain Configuration
+NEXT_PUBLIC_PROJECT_ID="your-walletconnect-project-id"
+NEXT_PUBLIC_CONTRACT_ADDRESS="your-smart-contract-address"
+NEXT_PUBLIC_RPC_URL="rpc-url"
 
-# Firebase (nếu sử dụng)
+
+# Firebase Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project.firebaseapp.com"
 NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-project.appspot.com"
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
 NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="your-measurement-id"
+
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL="your-server-api"
 ```
 
 ### Bước 4: Setup Database
 
 ```bash
 # Generate Prisma client
-pnpm prisma generate
+pnpm dlx prisma generate
 
 # Run database migrations
-pnpm prisma db push
+pnpm dlx prisma db push
 ```
 
 ### Bước 5: Chạy Development Server
