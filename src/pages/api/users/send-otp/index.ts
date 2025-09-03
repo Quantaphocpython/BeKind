@@ -3,6 +3,24 @@ import type { IUserService } from '@/server/service/interface/UserService.interf
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  /**
+   * @openapi
+   * /api/users/send-otp:
+   *   post:
+   *     summary: Send OTP to user's email
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [email, userAddress]
+   *             properties:
+   *               email: { type: string }
+   *               userAddress: { type: string }
+   *     responses:
+   *       200: { description: OTP sent }
+   */
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
   }

@@ -1,5 +1,6 @@
 export * from './ApiEndpointEnum'
 export * from './base'
 export * from './EmailTemplateEnum'
+export * from './OpenApiConstants'
 export * from './RouteEnum'
 export * from './SocketEventEnum'

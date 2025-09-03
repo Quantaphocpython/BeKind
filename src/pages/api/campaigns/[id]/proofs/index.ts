@@ -4,6 +4,39 @@ import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  /**
+   * @openapi
+   * /api/campaigns/{id}/proofs:
+   *   get:
+   *     summary: List proofs for a campaign
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *     responses:
+   *       200: { description: Proofs retrieved }
+   *   post:
+   *     summary: Create a proof for a campaign (owner only)
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [title, content, userAddress]
+   *             properties:
+   *               title: { type: string }
+   *               content: { type: string }
+   *               userAddress: { type: string }
+   *     responses:
+   *       201: { description: Proof created }
+   */
   const { id } = req.query
   const campaignService = container.get<CampaignService>(TYPES.CampaignService)
 

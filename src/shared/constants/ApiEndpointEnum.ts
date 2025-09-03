@@ -10,6 +10,7 @@ export enum ApiEndpointEnum {
   SendOtp = '/api/users/send-otp',
   VerifyOtp = '/api/users/verify-otp',
   UpdateUserEmail = '/api/users/update-email',
+  OpenApiJson = '/api/openapi.json',
 }
 
 export const BASE_API = process.env.NEXT_PUBLIC_APP_API

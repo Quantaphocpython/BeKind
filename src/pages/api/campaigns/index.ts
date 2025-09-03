@@ -5,6 +5,55 @@ import { HttpResponseUtil } from '@/shared/utils/httpResponse.util'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  /**
+   * @openapi
+   * /api/campaigns:
+   *   get:
+   *     summary: List campaigns
+   *     parameters:
+   *       - in: query
+   *         name: owner
+   *         schema: { type: string }
+   *       - in: query
+   *         name: page
+   *         schema: { type: integer }
+   *       - in: query
+   *         name: limit
+   *         schema: { type: integer }
+   *       - in: query
+   *         name: search
+   *         schema: { type: string }
+   *       - in: query
+   *         name: status
+   *         schema: { type: string, enum: [all, active, closed] }
+   *       - in: query
+   *         name: sortBy
+   *         schema: { type: string, enum: [createdAt, title, goal, balance, voteCount] }
+   *       - in: query
+   *         name: sortOrder
+   *         schema: { type: string, enum: [asc, desc] }
+   *     responses:
+   *       200:
+   *         description: Campaigns retrieved successfully
+   *   post:
+   *     summary: Create a campaign
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [goal, title, description, coverImage, userAddress]
+   *             properties:
+   *               goal: { type: string }
+   *               title: { type: string }
+   *               description: { type: string }
+   *               coverImage: { type: string }
+   *               userAddress: { type: string }
+   *     responses:
+   *       200:
+   *         description: Campaign created successfully
+   */
   // Get services from DI container
   const campaignService = container.get<ICampaignService>(TYPES.CampaignService)
   const campaignMapper = container.get(TYPES.CampaignMapper) as any

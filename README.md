@@ -12,6 +12,7 @@
 
 - [Giới Thiệu](#giới-thiệu)
 - [Demo](#demo)
+- [API Docs](#api-docs)
 - [Tính Năng Chính](#tính-năng-chính)
 - [Công Nghệ Sử Dụng](#công-nghệ-sử-dụng)
 - [Cài Đặt](#cài-đặt)
@@ -39,6 +40,15 @@ BeKind là một ứng dụng web hiện đại được thiết kế để kế
   4. Có thể tạo chiến dịch mới, theo dõi tiến độ quyên góp và bằng chứng cập nhật.
 
 Lưu ý: Đây là bản demo phục vụ mục đích trải nghiệm. Một số dữ liệu có thể là dữ liệu thử nghiệm.
+
+## API Docs
+
+- UI: `http://localhost:3000/api-docs`
+- JSON: `http://localhost:3000/api/openapi.json`
+
+Ghi chú:
+
+- Tài liệu được tạo động từ các khối JSDoc `@openapi` trong `src/pages/api/**`.
 
 ## Tính Năng Chính
 

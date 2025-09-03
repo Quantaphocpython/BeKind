@@ -6,6 +6,36 @@ import { ethers, formatEther, parseEther } from 'ethers'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  /**
+   * @openapi
+   * /api/campaigns/{id}:
+   *   get:
+   *     summary: Get campaign details
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *       - in: query
+   *         name: action
+   *         schema: { type: string, enum: [related, supporters, comments, milestones, withdrawals, proofs, sync] }
+   *     responses:
+   *       200:
+   *         description: Campaign retrieved successfully
+   *   post:
+   *     summary: Perform campaign actions (milestones, comment, donated, withdraw, ...)
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *       - in: query
+   *         name: action
+   *         schema: { type: string }
+   *     responses:
+   *       200:
+   *         description: Action processed
+   */
   // Get services from DI container
   const campaignService = container.get<ICampaignService>(TYPES.CampaignService)
   const userService = container.get(TYPES.UserService) as any
