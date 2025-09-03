@@ -2,6 +2,12 @@
 
 > Một nền tảng từ thiện hiện đại được xây dựng trên công nghệ blockchain, đảm bảo tính minh bạch, bảo mật và khả năng truy xuất cho mọi khoản quyên góp.
 
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-6.13.0-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+[![Blockchain](https://img.shields.io/badge/Blockchain-Sepolia_Testnet-3C3C3D?style=for-the-badge&logo=ethereum)](https://ethereum.org/)
+
 ## Mục Lục
 
 - [Giới Thiệu](#giới-thiệu)
@@ -11,6 +17,7 @@
 - [Cài Đặt](#cài-đặt)
 - [Cấu Trúc Dự Án](#cấu-trúc-dự-án)
 - [Sử Dụng](#sử-dụng)
+- [Tài liệu khác](#tài-liệu-khác)
 
 ## Giới Thiệu
 
@@ -20,6 +27,7 @@ BeKind là một ứng dụng web hiện đại được thiết kế để kế
 - **Bảo Mật Tối Đa**: Bảo vệ thông tin người dùng với mã hóa cấp độ quân sự
 - **Truy Xuất Thời Gian Thực**: Theo dõi tác động của từng khoản quyên góp
 - **Không Có Phí Ẩn**: Chi phí rõ ràng, minh bạch
+- **Testnet An Toàn**: Sử dụng Sepolia testnet để phát triển và kiểm thử
 
 ## Demo
 
@@ -71,24 +79,25 @@ Lưu ý: Đây là bản demo phục vụ mục đích trải nghiệm. Một s�
 
 ### Frontend
 
-- **Next.js 14**: Framework React hiện đại với App Router
-- **TypeScript**: Ngôn ngữ lập trình type-safe
-- **Tailwind CSS**: Framework CSS utility-first
+- **Next.js 15.3.5**: Framework React hiện đại với App Router
+- **TypeScript 5.0**: Ngôn ngữ lập trình type-safe
+- **Tailwind CSS 4.0**: Framework CSS utility-first
 - **Shadcn/ui**: Component library đẹp và tùy chỉnh được
 - **GSAP**: Animation library cho hiệu ứng mượt mà
 - **Framer Motion**: Animation cho React components
 
 ### Backend & Database
 
-- **Prisma ORM**: Database toolkit hiện đại
-- **MongoDB**: NoSQL database linh hoạt
+- **Prisma ORM 6.13.0**: Database toolkit hiện đại
+- **MongoDB 6.13.0**: NoSQL database linh hoạt
 - **Next.js API Routes**: Serverless API endpoints
 
 ### Blockchain & Web3
 
-- **Wagmi**: React hooks cho Ethereum
-- **Viem**: TypeScript interface cho Ethereum
-- **RainbowKit**: Wallet connection UI
+- **Wagmi 2.15.6**: React hooks cho Ethereum
+- **Viem 2.x**: TypeScript interface cho Ethereum
+- **RainbowKit 2.2.8**: Wallet connection UI
+- **Sepolia Testnet**: Môi trường test blockchain chính thức
 
 ### Email & Communication
 
@@ -133,28 +142,35 @@ DATABASE_URL="mongodb://localhost:27017/bekind"
 
 # Email Service (Brevo)
 BREVO_API_KEY="your-brevo-api-key"
-BREVO_SENDER_EMAIL="noreply@yourdomain.com"
+BREVO_SENDER_EMAIL="your-sender-email"
 
-# Web3 Configuration
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID="your-walletconnect-project-id"
+# Web3 & Blockchain Configuration
+NEXT_PUBLIC_PROJECT_ID="your-walletconnect-project-id"
+NEXT_PUBLIC_CONTRACT_ADDRESS="your-smart-contract-address"
+NEXT_PUBLIC_RPC_URL="rpc-url"
 
-# Firebase (nếu sử dụng)
+
+# Firebase Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-project.firebaseapp.com"
 NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-project.appspot.com"
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
 NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="your-measurement-id"
+
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL="your-server-api"
 ```
 
 ### Bước 4: Setup Database
 
 ```bash
 # Generate Prisma client
-pnpm prisma generate
+pnpm dlx prisma generate
 
 # Run database migrations
-pnpm prisma db push
+pnpm dlx prisma db push
 ```
 
 ### Bước 5: Chạy Development Server
@@ -225,3 +241,11 @@ bekind/
 2. **Tạo Branch**: Tạo nhánh cho tính năng mới
 3. **Phát Triển**: Viết code và test
 4. **Pull Request**: Gửi yêu cầu merge
+
+## Tài Liệu Khác
+
+Để hiểu rõ hơn về dự án và quy tắc phát triển, vui lòng tham khảo các tài liệu sau:
+
+- **[📋 RULE_OF_CODE.md](./RULE_OF_CODE.md)** - Quy tắc code và tiêu chuẩn phát triển chi tiết
+- **[📖 GUIDE.md](./GUIDE.md)** - Hướng dẫn phát triển và kiến trúc code
+- **[📝 CODING_STANDARDS.md](./CODING_STANDARDS.md)** - Tiêu chuẩn đặt tên và quy ước code
