@@ -185,38 +185,116 @@ Truy cập [http://localhost:3000](http://localhost:3000) để xem ứng dụng
 
 ```
 bekind/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── [locale]/          # Internationalization
-│   │   │   ├── (home)/        # Home page routes
-│   │   │   └── [...rest]/     # Catch-all routes
-│   │   └── globals.css        # Global styles
-│   ├── components/            # React components
-│   │   ├── common/           # Shared components
-│   │   ├── layout/           # Layout components
-│   │   ├── ui/               # UI components (shadcn/ui)
-│   │   └── providers/        # Context providers
-│   ├── features/             # Feature-based modules
-│   │   ├── About/           # About page feature
-│   │   ├── Contact/         # Contact page feature
-│   │   └── Landing/         # Landing page feature
-│   ├── configs/             # Configuration files
-│   │   ├── i18n/           # Internationalization config
-│   │   ├── wagmi/          # Web3 configuration
-│   │   └── socket/         # WebSocket configuration
-│   ├── resources/          # Static resources
-│   │   └── locales/        # Translation files
-│   └── shared/             # Shared utilities
-│       ├── constants/      # Application constants
-│       ├── hooks/          # Custom React hooks
-│       ├── services/       # API services
-│       ├── types/          # TypeScript types
-│       └── utils/          # Utility functions
-├── prisma/                 # Database schema
-├── public/                 # Static assets
-│   ├── templates/         # Email templates
-│   └── images/           # Image assets
-└── package.json          # Dependencies and scripts
+├── src/                    # Source code chính
+│   ├── app/               # Frontend - Next.js App Router
+│   │   ├── [locale]/      # Internationalization
+│   │   │   ├── (home)/    # Home page routes
+│   │   │   ├── campaigns/ # Campaign pages
+│   │   │   ├── profile/   # User profile pages
+│   │   │   └── [...rest]/ # Catch-all routes
+│   │   ├── globals.css    # Global styles
+│   │   ├── layout.tsx     # Root layout
+│   │   ├── page.tsx       # Root page
+│   │   ├── error.tsx      # Error handling
+│   │   └── not-found.tsx  # 404 page
+│   │
+│   ├── components/        # Frontend - React Components
+│   │   ├── common/        # Shared components
+│   │   │   ├── atoms/     # Atomic components
+│   │   │   ├── molecules/ # Molecular components
+│   │   │   ├── organisms/ # Organism components
+│   │   │   └── pages/     # Page-specific components
+│   │   ├── layout/        # Layout components
+│   │   │   ├── MainLayout/    # Main layout wrapper
+│   │   │   └── MainContent/   # Content wrapper
+│   │   ├── ui/            # UI components (shadcn/ui)
+│   │   ├── icons/         # Icon components
+│   │   ├── magicui/       # Custom UI components
+│   │   └── providers/     # Context providers
+│   │       ├── I18nProvider.tsx      # Internationalization
+│   │       ├── ThemeProvider.tsx     # Theme management
+│   │       ├── WagmiProvider.tsx     # Web3 wallet
+│   │       ├── RainbowKitProvider.tsx # Wallet UI
+│   │       ├── QueryClientProvider.tsx # React Query
+│   │       ├── ToasterProvider.tsx   # Notifications
+│   │       └── AutoScrollTopProvider.tsx # Scroll behavior
+│   │
+│   ├── features/          # Frontend - Feature Modules
+│   │   ├── About/         # About page feature
+│   │   ├── Campaign/      # Campaign management feature
+│   │   ├── Contact/       # Contact page feature
+│   │   ├── Landing/       # Landing page feature
+│   │   └── User/          # User management feature
+│   │
+│   ├── configs/           # Frontend - Configuration
+│   │   ├── abis/          # Smart contract ABIs
+│   │   ├── firebase/      # Firebase configuration
+│   │   ├── httpClient/    # HTTP client setup
+│   │   ├── i18n/          # Internationalization config
+│   │   ├── pinata/        # IPFS/Pinata config
+│   │   ├── socket/        # WebSocket configuration
+│   │   └── wagmi/         # Web3 configuration
+│   │
+│   ├── resources/         # Frontend - Static Resources
+│   │   └── locales/       # Translation files (en.json, vi.json)
+│   │
+│   ├── shared/            # Frontend - Shared Utilities
+│   │   ├── constants/     # Application constants
+│   │   │   ├── ApiEndpointEnum.ts    # API endpoints
+│   │   │   ├── RouteEnum.ts          # Route definitions
+│   │   │   ├── SocketEventEnum.ts    # Socket events
+│   │   │   └── EmailTemplateEnum.ts  # Email templates
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── types/         # TypeScript type definitions
+│   │   └── utils/         # Utility functions
+│   │
+│   ├── styles/            # Frontend - Global Styles
+│   │   ├── _variables.scss    # SCSS variables
+│   │   └── _keyframe-animations.scss # Animations
+│   │
+│   └── utils/             # Frontend - Utility functions
+│
+├── pages/                  # Backend - API Routes
+│   └── api/               # Next.js API endpoints
+│       ├── campaigns/      # Campaign API endpoints
+│       ├── users/          # User API endpoints
+│       └── socket.io.ts    # WebSocket server
+│
+├── server/                 # Backend - Server Logic
+│   ├── container/          # Dependency injection container
+│   ├── dto/                # Data Transfer Objects
+│   │   ├── campaign.dto.ts # Campaign DTOs
+│   │   ├── request/        # Request DTOs
+│   │   └── response/       # Response DTOs
+│   ├── mapper/             # Data mappers
+│   │   ├── CampaignMapper.ts # Campaign data mapping
+│   │   └── UserMapper.ts   # User data mapping
+│   ├── repository/         # Data access layer
+│   │   ├── implement/      # Repository implementations
+│   │   └── interface/      # Repository interfaces
+│   ├── service/            # Business logic layer
+│   │   ├── implement/      # Service implementations
+│   │   └── interface/      # Service interfaces
+│   └── utils/              # Server utilities
+│       ├── socketEmitter.ts # Socket event emitter
+│       └── stringHelper.ts  # String utilities
+│
+├── prisma/                 # Backend - Database
+│   └── schema.prisma       # Database schema definition
+│
+├── public/                 # Static Assets
+│   ├── images/             # Image assets
+│   │   ├── logo.png        # Application logo
+│   │   ├── hero-section.jpg # Hero section images
+│   │   └── hero-section.avif
+│   └── templates/          # Email templates
+│       └── campaigns/      # Campaign email templates
+│
+├── middleware.ts           # Next.js middleware
+├── next.config.ts         # Next.js configuration
+├── tsconfig.json          # TypeScript configuration
+├── package.json           # Dependencies and scripts
+└── pnpm-workspace.yaml    # pnpm workspace configuration
 ```
 
 ## Sử Dụng
@@ -244,8 +322,6 @@ bekind/
 
 ## Tài Liệu Khác
 
-Để hiểu rõ hơn về dự án và quy tắc phát triển, vui lòng tham khảo các tài liệu sau:
-
-- **[📋 RULE_OF_CODE.md](./RULE_OF_CODE.md)** - Quy tắc code và tiêu chuẩn phát triển chi tiết
-- **[📖 GUIDE.md](./GUIDE.md)** - Hướng dẫn phát triển và kiến trúc code
-- **[📝 CODING_STANDARDS.md](./CODING_STANDARDS.md)** - Tiêu chuẩn đặt tên và quy ước code
+- **[RULE_OF_CODE.md](./RULE_OF_CODE.md)** - Quy tắc code và tiêu chuẩn phát triển chi tiết
+- **[GUIDE.md](./GUIDE.md)** - Hướng dẫn phát triển và kiến trúc code
+- **[ODING_STANDARDS.md](./CODING_STANDARDS.md)** - Tiêu chuẩn đặt tên và quy ước code
