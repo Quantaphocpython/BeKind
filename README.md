@@ -1,4 +1,6 @@
-# <img src="./public/images/logo.png" alt="BeKind" width="28" style="vertical-align:middle;" /> BeKind - Nền Tảng Từ Thiện Blockchain
+# <div style="text-align: center;margin-top:'20px'">
+#  <img src="./public/images/logo.png" alt="BeKind" width="32" style="vertical-align:middle;" /> BeKind - Nền Tảng Từ Thiện Blockchain
+</div>
 
 > Một nền tảng từ thiện hiện đại được xây dựng trên công nghệ blockchain, đảm bảo tính minh bạch, bảo mật và khả năng truy xuất cho mọi khoản quyên góp.
 
