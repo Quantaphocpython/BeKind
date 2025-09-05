@@ -310,6 +310,6 @@ bekind/
 
 ## Tài Liệu Khác
 
-- **[RULE_OF_CODE.md](./RULE_OF_CODE.md)** - Quy tắc code và tiêu chuẩn phát triển chi tiết
-- **[GUIDE.md](./GUIDE.md)** - Hướng dẫn phát triển và kiến trúc code
-- **[CODING_STANDARDS.md](./CODING_STANDARDS.md)** - Tiêu chuẩn đặt tên và quy ước code
+- **[RULE_OF_CODE.md](./docs/RULE_OF_CODE.md)** - Quy tắc code và tiêu chuẩn phát triển chi tiết
+- **[GUIDE.md](./docs/GUIDE.md)** - Hướng dẫn phát triển và kiến trúc code
+- **[CODING_STANDARDS.md](./docs/CODING_STANDARDS.md)** - Tiêu chuẩn đặt tên và quy ước code
