@@ -1,13 +1,28 @@
+<p align="center">
+  <img src="./public/images/logo.png" alt="BeKind Logo" width="80" height="80" />
+</p>
 
-# <img src="./public/images/logo.png" alt="BeKind" width="32" style="vertical-align:middle;" /> BeKind - Nền Tảng Từ Thiện Blockchain
+<h1 align="center">🌟 BeKind - Nền Tảng Từ Thiện Blockchain 🌟</h1>
 
 > Một nền tảng từ thiện hiện đại được xây dựng trên công nghệ blockchain, đảm bảo tính minh bạch, bảo mật và khả năng truy xuất cho mọi khoản quyên góp.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6.13.0-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
-[![Blockchain](https://img.shields.io/badge/Blockchain-Sepolia_Testnet-3C3C3D?style=for-the-badge&logo=ethereum)](https://ethereum.org/)
+<p align="center">
+  <a href="https://nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-15.3.5-black?style=for-the-badge&logo=next.js" />
+  </a>
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript" />
+  </a>
+  <a href="https://tailwindcss.com/">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css" />
+  </a>
+  <a href="https://www.mongodb.com/">
+    <img src="https://img.shields.io/badge/MongoDB-6.13.0-47A248?style=for-the-badge&logo=mongodb" />
+  </a>
+  <a href="https://ethereum.org/">
+    <img src="https://img.shields.io/badge/Blockchain-Sepolia_Testnet-3C3C3D?style=for-the-badge&logo=ethereum" />
+  </a>
+</p>
 
 ## Mục Lục
 
@@ -97,11 +112,6 @@ Ghi chú:
 - **Viem 2.x**: TypeScript interface cho Ethereum
 - **RainbowKit 2.2.8**: Wallet connection UI
 - **Sepolia Testnet**: Môi trường test blockchain chính thức
-
-### Email & Communication
-
-- **Brevo (Sendinblue)**: Email service với template HTML
-- **File-based Templates**: Template email lưu trữ local
 
 ### Development Tools
 
