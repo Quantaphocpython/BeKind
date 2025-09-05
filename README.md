@@ -2,15 +2,13 @@
   <img src="./public/images/logo.png" alt="BeKind Logo" width="80" height="80" />
 </p>
 
-<h1 align="center">🌟 BeKind - Nền Tảng Từ Thiện Blockchain 🌟</h1>
+<h1 align="center">BeKind - Nền Tảng Từ Thiện Blockchain</h1>
 
 > Một nền tảng từ thiện hiện đại được xây dựng trên công nghệ blockchain, đảm bảo tính minh bạch, bảo mật và khả năng truy xuất cho mọi khoản quyên góp.
 
 <p align="center">
   <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15.3.5-black?style=for-the-badge&logo=next.js"/></a> <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript"/></a> <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css"/></a> <a href="https://www.mongodb.com/"><img src="https://img.shields.io/badge/MongoDB-6.13.0-47A248?style=for-the-badge&logo=mongodb"/></a> <a href="https://ethereum.org/"><img src="https://img.shields.io/badge/Blockchain-Sepolia_Testnet-3C3C3D?style=for-the-badge&logo=ethereum"/></a>
 </p>
-
-
 
 ## Mục Lục
 
