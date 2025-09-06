@@ -347,12 +347,19 @@ export const MilestoneWithdrawalCardCompact = ({ campaign, className }: Mileston
               </span>
               {t('Withdraw Funds')}
             </DialogTitle>
-            <DialogDescription>{t('Enter the amount you want to withdraw from this campaign')}</DialogDescription>
+            <DialogDescription>{t('Confirm the withdrawal of funds from this campaign')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-5 relative">
             <div className="space-y-2">
               <Label htmlFor="withdrawAmount">{t('Withdrawal Amount (ETH)')}</Label>
-              <Input id="withdrawAmount" type="number" value={withdrawAmount} readOnly className="bg-background/60" />
+              <Input
+                id="withdrawAmount"
+                disabled
+                type="number"
+                value={withdrawAmount}
+                readOnly
+                className="bg-background/60"
+              />
             </div>
 
             <div className="flex justify-end gap-3">
