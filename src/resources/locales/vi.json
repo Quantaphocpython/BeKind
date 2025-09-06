@@ -528,5 +528,15 @@
   "Are there any fees?": "Có phí không?",
   "Network gas fees apply. Platform fees may be minimal to support operations and are shown before confirmation.": "Có phí gas mạng. Phí nền tảng (nếu có) ở mức tối thiểu để vận hành và sẽ hiển thị trước khi xác nhận.",
   "How can I get support?": "Liên hệ hỗ trợ bằng cách nào?",
-  "Use the Contact page or open a support ticket. We aim to respond within 24 hours.": "Dùng trang Liên hệ hoặc gửi ticket hỗ trợ. Chúng tôi cố gắng phản hồi trong vòng 24 giờ."
+  "Use the Contact page or open a support ticket. We aim to respond within 24 hours.": "Dùng trang Liên hệ hoặc gửi ticket hỗ trợ. Chúng tôi cố gắng phản hồi trong vòng 24 giờ.",
+  "Share your thoughts about this campaign": "Chia sẻ suy nghĩ của bạn về chiến dịch này",
+  "Wallet not connected": "Chưa kết nối ví",
+  "Show": "Hiện",
+  "Hide": "Ẩn",
+  "replies": "phản hồi",
+  "reply": "phản hồi",
+  "Show more comments": "Xem thêm bình luận",
+  "Show less comments": "Ẩn bớt bình luận",
+  "more": "nữa",
+  "Write a reply...": "Viết phản hồi..."
 }

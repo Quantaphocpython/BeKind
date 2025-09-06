@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { container, TYPES } from '@/features/Common/container'
-import { UserDisplay } from '@/features/User'
+import { UserDisplay, useUser } from '@/features/User'
 import type { CommentDto } from '@/server/dto/campaign.dto'
 import { useApiMutation, useApiQuery, useTranslations } from '@/shared/hooks'
 import { formatRelativeTime } from '@/shared/utils/time'
@@ -25,6 +25,7 @@ interface CommentWithReplies extends CommentDto {
 
 export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const { address } = useAccount()
+  const { user: currentUser } = useUser()
   const t = useTranslations()
 
   // Get current locale for date formatting
@@ -48,6 +49,8 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
       select: (response) => response.data || [],
     },
   )
+
+  console.log('comments', comments)
 
   // Create comment mutation
   const createCommentMutation = useApiMutation(
@@ -170,33 +173,38 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
       <CardContent className="space-y-6">
         {/* Add new comment */}
         <div className="space-y-3">
-          <div className="flex gap-3">
-            <UserDisplay
-              address={address}
-              name={undefined} // Will show short address
-              size="md"
-              showAddress={false}
-              className="flex-shrink-0"
-            />
-            <div className="flex-1 space-y-2">
-              <Textarea
-                placeholder={address ? t('Write a thoughtful comment...') : t('Connect your wallet to comment')}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[88px] resize-none border-2 focus:border-primary/50 transition-colors"
-                disabled={!address || isSubmitting}
+          {/* User info above input */}
+          {address && (
+            <div className="flex items-center gap-3 pb-2">
+              <UserDisplay
+                address={currentUser?.address || address}
+                name={currentUser?.name || undefined}
+                size="sm"
+                showAddress={false}
+                className="flex-shrink-0"
               />
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                {!address ? <span>{t('Wallet not connected')}</span> : <span />}
-                <Button
-                  onClick={handleSubmitComment}
-                  disabled={!address || !newComment.trim() || isSubmitting}
-                  size="sm"
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  {isSubmitting ? t('Posting...') : t('Post Comment')}
-                </Button>
-              </div>
+              <span className="text-sm text-muted-foreground">{t('Share your thoughts about this campaign')}</span>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Textarea
+              placeholder={address ? t('Write a thoughtful comment...') : t('Connect your wallet to comment')}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="min-h-[88px] resize-none border-2 focus:border-primary/50 transition-colors"
+              disabled={!address || isSubmitting}
+            />
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              {!address ? <span>{t('Wallet not connected')}</span> : <span />}
+              <Button
+                onClick={handleSubmitComment}
+                disabled={!address || !newComment.trim() || isSubmitting}
+                size="sm"
+                className="bg-primary hover:bg-primary/90"
+              >
+                {isSubmitting ? t('Posting...') : t('Post Comment')}
+              </Button>
             </div>
           </div>
         </div>
@@ -282,8 +290,8 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                           <div className="mt-3 space-y-2">
                             <div className="flex gap-3">
                               <UserDisplay
-                                address={address}
-                                name={undefined} // Will show short address
+                                address={currentUser?.address || address}
+                                name={currentUser?.name || undefined}
                                 size="sm"
                                 showAddress={false}
                                 className="flex-shrink-0"

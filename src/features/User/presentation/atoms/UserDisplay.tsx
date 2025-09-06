@@ -28,7 +28,7 @@ export const UserDisplay: React.FC<UserDisplayProps> = ({
   avatarClassName = '',
   nameClassName = '',
 }) => {
-  const displayName = name || getShortAddress(address || '')
+  const displayName = (name && name.trim()) || getShortAddress(address || '')
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
