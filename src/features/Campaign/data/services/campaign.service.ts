@@ -80,7 +80,7 @@ export class CampaignService {
 
   async createComment(
     id: string,
-    data: { content: string; parentId?: string; userId: string },
+    data: { content: string; parentId?: string; userAddress: string },
   ): Promise<HttpResponse<any>> {
     const url = routeConfig(ApiEndpointEnum.CampaignById, { id }, { action: 'comment' })
     return await this.httpClient.post(url, data)
