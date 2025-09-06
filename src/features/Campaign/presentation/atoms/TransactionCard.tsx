@@ -1,9 +1,9 @@
 'use client'
 
 import { Icons } from '@/components/icons'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
+import { UserDisplay } from '@/features/User'
+import { getShortAddress } from '@/features/User/data/utils/avatar.utils'
 import type { TransactionDto } from '@/server/dto/campaign.dto'
 import { useTranslations } from '@/shared/hooks/useTranslations'
 import { useLocale } from 'next-intl'
@@ -84,12 +84,13 @@ export const TransactionCard = ({ transaction, className }: TransactionCardProps
         <div className="flex items-center gap-3">
           {/* Compact Avatar */}
           <div className="relative">
-            <Avatar className="size-10 ring-2 ring-offset-1 ring-primary/30 group-hover:ring-primary/50 transition-all duration-300">
-              <AvatarImage src={generateUserAvatarSync(transaction.from)} alt="User" />
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary font-semibold text-sm">
-                {getShortAddress(transaction.from).slice(2, 4).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <UserDisplay
+              address={transaction.from}
+              name={undefined} // Will show short address
+              size="md"
+              showAddress={false}
+              className="ring-2 ring-offset-1 ring-primary/30 group-hover:ring-primary/50 transition-all duration-300"
+            />
             {/* Status indicator */}
             <div
               className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-background ${statusConfig.className.includes('success') ? 'bg-green-500' : statusConfig.className.includes('failed') ? 'bg-red-500' : 'bg-yellow-500'}`}
