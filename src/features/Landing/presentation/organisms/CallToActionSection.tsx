@@ -17,10 +17,7 @@ export default function CallToActionSection() {
 
   const handleLearnMore = () => {
     // Scroll to features section or navigate to about page
-    const featuresSection = document.getElementById('features')
-    if (featuresSection) {
-      featuresSection.scrollIntoView({ behavior: 'smooth' })
-    }
+    router.push(RouteEnum.About)
   }
 
   return (
