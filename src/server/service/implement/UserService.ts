@@ -2,6 +2,7 @@ import { User } from '@/features/Campaign/data/types'
 import { inject, injectable } from 'inversify'
 import { TYPES } from '../../container/types'
 import type { IUserRepository } from '../../repository/interface/UserRepository.interface'
+import { generateRandomUserNameWithNumber } from '../../utils/stringHelper'
 import type { IEmailService } from '../interface/EmailService.interface'
 import { IUserService } from '../interface/UserService.interface'
 
@@ -15,7 +16,12 @@ export class UserService implements IUserService {
   ) {}
 
   async createUser(data: { address: string; name?: string; email?: string }): Promise<User> {
-    return await this.userRepository.createUser(data)
+    // Generate random name if not provided
+    const userData = {
+      ...data,
+      name: data.name || generateRandomUserNameWithNumber(),
+    }
+    return await this.userRepository.createUser(userData)
   }
 
   async getUserByAddress(address: string): Promise<User | null> {

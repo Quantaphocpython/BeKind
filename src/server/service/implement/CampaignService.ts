@@ -92,8 +92,6 @@ export class CampaignService implements ICampaignService {
               createdAt: campaign.createdAt.toLocaleDateString(),
             },
           })
-        } else {
-          console.log('Skipping email notification: User has no email address')
         }
       } catch (emailError) {
         console.error('Failed to send email notification:', emailError)

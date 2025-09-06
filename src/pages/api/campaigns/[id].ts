@@ -208,9 +208,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(400).json(HttpResponseUtil.badRequest('userAddress is required'))
           }
 
-          // Get or create user
-          const existing = await userService.getUserByAddress(userAddress.toLowerCase())
-          const user = existing ?? (await userService.createUser({ address: userAddress.toLowerCase() }))
+          // Get user (user must exist since frontend validates login)
+          const user = await userService.getUserByAddress(userAddress)
+
+          if (!user) {
+            return res.status(400).json(HttpResponseUtil.badRequest('User not found. Please login first.'))
+          }
 
           const created = await campaignService.createComment({
             campaignId: BigInt(String(req.query.id)),

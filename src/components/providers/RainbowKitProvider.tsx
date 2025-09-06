@@ -1,3 +1,5 @@
+import { RouteEnum } from '@/shared/constants'
+import { useTranslations } from '@/shared/hooks'
 import { darkTheme, lightTheme, Locale, RainbowKitProvider as RainbowKitProviderRender } from '@rainbow-me/rainbowkit'
 import { useLocale } from 'next-intl'
 import { useTheme } from 'next-themes'
@@ -5,6 +7,7 @@ import { useTheme } from 'next-themes'
 const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
   const { theme } = useTheme()
   const locale = useLocale()
+  const t = useTranslations()
 
   return (
     <RainbowKitProviderRender
@@ -17,10 +20,11 @@ const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
         appName: 'BeKind',
         disclaimer: ({ Text, Link }) => (
           <Text>
-            By connecting your wallet, you agree to the <Link href="/terms">Terms of Service</Link> and{' '}
-            <Link href="/privacy">Privacy Policy</Link>.
+            {t('By connecting your wallet, you agree to the')} <Link href="/terms">{t('Terms of Service')}</Link>{' '}
+            {t('and')} <Link href="/privacy">{t('Privacy Policy')}</Link>.
           </Text>
         ),
+        learnMoreUrl: RouteEnum.About,
       }}
     >
       {children}

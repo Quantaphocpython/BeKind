@@ -36,7 +36,6 @@ export const UserProfileDropdown: React.FC = () => {
 
   const handleDisconnect = () => {
     disconnect()
-    router.push(RouteEnum.Home)
   }
 
   const handleChainClick = () => {
