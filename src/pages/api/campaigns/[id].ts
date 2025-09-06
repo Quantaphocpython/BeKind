@@ -210,8 +210,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
 
           // Get user (user must exist since frontend validates login)
-          const normalizedAddress = userAddress.toLowerCase()
-          const user = await userService.getUserByAddress(normalizedAddress)
+          const user = await userService.getUserByAddress(userAddress)
 
           if (!user) {
             return res.status(400).json(HttpResponseUtil.badRequest('User not found. Please login first.'))
