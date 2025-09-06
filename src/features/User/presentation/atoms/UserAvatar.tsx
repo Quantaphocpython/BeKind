@@ -17,7 +17,9 @@ const sizeClasses = {
 }
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({ address, name, size = 'md', className = '' }) => {
-  const avatarUrl = generateUserAvatarSync(address || '')
+  // Use address if available, otherwise use name as seed
+  const seed = address || name || ''
+  const avatarUrl = generateUserAvatarSync(seed)
   const displayName = name || getShortAddress(address || '')
   const fallbackText = displayName.slice(0, 2).toUpperCase()
 

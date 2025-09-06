@@ -16,6 +16,7 @@ const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
       locale={locale as Locale}
       coolMode
       showRecentTransactions
+      modalSize="compact"
       appInfo={{
         appName: 'BeKind',
         disclaimer: ({ Text, Link }) => (

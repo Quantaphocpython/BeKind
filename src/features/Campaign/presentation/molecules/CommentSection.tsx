@@ -224,7 +224,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                     <div className="group relative">
                       <div className="p-2 rounded-lg border bg-card hover:bg-muted/40 transition-all duration-200 hover:shadow-sm">
                         {/* User info at top */}
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2 mb-1">
                           <UserDisplay
                             address={comment.user?.address}
                             name={comment.user?.name || undefined}
