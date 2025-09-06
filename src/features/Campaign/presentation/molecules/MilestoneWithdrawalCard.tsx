@@ -553,6 +553,7 @@ export const MilestoneWithdrawalCard = ({ campaign, onchainBalance, className }:
                 type="number"
                 step="0.001"
                 min="0.001"
+                disabled
                 max={selectedMilestone ? (effectiveBalanceInEth * selectedMilestone.percentage) / 100 : balanceInEth}
                 value={withdrawAmount}
                 onChange={(e) => {

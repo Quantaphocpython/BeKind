@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Check if user is the campaign owner
-      if (campaign.owner !== user.id) {
+      if (campaign.owner !== user.address) {
         return res.status(403).json(HttpResponseUtil.error('Only campaign owner can create proofs'))
       }
 
