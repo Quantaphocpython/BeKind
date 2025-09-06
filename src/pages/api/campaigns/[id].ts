@@ -80,7 +80,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (action === 'comments') {
         try {
           const comments = await campaignService.listComments(campaignId)
-          console.log('comments', comments)
           const commentDtos = comments.map((c) => ({
             id: c.id,
             campaignId: c.campaignId.toString(),

@@ -1,3 +1,4 @@
+import { RouteEnum } from '@/shared/constants'
 import { useTranslations } from '@/shared/hooks'
 import { darkTheme, lightTheme, Locale, RainbowKitProvider as RainbowKitProviderRender } from '@rainbow-me/rainbowkit'
 import { useLocale } from 'next-intl'
@@ -23,6 +24,7 @@ const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
             {t('and')} <Link href="/privacy">{t('Privacy Policy')}</Link>.
           </Text>
         ),
+        learnMoreUrl: RouteEnum.About,
       }}
     >
       {children}
