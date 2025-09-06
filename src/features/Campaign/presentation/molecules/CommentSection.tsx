@@ -51,7 +51,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
         .createComment(campaignId, {
           content: data.content,
           parentId: data.parentId,
-          userId: address!,
+          userAddress: address!,
         })
         .then((res) => res.data),
     {
@@ -180,13 +180,13 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                   {/* Main comment */}
                   <div className="flex gap-3 p-4 rounded-lg border bg-card hover:bg-muted/40 transition-colors">
                     <Avatar className="size-10">
-                      <AvatarImage src={generateUserAvatarSync(comment.userId)} alt="User" />
+                      <AvatarImage src={generateUserAvatarSync(comment.user?.address || comment.userId)} alt="User" />
                       <AvatarFallback>U</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 space-y-2 min-w-0">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="text-sm font-medium truncate">
-                          {comment.user?.name || getShortAddress(comment.userId)}
+                          {comment.user?.name || getShortAddress(comment.user?.address || comment.userId)}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
                           {formatRelativeTime(new Date(comment.createdAt), locale)}
@@ -194,7 +194,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                         <button
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText(comment.userId)
+                              await navigator.clipboard.writeText(comment.user?.address || comment.userId)
                               toast.success('Address copied')
                             } catch {
                               toast.error('Failed to copy')
@@ -272,13 +272,16 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                           {replies.map((reply) => (
                             <div key={reply.id} className="flex gap-3">
                               <Avatar className="size-8">
-                                <AvatarImage src={generateUserAvatarSync(reply.userId)} alt="User" />
+                                <AvatarImage
+                                  src={generateUserAvatarSync(reply.user?.address || reply.userId)}
+                                  alt="User"
+                                />
                                 <AvatarFallback>U</AvatarFallback>
                               </Avatar>
                               <div className="flex-1 space-y-1 min-w-0">
                                 <div className="flex items-center gap-2 min-w-0">
                                   <span className="text-sm font-medium truncate">
-                                    {reply.user?.name || getShortAddress(reply.userId)}
+                                    {reply.user?.name || getShortAddress(reply.user?.address || reply.userId)}
                                   </span>
                                   <span className="text-[11px] text-muted-foreground">
                                     {formatRelativeTime(new Date(reply.createdAt), locale)}

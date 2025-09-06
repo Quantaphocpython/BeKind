@@ -201,27 +201,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           if (!content || typeof content !== 'string' || !content.trim()) {
             return res.status(400).json(HttpResponseUtil.badRequest('Comment content is required'))
           }
-          // Resolve user ObjectId from address or userId
-          let resolvedUserId: string | null = null
-          if (typeof userId === 'string' && userId && !userId.startsWith('0x')) {
-            resolvedUserId = userId
-          } else {
-            const addr = (userAddress || userId || '').toString()
-            if (!addr || typeof addr !== 'string' || !addr.startsWith('0x')) {
-              return res.status(400).json(HttpResponseUtil.badRequest('userAddress is required'))
-            }
-            const existing = await userService.getUserByAddress(addr.toLowerCase())
-            const user = existing ?? (await userService.createUser({ address: addr.toLowerCase() }))
-            resolvedUserId = user.id
+
+          // Get userAddress from request body
+          const { userAddress } = req.body
+          if (!userAddress || typeof userAddress !== 'string' || !userAddress.startsWith('0x')) {
+            return res.status(400).json(HttpResponseUtil.badRequest('userAddress is required'))
           }
+
+          // Get or create user
+          const existing = await userService.getUserByAddress(userAddress.toLowerCase())
+          const user = existing ?? (await userService.createUser({ address: userAddress.toLowerCase() }))
 
           const created = await campaignService.createComment({
             campaignId: BigInt(String(req.query.id)),
-            userId: resolvedUserId as string,
+            userId: user.id,
             content: content.trim(),
             parentId: parentId || undefined,
           })
-          return res.status(200).json(HttpResponseUtil.success(created, 'Comment created'))
+
+          // Convert BigInt to string for JSON serialization
+          const serializableCreated = {
+            ...created,
+            campaignId: created.campaignId.toString(),
+          }
+
+          return res.status(200).json(HttpResponseUtil.success(serializableCreated, 'Comment created'))
         } catch (error) {
           console.error('Error creating comment:', error)
           return res.status(500).json(HttpResponseUtil.error('Failed to create comment'))

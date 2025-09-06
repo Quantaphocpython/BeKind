@@ -7,7 +7,7 @@ export const CampaignDetailSkeleton = () => {
       <div className="container mx-auto py-6">
         {/* Banner Skeleton */}
         <div className="flex items-center justify-between">
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl">
+          <div className="relative aspect-[16/6] md:aspect-[16/5] w-full overflow-hidden rounded-2xl">
             <Skeleton className="w-full h-full" />
           </div>
         </div>
@@ -37,7 +37,7 @@ export const CampaignDetailSkeleton = () => {
               </Card>
 
               {/* Campaign Stats Skeleton */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base">
@@ -54,8 +54,10 @@ export const CampaignDetailSkeleton = () => {
                       <Skeleton className="h-4 w-20" />
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-3">
                     <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-2 w-full" />
+                    <Skeleton className="h-3 w-16" />
                   </CardContent>
                 </Card>
                 <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
@@ -66,16 +68,6 @@ export const CampaignDetailSkeleton = () => {
                   </CardHeader>
                   <CardContent>
                     <Skeleton className="h-8 w-16" />
-                  </CardContent>
-                </Card>
-                <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">
-                      <Skeleton className="h-4 w-20" />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-8 w-20" />
                   </CardContent>
                 </Card>
               </div>
@@ -118,16 +110,17 @@ export const CampaignDetailSkeleton = () => {
           <div className="lg:w-80 flex-shrink-0">
             <div className="flex flex-col gap-6">
               <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
-                <CardHeader>
-                  <CardTitle>
-                    <Skeleton className="h-6 w-32" />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
+                <CardContent className="px-6 text-center space-y-6">
+                  <div className="space-y-2">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                    </div>
+                    <Skeleton className="h-6 w-48 mx-auto" />
+                    <Skeleton className="h-4 w-64 mx-auto" />
+                  </div>
+                  <div className="space-y-3">
                     <Skeleton className="h-12 w-full" />
                     <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-10 w-full" />
                   </div>
                 </CardContent>
               </Card>
@@ -137,27 +130,6 @@ export const CampaignDetailSkeleton = () => {
 
         {/* Bottom Sections */}
         <div className="flex flex-col gap-6">
-          {/* Milestone Manager Skeleton */}
-          <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-5 w-5" />
-                  <CardTitle className="text-xl">
-                    <Skeleton className="h-6 w-24" />
-                  </CardTitle>
-                </div>
-                <Skeleton className="h-9 w-32" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Related Campaigns Skeleton */}
           <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
             <CardHeader className="pb-4">
@@ -180,30 +152,52 @@ export const CampaignDetailSkeleton = () => {
 
           {/* Comments Section Skeleton */}
           <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-5 w-5" />
-                <CardTitle>
-                  <Skeleton className="h-6 w-32" />
-                </CardTitle>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-5" />
+                  <CardTitle>
+                    <Skeleton className="h-6 w-32" />
+                  </CardTitle>
+                  <Skeleton className="h-5 w-8 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-48" />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Comment Input */}
-                <div className="space-y-3">
-                  <Skeleton className="h-20 w-full" />
-                  <div className="flex justify-end">
-                    <Skeleton className="h-9 w-24" />
+            <CardContent className="space-y-6">
+              {/* Comment Input */}
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-20 w-full" />
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-9 w-24" />
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Comment List */}
-                <div className="space-y-4">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
+              {/* Comment List */}
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex gap-3 p-4 rounded-lg border bg-card">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                        <Skeleton className="h-3 w-6 ml-auto" />
+                      </div>
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <div className="flex items-center gap-4">
+                        <Skeleton className="h-8 w-16" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
