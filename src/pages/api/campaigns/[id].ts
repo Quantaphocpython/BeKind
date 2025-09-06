@@ -197,30 +197,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(HttpResponseUtil.success(null, 'Milestones updated'))
       }
       if (action === 'comment') {
-        if (!content || typeof content !== 'string' || !content.trim()) {
-          return res.status(400).json(HttpResponseUtil.badRequest('Comment content is required'))
-        }
-        // Resolve user ObjectId from address or userId
-        let resolvedUserId: string | null = null
-        if (typeof userId === 'string' && userId && !userId.startsWith('0x')) {
-          resolvedUserId = userId
-        } else {
-          const addr = (userAddress || userId || '').toString()
-          if (!addr || typeof addr !== 'string' || !addr.startsWith('0x')) {
-            return res.status(400).json(HttpResponseUtil.badRequest('userAddress is required'))
+        try {
+          if (!content || typeof content !== 'string' || !content.trim()) {
+            return res.status(400).json(HttpResponseUtil.badRequest('Comment content is required'))
           }
-          const existing = await userService.getUserByAddress(addr.toLowerCase())
-          const user = existing ?? (await userService.createUser({ address: addr.toLowerCase() }))
-          resolvedUserId = user.id
-        }
+          // Resolve user ObjectId from address or userId
+          let resolvedUserId: string | null = null
+          if (typeof userId === 'string' && userId && !userId.startsWith('0x')) {
+            resolvedUserId = userId
+          } else {
+            const addr = (userAddress || userId || '').toString()
+            if (!addr || typeof addr !== 'string' || !addr.startsWith('0x')) {
+              return res.status(400).json(HttpResponseUtil.badRequest('userAddress is required'))
+            }
+            const existing = await userService.getUserByAddress(addr.toLowerCase())
+            const user = existing ?? (await userService.createUser({ address: addr.toLowerCase() }))
+            resolvedUserId = user.id
+          }
 
-        const created = await campaignService.createComment({
-          campaignId: BigInt(String(req.query.id)),
-          userId: resolvedUserId as string,
-          content: content.trim(),
-          parentId: parentId || undefined,
-        })
-        return res.status(200).json(HttpResponseUtil.success(created, 'Comment created'))
+          const created = await campaignService.createComment({
+            campaignId: BigInt(String(req.query.id)),
+            userId: resolvedUserId as string,
+            content: content.trim(),
+            parentId: parentId || undefined,
+          })
+          return res.status(200).json(HttpResponseUtil.success(created, 'Comment created'))
+        } catch (error) {
+          console.error('Error creating comment:', error)
+          return res.status(500).json(HttpResponseUtil.error('Failed to create comment'))
+        }
       }
       if (action === 'donated') {
         if (!userAddress || typeof userAddress !== 'string') {

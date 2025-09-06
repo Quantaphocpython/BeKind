@@ -431,20 +431,8 @@ export class CampaignService implements ICampaignService {
   }
 
   async listComments(campaignId: bigint): Promise<Comment[]> {
-    const comments = await this.campaignRepository.listComments(campaignId)
-
-    // Populate user information for each comment
-    const commentsWithUsers = await Promise.all(
-      comments.map(async (comment) => {
-        const user = await this.userService.getUserByAddress(comment.userId)
-        return {
-          ...comment,
-          user: user || undefined,
-        }
-      }),
-    )
-
-    return commentsWithUsers
+    // Repository already includes user relation, so we can return directly
+    return await this.campaignRepository.listComments(campaignId)
   }
 
   async listWithdrawals(campaignId: bigint): Promise<Withdrawal[]> {
