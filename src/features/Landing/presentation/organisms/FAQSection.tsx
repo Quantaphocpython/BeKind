@@ -34,7 +34,7 @@ export default function FAQSection() {
   ]
 
   return (
-    <section className="py-16 border-t">
+    <section className="py-16 border-t min-h-[620px]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mb-2">{t('Frequently Asked Questions')}</h2>
