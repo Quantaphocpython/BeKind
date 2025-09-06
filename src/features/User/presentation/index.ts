@@ -1,5 +1,6 @@
 // Atoms
 export * from './atoms/UserAvatar'
+export * from './atoms/UserDisplay'
 
 // Molecules
 export * from './molecules/UserProfileCard'

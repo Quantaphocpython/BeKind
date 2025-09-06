@@ -1,10 +1,9 @@
 'use client'
 
 import { Icons } from '@/components/icons'
+import { UserDisplay } from '@/features/User'
 import type { VoteDto } from '@/server/dto/campaign.dto'
-import { SupporterAddress } from '../atoms/SupporterAddress'
 import { SupporterAmount } from '../atoms/SupporterAmount'
-import { SupporterAvatar } from '../atoms/SupporterAvatar'
 import { SupporterDate } from '../atoms/SupporterDate'
 
 interface SupporterCardProps {
@@ -24,9 +23,11 @@ export const SupporterCard = ({ supporter, className }: SupporterCardProps) => {
         <div className="flex items-center gap-3">
           {/* Compact Avatar */}
           <div className="relative">
-            <SupporterAvatar
-              userId={supporter.userId}
+            <UserDisplay
+              address={supporter.user?.address}
+              name={supporter.user?.name || undefined}
               size="md"
+              showAddress={false}
               className="ring-2 ring-offset-1 ring-primary/30 group-hover:ring-primary/50 transition-all duration-300"
             />
             {/* Online indicator */}
@@ -36,7 +37,6 @@ export const SupporterCard = ({ supporter, className }: SupporterCardProps) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-2">
               <div className="space-y-0.5">
-                <SupporterAddress address={supporter.userId} />
                 <SupporterDate date={supporter.createdAt} />
               </div>
               {supporter.amount && (

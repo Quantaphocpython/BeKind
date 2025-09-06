@@ -1,12 +1,11 @@
 'use client'
 
 import { Icons } from '@/components/icons'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { container, TYPES } from '@/features/Common/container'
-import { generateUserAvatarSync, getShortAddress } from '@/features/User/data/utils/avatar.utils'
+import { UserDisplay } from '@/features/User'
 import type { CommentDto } from '@/server/dto/campaign.dto'
 import { useApiMutation, useApiQuery, useTranslations } from '@/shared/hooks'
 import { formatRelativeTime } from '@/shared/utils/time'
@@ -20,6 +19,10 @@ interface CommentSectionProps {
   campaignId: string
 }
 
+interface CommentWithReplies extends CommentDto {
+  replies: CommentDto[]
+}
+
 export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const { address } = useAccount()
   const t = useTranslations()
@@ -30,6 +33,8 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set())
+  const [showAllComments, setShowAllComments] = useState(false)
 
   // Get campaign service once and reuse with useMemo
   const campaignService = useMemo(() => container.get<CampaignService>(TYPES.CampaignService), [])
@@ -69,9 +74,22 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
     },
   )
 
-  // Group comments by parent (top-level comments)
-  const topLevelComments = comments.filter((comment) => !comment.parentId)
-  const replyComments = comments.filter((comment) => comment.parentId)
+  // Group comments by parent (top-level comments with their replies)
+  const groupedComments = useMemo(() => {
+    const topLevelComments = comments.filter((comment) => !comment.parentId)
+    const replyComments = comments.filter((comment) => comment.parentId)
+
+    return topLevelComments.map(
+      (comment): CommentWithReplies => ({
+        ...comment,
+        replies: replyComments.filter((reply) => reply.parentId === comment.id),
+      }),
+    )
+  }, [comments])
+
+  // Show only first 3 comments initially, or all if showAllComments is true
+  const displayedComments = showAllComments ? groupedComments : groupedComments.slice(0, 3)
+  const hasMoreComments = groupedComments.length > 3
 
   const handleSubmitComment = async () => {
     if (!address) {
@@ -112,8 +130,23 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
     }
   }
 
-  const getRepliesForComment = (commentId: string) => {
-    return replyComments.filter((reply) => reply.parentId === commentId)
+  const toggleReplies = (commentId: string) => {
+    const newExpanded = new Set(expandedComments)
+    if (newExpanded.has(commentId)) {
+      newExpanded.delete(commentId)
+    } else {
+      newExpanded.add(commentId)
+    }
+    setExpandedComments(newExpanded)
+  }
+
+  const handleReplyClick = (commentId: string) => {
+    setReplyingTo(replyingTo === commentId ? null : commentId)
+    setReplyText('')
+    // Auto-expand replies when starting to reply
+    if (!expandedComments.has(commentId)) {
+      setExpandedComments((prev) => new Set([...prev, commentId]))
+    }
   }
 
   if (isLoading) return <CommentSectionSkeleton />
@@ -138,16 +171,19 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
         {/* Add new comment */}
         <div className="space-y-3">
           <div className="flex gap-3">
-            <Avatar className="size-10 ring-2 ring-offset-1 ring-primary/20">
-              <AvatarImage src={address ? generateUserAvatarSync(address) : undefined} alt="You" />
-              <AvatarFallback>YO</AvatarFallback>
-            </Avatar>
+            <UserDisplay
+              address={address}
+              name={undefined} // Will show short address
+              size="md"
+              showAddress={false}
+              className="flex-shrink-0"
+            />
             <div className="flex-1 space-y-2">
               <Textarea
                 placeholder={address ? t('Write a thoughtful comment...') : t('Connect your wallet to comment')}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[88px] resize-none"
+                className="min-h-[88px] resize-none border-2 focus:border-primary/50 transition-colors"
                 disabled={!address || isSubmitting}
               />
               <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -156,6 +192,7 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
                   onClick={handleSubmitComment}
                   disabled={!address || !newComment.trim() || isSubmitting}
                   size="sm"
+                  className="bg-primary hover:bg-primary/90"
                 >
                   {isSubmitting ? t('Posting...') : t('Post Comment')}
                 </Button>
@@ -166,140 +203,187 @@ export const CommentSection = ({ campaignId }: CommentSectionProps) => {
 
         {/* Comments list */}
         <div className="space-y-4">
-          {topLevelComments.length === 0 ? (
+          {displayedComments.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-12 rounded-lg border bg-card">
               <Icons.messageSquare className="h-8 w-8 text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">{t('No comments yet.')}</p>
               <p className="text-xs text-muted-foreground">{t('Be the first to start the conversation.')}</p>
             </div>
           ) : (
-            topLevelComments.map((comment) => {
-              const replies = getRepliesForComment(comment.id)
+            displayedComments.map((comment) => {
+              const hasReplies = comment.replies.length > 0
+              const isExpanded = expandedComments.has(comment.id)
+              const isReplying = replyingTo === comment.id
+
               return (
                 <div key={comment.id} className="space-y-3">
                   {/* Main comment */}
-                  <div className="flex gap-3 p-4 rounded-lg border bg-card hover:bg-muted/40 transition-colors">
-                    <Avatar className="size-10">
-                      <AvatarImage src={generateUserAvatarSync(comment.user?.address || comment.userId)} alt="User" />
-                      <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 space-y-2 min-w-0">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-sm font-medium truncate">
-                          {comment.user?.name || getShortAddress(comment.user?.address || comment.userId)}
-                        </span>
-                        <span className="text-[11px] text-muted-foreground">
-                          {formatRelativeTime(new Date(comment.createdAt), locale)}
-                        </span>
-                        <button
-                          onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(comment.user?.address || comment.userId)
-                              toast.success('Address copied')
-                            } catch {
-                              toast.error('Failed to copy')
-                            }
-                          }}
-                          className="ml-auto text-[11px] text-muted-foreground hover:text-primary transition-colors"
-                          title="Copy address"
-                        >
-                          📋
-                        </button>
-                      </div>
-                      <p className="text-sm text-foreground whitespace-pre-wrap break-words">{comment.content}</p>
-                      <div className="flex items-center gap-4">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                          disabled={!address}
-                          className="h-8 px-2 text-xs"
-                        >
-                          <Icons.messageSquare className="h-3 w-3 mr-1" />
-                          {t('Reply')}
-                        </Button>
-                        {replies.length > 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            {replies.length} {t('replies')} {replies.length > 1 ? t('ies') : t('y')}
+                  <div className="group relative">
+                    <div className="flex gap-3 p-4 rounded-xl border bg-card hover:bg-muted/40 transition-all duration-200 hover:shadow-sm">
+                      <UserDisplay
+                        address={comment.user?.address}
+                        name={comment.user?.name || undefined}
+                        size="md"
+                        showAddress={false}
+                        className="flex-shrink-0"
+                      />
+                      <div className="flex-1 space-y-2 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-xs text-muted-foreground font-medium">
+                            {formatRelativeTime(new Date(comment.createdAt), locale)}
                           </span>
-                        )}
-                      </div>
-
-                      {/* Reply form */}
-                      {replyingTo === comment.id && (
-                        <div className="mt-3 space-y-2">
-                          <div className="flex gap-3">
-                            <Avatar className="size-8">
-                              <AvatarImage src={address ? generateUserAvatarSync(address) : undefined} alt="You" />
-                              <AvatarFallback>YO</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 space-y-2">
-                              <Textarea
-                                placeholder={t('Write a reply...')}
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                className="min-h-[60px] resize-none text-sm"
-                                disabled={!address || isSubmitting}
+                          <button
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(comment.user?.address || comment.userId)
+                                toast.success('Address copied')
+                              } catch {
+                                toast.error('Failed to copy')
+                              }
+                            }}
+                            className="ml-auto text-xs text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                            title="Copy address"
+                          >
+                            📋
+                          </button>
+                        </div>
+                        <p className="text-sm text-foreground whitespace-pre-wrap break-words leading-relaxed">
+                          {comment.content}
+                        </p>
+                        <div className="flex items-center gap-4 pt-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleReplyClick(comment.id)}
+                            disabled={!address}
+                            className="h-8 px-2 text-xs hover:bg-primary/10 hover:text-primary"
+                          >
+                            <Icons.messageSquare className="h-3 w-3 mr-1" />
+                            {t('Reply')}
+                          </Button>
+                          {hasReplies && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleReplies(comment.id)}
+                              className="h-8 px-2 text-xs hover:bg-primary/10 hover:text-primary"
+                            >
+                              <Icons.chevronDown
+                                className={`h-3 w-3 mr-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                               />
-                              <div className="flex gap-2 justify-end">
-                                <Button
-                                  onClick={() => handleSubmitReply(comment.id)}
-                                  disabled={!address || !replyText.trim() || isSubmitting}
-                                  size="sm"
-                                  variant="outline"
-                                >
-                                  {isSubmitting ? t('Posting...') : t('Reply')}
-                                </Button>
-                                <Button
-                                  onClick={() => {
-                                    setReplyingTo(null)
-                                    setReplyText('')
-                                  }}
-                                  size="sm"
-                                  variant="ghost"
-                                >
-                                  {t('Cancel')}
-                                </Button>
+                              {isExpanded ? t('Hide') : t('Show')} {comment.replies.length}{' '}
+                              {comment.replies.length === 1 ? t('reply') : t('replies')}
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Reply form */}
+                        {isReplying && (
+                          <div className="mt-3 space-y-2">
+                            <div className="flex gap-3">
+                              <UserDisplay
+                                address={address}
+                                name={undefined} // Will show short address
+                                size="sm"
+                                showAddress={false}
+                                className="flex-shrink-0"
+                              />
+                              <div className="flex-1 space-y-2">
+                                <Textarea
+                                  placeholder={t('Write a reply...')}
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  className="min-h-[60px] resize-none text-sm border-2 focus:border-primary/50 transition-colors"
+                                  disabled={!address || isSubmitting}
+                                />
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    onClick={() => handleSubmitReply(comment.id)}
+                                    disabled={!address || !replyText.trim() || isSubmitting}
+                                    size="sm"
+                                    className="bg-primary hover:bg-primary/90"
+                                  >
+                                    {isSubmitting ? t('Posting...') : t('Reply')}
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      setReplyingTo(null)
+                                      setReplyText('')
+                                    }}
+                                    size="sm"
+                                    variant="outline"
+                                  >
+                                    {t('Cancel')}
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-
-                      {/* Replies */}
-                      {replies.length > 0 && (
-                        <div className="ml-6 md:ml-10 mt-3 border-l pl-4 space-y-3">
-                          {replies.map((reply) => (
-                            <div key={reply.id} className="flex gap-3">
-                              <Avatar className="size-8">
-                                <AvatarImage
-                                  src={generateUserAvatarSync(reply.user?.address || reply.userId)}
-                                  alt="User"
-                                />
-                                <AvatarFallback>U</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 space-y-1 min-w-0">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <span className="text-sm font-medium truncate">
-                                    {reply.user?.name || getShortAddress(reply.user?.address || reply.userId)}
-                                  </span>
-                                  <span className="text-[11px] text-muted-foreground">
-                                    {formatRelativeTime(new Date(reply.createdAt), locale)}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-foreground whitespace-pre-wrap break-words">
-                                  {reply.content}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
+
+                    {/* Replies */}
+                    {hasReplies && isExpanded && (
+                      <div className="ml-8 mt-3 space-y-3 border-l-2 border-muted/50 pl-4">
+                        {comment.replies.map((reply) => (
+                          <div
+                            key={reply.id}
+                            className="flex gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                          >
+                            <UserDisplay
+                              address={reply.user?.address}
+                              name={reply.user?.name || undefined}
+                              size="sm"
+                              showAddress={false}
+                              className="flex-shrink-0"
+                            />
+                            <div className="flex-1 space-y-1 min-w-0">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-xs text-muted-foreground">
+                                  {formatRelativeTime(new Date(reply.createdAt), locale)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-foreground whitespace-pre-wrap break-words leading-relaxed">
+                                {reply.content}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )
             })
+          )}
+
+          {/* Show more comments button */}
+          {hasMoreComments && !showAllComments && (
+            <div className="flex justify-center pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowAllComments(true)}
+                className="border-primary/20 hover:bg-primary/10 hover:border-primary/30"
+              >
+                <Icons.chevronDown className="h-4 w-4 mr-2" />
+                {t('Show more comments')} ({groupedComments.length - 3} {t('more')})
+              </Button>
+            </div>
+          )}
+
+          {/* Show less comments button */}
+          {hasMoreComments && showAllComments && (
+            <div className="flex justify-center pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowAllComments(false)}
+                className="border-primary/20 hover:bg-primary/10 hover:border-primary/30"
+              >
+                <Icons.chevronDown className="h-4 w-4 mr-2 rotate-180" />
+                {t('Show less comments')}
+              </Button>
+            </div>
           )}
         </div>
       </CardContent>
