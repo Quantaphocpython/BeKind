@@ -383,7 +383,7 @@ export class CampaignService implements ICampaignService {
   async closeCampaign(campaignId: bigint, ownerAddress: string): Promise<Campaign> {
     // Verify ownership
     const campaign = await this.campaignRepository.getCampaignById(campaignId)
-    if (!campaign || campaign.owner !== ownerAddress) {
+    if (!campaign || campaign.ownerUser?.address !== ownerAddress) {
       throw new Error('Not authorized to close this campaign')
     }
 
