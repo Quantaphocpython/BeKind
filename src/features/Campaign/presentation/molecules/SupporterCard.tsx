@@ -1,6 +1,5 @@
 'use client'
 
-import { Icons } from '@/components/icons'
 import { UserDisplay } from '@/features/User'
 import type { VoteDto } from '@/server/dto/campaign.dto'
 import { SupporterAmount } from '../atoms/SupporterAmount'
@@ -14,56 +13,61 @@ interface SupporterCardProps {
 export const SupporterCard = ({ supporter, className }: SupporterCardProps) => {
   return (
     <div
-      className={`group relative overflow-hidden rounded-lg border bg-gradient-to-br from-card via-card to-muted/20 hover:from-card/80 hover:to-muted/30 transition-all duration-300 hover:shadow-md ${className || ''}`}
+      className={`group relative overflow-hidden rounded-xl border border-border/50 bg-gradient-to-br from-card via-card to-muted/10 hover:from-card/90 hover:to-muted/20 transition-all duration-300 hover:shadow-lg hover:border-primary/20 ${className || ''}`}
     >
-      {/* Gradient border effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <div className="relative p-4">
-        <div className="flex items-center gap-3">
-          {/* Compact Avatar */}
+      <div className="relative p-5">
+        {/* User Display - Top Section với không gian riêng */}
+        <div className="flex items-center gap-3 mb-4">
           <div className="relative">
             <UserDisplay
               address={supporter.user?.address}
               name={supporter.user?.name || undefined}
-              size="md"
+              size="lg"
               showAddress={false}
-              className="ring-2 ring-offset-1 ring-primary/30 group-hover:ring-primary/50 transition-all duration-300"
+              className="hover:scale-105 transition-transform duration-200"
+              avatarClassName="shadow-lg hover:shadow-xl transition-shadow duration-200"
             />
-            {/* Online indicator */}
-            <div className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-background bg-green-500" />
+            {/* Enhanced online indicator */}
+            <div className="absolute -bottom-1 -right-1 size-4 rounded-full border-2 border-background bg-green-500 shadow-sm">
+              <div className="absolute inset-0 rounded-full bg-green-400 animate-pulse opacity-75" />
+            </div>
           </div>
+        </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-2">
-              <div className="space-y-0.5">
-                <SupporterDate date={supporter.createdAt} />
+        {/* Transaction Details - Bottom Section */}
+        <div className="space-y-3">
+          {/* Date and Amount Row */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SupporterDate date={supporter.createdAt} />
+            </div>
+            {supporter.amount && (
+              <div className="text-right">
+                <SupporterAmount amount={supporter.amount} />
               </div>
-              {supporter.amount && (
-                <div className="text-right">
-                  <SupporterAmount amount={supporter.amount} />
-                </div>
-              )}
-            </div>
-
-            {/* Transaction details compact */}
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              {supporter.transactionHash && (
-                <div className="flex items-center gap-1">
-                  <Icons.hash className="h-3 w-3" />
-                  <span className="font-mono">
-                    {supporter.transactionHash.slice(0, 6)}...{supporter.transactionHash.slice(-4)}
-                  </span>
-                </div>
-              )}
-              {supporter.blockNumber && (
-                <div className="flex items-center gap-1">
-                  <Icons.layers className="h-3 w-3" />
-                  <span className="font-mono">#{supporter.blockNumber}</span>
-                </div>
-              )}
-            </div>
+            )}
           </div>
+
+          {/* Transaction Hash and Block Number */}
+          {/* <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            {supporter.transactionHash && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted/70 transition-colors duration-200">
+                <Icons.hash className="h-3 w-3" />
+                <span className="font-mono text-xs">
+                  {supporter.transactionHash.slice(0, 6)}...{supporter.transactionHash.slice(-4)}
+                </span>
+              </div>
+            )}
+            {supporter.blockNumber && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted/70 transition-colors duration-200">
+                <Icons.layers className="h-3 w-3" />
+                <span className="font-mono text-xs">#{supporter.blockNumber}</span>
+              </div>
+            )}
+          </div> */}
         </div>
       </div>
     </div>
