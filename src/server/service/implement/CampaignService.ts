@@ -250,6 +250,13 @@ export class CampaignService implements ICampaignService {
           }
         }
 
+        // Fetch user information from database
+        const user = await this.getUserByAddress(entry.donor)
+        console.log(
+          `Fetching user for address ${entry.donor}:`,
+          user ? { name: user.name, address: user.address } : 'No user found',
+        )
+
         results.push({
           id: `${entry.txHash}-${entry.logIndex}`,
           campaignId: campaignId.toString(),
@@ -258,6 +265,15 @@ export class CampaignService implements ICampaignService {
           amount: ethers.formatEther(entry.amount),
           transactionHash: entry.txHash,
           blockNumber: entry.blockNumber,
+          user: user
+            ? {
+                id: user.id,
+                address: user.address,
+                name: user.name,
+                trustScore: user.trustScore,
+                createdAt: user.createdAt.toISOString(),
+              }
+            : undefined,
         })
       }
 
@@ -620,6 +636,12 @@ export class CampaignService implements ICampaignService {
 
   async getUserByAddress(address: string): Promise<User | null> {
     return await this.userService.getUserByAddress(address)
+  }
+
+  // Debug method to clear supporters cache
+  clearSupportersCache(): void {
+    this.supportersCache.clear()
+    console.log('Supporters cache cleared')
   }
 
   async markMilestoneAsReleased(campaignId: bigint, milestoneIndex: number): Promise<void> {
