@@ -45,7 +45,7 @@ export default function Header() {
   return (
     <header
       id="app-header"
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-[var(--header-height)]"
+      className="app-bar w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-[var(--header-height)]"
     >
       <div className="container relative mx-auto px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] items-center h-[var(--header-height)]">
         {/* Logo */}

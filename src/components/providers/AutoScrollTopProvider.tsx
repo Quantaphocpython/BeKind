@@ -14,6 +14,7 @@ export const AutoScrollTopProvider = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useIsomorphicEffect(() => {
+    console.log('run')
     const prevPathname = prevPathnameRef.current
 
     // Clear any existing timeout
