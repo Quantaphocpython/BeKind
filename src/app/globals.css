@@ -238,6 +238,11 @@
     min-height: 0;
   }
 
+  .app-bar {
+    position: relative;
+    z-index: 2;
+  }
+
   [data-radix-popper-content-wrapper] {
     background: none !important;
   }
