@@ -1,10 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { useRouter } from '@/configs/i18n/navigation'
 import { RouteEnum } from '@/shared/constants/RouteEnum'
 import { useTranslations } from '@/shared/hooks'
 import { routeConfig } from '@/shared/utils/route'
-import { useRouter } from 'next/navigation'
 
 export default function CallToActionSection() {
   const t = useTranslations()

@@ -314,7 +314,7 @@ const Component = () => {
 ```typescript
 // 1. React imports
 import React, { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/configs/i18n/navigation'
 
 // 2. Third party libraries
 import { motion } from 'framer-motion'

@@ -11,10 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useRouter } from '@/configs/i18n/navigation'
 import { RouteEnum } from '@/shared/constants'
 import { useTranslations } from '@/shared/hooks'
 import { useChainModal } from '@rainbow-me/rainbowkit'
-import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
 import { useUser } from '../../data/hooks'
