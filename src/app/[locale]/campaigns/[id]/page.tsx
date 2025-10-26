@@ -1,13 +1,3 @@
-import LoadingSpinner from '@/components/common/atoms/Loading/LoadingSpinner'
-import dynamic from 'next/dynamic'
+import CampaignDetailPage from '@/features/Campaign/presentation/pages/CampaignDetailPage'
 
-const CampaignDetailPage = dynamic(
-  () => import('@/features/Campaign/presentation/pages/CampaignDetailPage').then((mod) => mod.CampaignDetailPage),
-  {
-    loading: () => <LoadingSpinner />,
-  },
-)
-
-export default function CampaignDetail() {
-  return <CampaignDetailPage />
-}
+export default CampaignDetailPage

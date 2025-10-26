@@ -1,13 +1,3 @@
-import LoadingSpinner from '@/components/common/atoms/Loading/LoadingSpinner'
-import dynamic from 'next/dynamic'
+import CreateProofPage from '@/features/Campaign/presentation/pages/CreateProofPage'
 
-const CreateProofPage = dynamic(
-  () => import('@/features/Campaign/presentation/pages/CreateProofPage').then((mod) => mod.CreateProofPage),
-  {
-    loading: () => <LoadingSpinner />,
-  },
-)
-
-export default function CreateProof() {
-  return <CreateProofPage />
-}
+export default CreateProofPage
